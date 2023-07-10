@@ -142,7 +142,8 @@ This will produce a cluster file with the following header [id, nomenclature, le
 ├── distances.{text|parquet} - Three column file of [query_id, ref_if, distance]
 ├── thresholds.json - JSON formated mapping of columns to distance thresholds
 ├── clusters.{text|parquet} - Either symmetric distance matrix or three column file of [query_id, ref_if, distance]
-└── run.json - Contains logging information for the run including parameters and threshold mapping info
+├── tree.newick - Newick formatted dendrogram of the linkage matrix produced by SciPy
+└── run.json - Contains logging information for the run including parameters, newick tree, and threshold mapping info
 ```
 
 **Cluster assignment**
