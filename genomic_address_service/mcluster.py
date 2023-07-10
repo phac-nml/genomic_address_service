@@ -1,12 +1,12 @@
-import os.path
+import os
 import sys
 import json
 from datetime import datetime
 from argparse import (ArgumentParser, ArgumentDefaultsHelpFormatter, RawDescriptionHelpFormatter)
-from src.version import __version__
-from src.constants import CLUSTER_METHODS, MC_RUN_DATA
-from src.classes.multi_level_clustering import multi_level_clustering
-from src.utils import is_file_ok
+from genomic_address_service.version import __version__
+from genomic_address_service.constants import CLUSTER_METHODS, MC_RUN_DATA
+from genomic_address_service.classes.multi_level_clustering import multi_level_clustering
+from genomic_address_service.utils import is_file_ok, format_threshold_map, write_threshold_map
 
 def parse_args():
     class CustomFormatter(ArgumentDefaultsHelpFormatter, RawDescriptionHelpFormatter):
@@ -38,17 +38,6 @@ def write_clusters(clusters,num_thresholds,file,delimeter="."):
             address = f'{delimeter}'.join([str(x) for x in clusters[id]])
             fh.write("{}\n".format("\t".join(str(x) for x in ([id, address ] + clusters[id]))))
 
-def format_threshold_map(thresholds):
-    data = {}
-    for i,value in enumerate(thresholds):
-        data[f'level_{i+1}'] = value
-    return data
-
-def write_threshold_map(data,file):
-    with open(file,'w') as fh:
-        fh.write(json.dumps(data, indent=4))
-
-    fh.close()
 
 
 def run():
@@ -93,6 +82,9 @@ def run():
     write_clusters(memberships, len(thresholds), run_data['result_file'], delimeter)
 
     write_threshold_map(t_map, os.path.join(outdir,"thresholds.json"))
+
+    with open(os.path.join(outdir,"tree.nwk"),'w') as fh:
+        fh.write(f"{mc.newick}\n")
 
     run_data['analysis_end_time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
