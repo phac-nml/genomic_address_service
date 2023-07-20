@@ -7,7 +7,7 @@ from genomic_address_service.version import __version__
 from genomic_address_service.constants import CLUSTER_METHODS, CALL_RUN_DATA
 from genomic_address_service.utils import is_file_ok, write_threshold_map, write_cluster_assignments, \
 init_threshold_map
-from genomic_address_service.classes import assign
+from genomic_address_service.classes.assign import assign
 
 
 def parse_args():
