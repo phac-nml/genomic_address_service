@@ -51,6 +51,13 @@ class assign:
         self.threshold_map = {k: v for k, v in sorted(threshold_map.items(), key=lambda item: item[1])}
         self.thresholds = sorted(list(self.threshold_map.values()))
 
+        columns = self.memberships_df.columns.values.tolist()
+        filt_columns = []
+        for c in columns:
+            if c in ['id','sample_id','sample','st','address','genotype','nomenclature']:
+                continue
+            filt_columns.append(c)
+
         if not self.check_membership_columns():
             self.error_msgs.append(f'Could not find a threshold for all columns in: {membership_file}: {self.memberships_df.columns.values.tolist()} vs. {list(self.threshold_map.keys())}')
             self.status = False
