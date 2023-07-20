@@ -32,13 +32,15 @@ class assign:
             self.error_msgs.append(f'Provided {dist_file} file does not exist or is empty')
             self.status = False
 
+        print(self.query_df.columns.values.tolist())
+
         if file_type is None:
             self.status = False
 
         if not self.status:
             return
 
-        if is_file_ok(dist_file):
+        if is_file_ok(membership_file):
             (membership_file, self.memberships_df) = self.read_data(membership_file)
         else:
             self.error_msgs.append(f'Provided {membership_file} file does not exist or is empty')
@@ -62,14 +64,15 @@ class assign:
             self.error_msgs.append(f'Could not find a threshold for all columns in: {membership_file}: {filt_columns} vs. {list(self.threshold_map.keys())}')
             self.status = False
 
-
-
+        print(self.query_df.columns.values.tolist())
         if not self.status:
             return
 
         if not linkage_method in self.avail_methods:
             self.status = False
             self.error_msgs.append(f'Provided {linkage_method} is not one of the accepted {self.avail_methods}')
+
+        print(self.query_df.columns.values.tolist())
 
         self.query_labels = set(self.query_df.columns.values.tolist())
         self.process_memberships()
