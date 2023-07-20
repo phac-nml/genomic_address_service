@@ -3,12 +3,10 @@ import sys
 import json
 from datetime import datetime
 from argparse import (ArgumentParser, ArgumentDefaultsHelpFormatter, RawDescriptionHelpFormatter)
-
-import pandas as pd
-
 from genomic_address_service.version import __version__
 from genomic_address_service.constants import CLUSTER_METHODS, CALL_RUN_DATA
-from genomic_address_service.utils import is_file_ok, write_threshold_map, write_cluster_assignments
+from genomic_address_service.utils import is_file_ok, write_threshold_map, write_cluster_assignments, \
+init_threshold_map
 from genomic_address_service.classes import assign
 
 
@@ -27,31 +25,13 @@ def parse_args():
                         default='average')
     parser.add_argument('-t', '--thresholds', type=str, required=False, help='thresholds delimited by , columns will be treated in sequential order')
     parser.add_argument('-o','--outdir', type=str, required=True, help='Output directory to put cluster results')
-    parser.add_argument('-f', '--outfmt', type=str, required=False, help='Output format for assignments [text, parquet]',default='text')
-    parser.add_argument('-d', '--delimeter', type=str, required=False, help='delimeter desired for nomenclature code',default=".")
+    parser.add_argument('-u', '--outfmt', type=str, required=False, help='Output format for assignments [text, parquet]',default='text')
+    parser.add_argument('-l', '--delimeter', type=str, required=False, help='delimeter desired for nomenclature code',default=".")
     parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
     parser.add_argument('-f', '--force', required=False, help='Overwrite existing directory',
                         action='store_true')
 
     return parser.parse_args()
-
-def init_threshold_map(file,thresholds):
-    thresh_map = {}
-    df = pd.read_csv(file,header=0,sep="\t")
-    cols = df.columns.values.tolist()
-    valid_cols = []
-    for idx,value in cols:
-        if value in ['sample_id','id','ST','nomenclature']:
-            continue
-        valid_cols.append(value)
-
-    if len(valid_cols) != len(thresholds):
-        return {}
-
-    for idx,value in valid_cols:
-        thresh_map[value] = thresholds[idx]
-
-    return thresh_map
 
 
 
