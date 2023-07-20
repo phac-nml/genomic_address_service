@@ -58,7 +58,7 @@ class assign:
                 continue
             filt_columns.append(c)
 
-        if not self.check_membership_columns():
+        if not self.check_membership_columns(filt_columns):
             self.error_msgs.append(f'Could not find a threshold for all columns in: {membership_file}: {filt_columns} vs. {list(self.threshold_map.keys())}')
             self.status = False
 
@@ -80,8 +80,7 @@ class assign:
 
 
 
-    def check_membership_columns(self):
-        cols = self.memberships_df.columns.values.tolist()[1:]
+    def check_membership_columns(self,cols):
         is_ok = True
         for c in cols:
             if not c in self.threshold_map:
