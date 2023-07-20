@@ -1,11 +1,14 @@
 import pandas as pd
 import scipy
 
+
 class multi_level_clustering:
     cluster_memberships = {}
     thresholds = []
     labels = []
     linkage = None
+    newick = None
+
 
     def __init__(self,dist_mat_file,thresholds,method):
         df = self.read_matrix(dist_mat_file).astype(float)
@@ -16,6 +19,7 @@ class multi_level_clustering:
         self.linkage = scipy.cluster.hierarchy.linkage(matrix, method=method, metric='precomputed')
         self.init_membership()
         self.assign_clusters()
+        self.linkage_to_newick()
 
     def init_membership(self):
         for label in self.labels:
@@ -32,8 +36,26 @@ class multi_level_clustering:
                 self.cluster_memberships[label].append(f'{clusters[cid]}')
                 cid+=1
 
+    def linkage_to_newick(self):
+        tree = scipy.cluster.hierarchy.to_tree(self.linkage)
+        self.newick = self.buildNewick(tree, "", tree.dist, self.labels)
+
+    def buildNewick(self,node, newick, parentdist, leaf_names):
+        if node.is_leaf():
+            return "%s:%f%s" % (leaf_names[node.id], parentdist - node.dist, newick)
+        else:
+            if len(newick) > 0:
+                newick = f"):{(parentdist - node.dist) / 2}{newick}"
+            else:
+                newick = ");"
+            newick = self.buildNewick(node.get_left(), newick, node.dist, leaf_names)
+            newick = self.buildNewick(node.get_right(), ",%s" % (newick), node.dist, leaf_names)
+            newick = "(%s" % (newick)
+            return newick
 
     def get_memberships(self):
         return self.cluster_memberships
+
+
 
 

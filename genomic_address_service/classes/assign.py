@@ -1,8 +1,8 @@
 import copy
 
 import pandas as pd
-from src.constants import EXTENSIONS, PD_HEADER
-from src.utils import is_file_ok
+from genomic_address_service.constants import EXTENSIONS, PD_HEADER
+from genomic_address_service.utils import is_file_ok
 
 class assign:
     avail_methods = ['average','complete','single']
@@ -200,7 +200,6 @@ class assign:
                         if t <= thresh and not blank:
                             valid.append(a[idx])
                         else:
-                            #col = self.lookup_col_by_dist(t)
                             n = 1
                             code = copy.deepcopy(valid)
                             code.append(str(n))
@@ -220,34 +219,3 @@ class assign:
                     if not code in self.memberships_lookup:
                         self.memberships_lookup[code] = list()
                     self.memberships_lookup[code].append(q_id)
-
-
-
-
-
-
-
-                
-
-
-
-
-
-
-
-
-
-
-
-dist_file = '/Users/jrobertson/PycharmProjects/profile_dists/src/test_data/scaled.dists.assign.text'
-membership_file = '/Users/jrobertson/PycharmProjects/profile_dists/src/test_data/average.linkage.tsv'
-threshold_map = {
-    'c1':75,
-    'c2':50,
-    'c3':0
-}
-linkage_method = 'average'
-obj = assign(dist_file,membership_file,threshold_map,linkage_method)
-print(obj.status)
-print(obj.error_msgs)
-print(obj.memberships_dict)
