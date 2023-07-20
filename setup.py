@@ -42,7 +42,7 @@ setup(
         'Genomic Address Service: De novo clustering and cluster address assignment'),
     keywords='cgMLST, wgMLST, outbreak, surveillance, clustering, nomenclature',
     classifiers=classifiers,
-    package_dir={'genomic_address_service': 'gas'},
+    package_dir={'gas': 'genomic_address_service'},
     package_data={
         "": ["*.txt"],
     },
@@ -60,7 +60,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'genomic_address_service=genomic_address_service.main:main',
+            'gas=genomic_address_service.main:main',
         ],
     },
 )
