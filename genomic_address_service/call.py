@@ -42,7 +42,9 @@ def run():
     thresh_map_file = cmd_args.thresh_map
     outdir = cmd_args.outdir
     linkage_method = cmd_args.method
-    thresholds = [float(x) for x in cmd_args.thresholds.split(',')]
+    thresholds = cmd_args.thresholds
+    if thresholds is not None:
+        thresholds = [float(x) for x in cmd_args.thresholds.split(',')]
     delimeter = cmd_args.delimeter
     force = cmd_args.force
     outfmt = cmd_args.outfmt
