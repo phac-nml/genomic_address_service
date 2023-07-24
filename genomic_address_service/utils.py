@@ -62,7 +62,7 @@ def write_cluster_assignments(file,memberships,threshold_map,outfmt,delimeter=".
     for id in memberships:
         address = memberships[id]
         results[id] = {'id':id,'address':address}
-        for idx,value in address.split(delimeter):
+        for idx,value in enumerate(address.split(delimeter)):
             results[id][threshold_map[idx]] = value
     df = pd.DataFrame.from_dict(results,orient='index')
     if outfmt == 'text':
