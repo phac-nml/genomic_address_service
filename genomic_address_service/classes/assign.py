@@ -1,4 +1,5 @@
 import copy
+import sys
 
 import pandas as pd
 from genomic_address_service.constants import EXTENSIONS, PD_HEADER
@@ -32,8 +33,6 @@ class assign:
             self.error_msgs.append(f'Provided {dist_file} file does not exist or is empty')
             self.status = False
 
-        print(self.query_df.columns.values.tolist())
-
         if file_type is None:
             self.status = False
 
@@ -55,16 +54,21 @@ class assign:
 
         columns = self.memberships_df.columns.values.tolist()
         filt_columns = []
+        columns_to_remove = []
+        self.memberships_df = self.memberships_df.set_index(columns[0])
+        columns = self.memberships_df.columns.values.tolist()
         for c in columns:
             if c in ['id','sample_id','sample','st','address','genotype','nomenclature']:
+                columns_to_remove.append(c)
                 continue
             filt_columns.append(c)
+
+        self.memberships_df = self.memberships_df.drop(columns_to_remove,axis=1)
 
         if not self.check_membership_columns(filt_columns):
             self.error_msgs.append(f'Could not find a threshold for all columns in: {membership_file}: {filt_columns} vs. {list(self.threshold_map.keys())}')
             self.status = False
 
-        print(self.query_df.columns.values.tolist())
         if not self.status:
             return
 
@@ -72,14 +76,13 @@ class assign:
             self.status = False
             self.error_msgs.append(f'Provided {linkage_method} is not one of the accepted {self.avail_methods}')
 
-        print(self.query_df.columns.values.tolist())
 
         self.query_labels = set(self.query_df.columns.values.tolist())
         self.process_memberships()
         self.ref_labels = set(self.memberships_dict.keys())
         self.init_nomenclature_tracker()
-
         self.assign()
+
 
 
 
@@ -138,10 +141,11 @@ class assign:
 
     def process_memberships(self):
         lookup = {}
+
         for row in self.memberships_df.itertuples():
             values = [str(x) for x in list(row)]
-            id = values[1]
-            values = values[2:]
+            id = values[0]
+            values = values[1:]
             self.memberships_dict[id] = ".".join([str(x) for x in values])
             for idx,value in enumerate(values):
                 code = ".".join(values[0:idx+1])
