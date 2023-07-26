@@ -172,20 +172,27 @@ class assign:
 
 
     def assign(self):
+        subset = self.query_df
+        unassigned_ids = set(subset['query_id'].unique())
         for idx,thresh in enumerate(self.thresholds):
-            filt_df = self.query_df[self.query_df['dist'] <= thresh].sort_values(by=['dist'])
+            if len(unassigned_ids) == 0:
+                break
+            subset = subset[subset['query_id'].isin(list(unassigned_ids))]
+            filt_df = subset[subset['dist'] <= thresh].sort_values(by=['dist'])
             query_ids = filt_df['query_id'].unique()
             for q_id in query_ids:
                 if q_id in self.memberships_dict:
                     continue
-                ref_ids = filt_df['ref_id'].unique()
+                tmp_df = filt_df[filt_df['query_id'] == q_id]
+                ref_ids = tmp_df['ref_id'].unique()
                 if len(ref_ids) == 0:
                     continue
                 checked_addresses = set()
                 for r_id in ref_ids:
-                    if r_id == q_id:
+                    if r_id == q_id or not r_id in self.memberships_dict:
                         continue
                     a = self.memberships_dict[r_id]
+
                     if a in checked_addresses:
                         continue
                     summary = self.get_dist_summary(q_id, r_id)
@@ -201,6 +208,8 @@ class assign:
                 #Sample is too distant to be assigned at this threshold
                 if r_id == q_id:
                     continue
+
+                unassigned_ids = unassigned_ids - set([q_id])
 
                 #remove the last n codes from the address based on the threshold
                 #Pad the code out with None
@@ -227,6 +236,7 @@ class assign:
 
                 valid = [str(x) for x in valid]
                 self.memberships_dict[q_id] = ".".join(valid)
+
                 for i, value in enumerate(valid):
                     code = ".".join(valid[0:i + 1])
                     if not code in self.memberships_lookup:
