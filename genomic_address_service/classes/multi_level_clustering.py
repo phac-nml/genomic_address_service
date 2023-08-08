@@ -1,4 +1,4 @@
-import pandas as pd
+import numpy as np
 import scipy
 
 
@@ -11,10 +11,7 @@ class multi_level_clustering:
 
 
     def __init__(self,dist_mat_file,thresholds,method):
-        df = self.read_matrix(dist_mat_file).astype(float)
-        self.labels = df.columns.values.tolist()
-        matrix = scipy.spatial.distance.squareform(df.values)
-        del df
+        self.labels, matrix = self.read_distance_matrix(dist_mat_file)
         self.thresholds = thresholds
         self.linkage = scipy.cluster.hierarchy.linkage(matrix, method=method, metric='precomputed')
         self.init_membership()
@@ -25,8 +22,20 @@ class multi_level_clustering:
         for label in self.labels:
             self.cluster_memberships[label] = []
 
-    def read_matrix(self,f):
-        return pd.read_csv(f,header=0,sep="\t",index_col=0)
+    def read_distance_matrix(self,file_path, delim="\t"):
+        labels = []
+        v = []
+        with open(file_path, 'r') as f:
+            header = next(f)
+            offset = 2
+            for line in f:
+                line_split = line.strip().split(delim)
+                if len(line_split) < 1:
+                    continue
+                labels.append(line_split[0])
+                v += [float(x) for x in line_split[offset:]]
+                offset += 1
+        return (labels, np.array(v))
 
     def assign_clusters(self):
         for idx,dist in enumerate(self.thresholds):
