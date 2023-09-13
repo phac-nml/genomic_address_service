@@ -213,7 +213,8 @@ class assign:
 
                 #remove the last n codes from the address based on the threshold
                 #Pad the code out with None
-                a = a.split('.')
+                if isinstance(a,str):
+                    a = a.split('.')
                 valid = a
                 if idx != 0:
                     valid = []
