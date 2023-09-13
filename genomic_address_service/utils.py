@@ -76,7 +76,7 @@ def init_threshold_map(file,thresholds):
     cols = df.columns.values.tolist()
     valid_cols = []
     for idx,value in enumerate(cols):
-        if value in ['sample_id','id','ST','nomenclature']:
+        if value in ['sample_id','id','ST','nomenclature','address']:
             continue
         valid_cols.append(value)
 
