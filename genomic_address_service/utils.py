@@ -83,7 +83,7 @@ def init_threshold_map(file,thresholds):
     if len(valid_cols) != len(thresholds):
         return {}
 
-    for idx,value in valid_cols:
+    for idx,value in enumerate(valid_cols):
         thresh_map[value] = thresholds[idx]
 
     return thresh_map
