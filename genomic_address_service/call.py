@@ -22,7 +22,7 @@ def parse_args():
     parser.add_argument('-m', '--method', type=str, required=False, help='cluster method [single, complete, average]',
                         default='average')
     parser.add_argument('-j', '--thresh_map', type=str, required=False, help='Json file of colname:threshold',
-                        default='average')
+                        default=None)
     parser.add_argument('-t', '--thresholds', type=str, required=False, help='thresholds delimited by , columns will be treated in sequential order')
     parser.add_argument('-o','--outdir', type=str, required=True, help='Output directory to put cluster results')
     parser.add_argument('-u', '--outfmt', type=str, required=False, help='Output format for assignments [text, parquet]',default='text')
