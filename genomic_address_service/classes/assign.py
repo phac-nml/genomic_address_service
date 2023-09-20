@@ -181,6 +181,7 @@ class assign:
             filt_df = subset[subset['dist'] <= thresh].sort_values(by=['dist'])
             query_ids = filt_df['query_id'].unique()
             for q_id in query_ids:
+                a = ''
                 if q_id in self.memberships_dict:
                     continue
                 tmp_df = filt_df[filt_df['query_id'] == q_id]
