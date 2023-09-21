@@ -81,6 +81,8 @@ class assign:
         self.process_memberships()
         self.ref_labels = set(self.memberships_dict.keys())
         self.init_nomenclature_tracker()
+        #print('18PF1510' in self.query_df['query_id'].values.tolist())
+        #sys.exit()
         self.assign()
 
 
@@ -127,6 +129,7 @@ class assign:
                 engine='auto',
                 columns=None,
                 storage_options=None,)
+
         return (file_type, df)
 
     def init_nomenclature_tracker(self):
@@ -212,6 +215,7 @@ class assign:
                 if r_id == q_id:
                     continue
 
+
                 unassigned_ids = unassigned_ids - set([q_id])
 
 
@@ -240,3 +244,13 @@ class assign:
                     if not code in self.memberships_lookup:
                         self.memberships_lookup[code] = list()
                     self.memberships_lookup[code].append(q_id)
+
+
+        for q_id in unassigned_ids:
+            a = [None] * num_ranks
+            for i, value in enumerate(a):
+                if value is not None:
+                    continue
+                a[i] = self.nomenclature_cluster_tracker[rank_ids[i]]
+                self.nomenclature_cluster_tracker[rank_ids[i]] += 1
+            self.memberships_dict[q_id] = ".".join([str(x) for x in a])
