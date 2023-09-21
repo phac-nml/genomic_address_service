@@ -174,6 +174,8 @@ class assign:
     def assign(self):
         subset = self.query_df
         unassigned_ids = set(subset['query_id'].unique())
+        num_ranks = len(self.thresholds)
+
         for idx,thresh in enumerate(self.thresholds):
             if len(unassigned_ids) == 0:
                 break
@@ -181,7 +183,7 @@ class assign:
             filt_df = subset[subset['dist'] <= thresh].sort_values(by=['dist'])
             query_ids = filt_df['query_id'].unique()
             for q_id in query_ids:
-                a = ''
+                a = [None] * num_ranks
                 if q_id in self.memberships_dict:
                     continue
                 tmp_df = filt_df[filt_df['query_id'] == q_id]
@@ -189,11 +191,11 @@ class assign:
                 if len(ref_ids) == 0:
                     continue
                 checked_addresses = set()
+
                 for r_id in ref_ids:
                     if r_id == q_id or not r_id in self.memberships_dict:
                         continue
-                    a = self.memberships_dict[r_id]
-
+                    a = copy.deepcopy(self.memberships_dict[r_id])
                     if a in checked_addresses:
                         continue
                     summary = self.get_dist_summary(q_id, r_id)
@@ -212,35 +214,29 @@ class assign:
 
                 unassigned_ids = unassigned_ids - set([q_id])
 
+
                 #remove the last n codes from the address based on the threshold
                 #Pad the code out with None
                 if isinstance(a,str):
                     a = a.split('.')
-                valid = a
-                if idx != 0:
-                    valid = []
-                    blank = False
-                    for i, t in enumerate(reversed(self.thresholds)):
-                        if t <= thresh and not blank:
-                            valid.append(a[idx])
-                        else:
-                            n = 1
-                            code = copy.deepcopy(valid)
-                            code.append(str(n))
-                            code = ".".join(code)
-                            while code in self.memberships_lookup:
-                                n+=1
-                                code = copy.deepcopy(valid)
-                                code.append(str(n))
-                                code = ".".join(code)
-                            valid.append(str(n))
-                            blank = True
 
-                valid = [str(x) for x in valid]
-                self.memberships_dict[q_id] = ".".join(valid)
+                #Blank the digits of the code which are past the rank
+                rank_ids = list(self.nomenclature_cluster_tracker.keys())
+                a.reverse()
+                for i in range(0,idx):
+                    a[i] = None
+                a.reverse()
 
-                for i, value in enumerate(valid):
-                    code = ".".join(valid[0:i + 1])
+                #print(self.memberships_lookup)
+                for i,value in enumerate(a):
+                    if value is not None:
+                        continue
+                    a[i] = self.nomenclature_cluster_tracker[rank_ids[i]]
+                    self.nomenclature_cluster_tracker[rank_ids[i]]+=1
+                self.memberships_dict[q_id] = ".".join([str(x) for x in a])
+
+                for i, value in enumerate(a):
+                    code = ".".join([str(x) for x in a[0:i + 1]])
                     if not code in self.memberships_lookup:
                         self.memberships_lookup[code] = list()
                     self.memberships_lookup[code].append(q_id)
