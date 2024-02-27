@@ -4,7 +4,8 @@
 [![License: Apache-2.0](https://img.shields.io/github/license/phac-nml/genomic_address_service)](https://www.apache.org/licenses/LICENSE-2.0)
 
 
-## Profile Dists
+## Genomic Address Service
+![alt text](https://github.com/phac-nml/genomic_address_service/blob/main/logo.png?raw=true)
 
 ## Contents
 
