@@ -6,6 +6,31 @@
 <img src="https://github.com/phac-nml/genomic_address_service/blob/main/logo.png?raw=true" width = "150" height="189">
 
 # Genomic Address Service
+
+- [Introduction](#introduction)
+  * [Citation](#citation)
+  * [Contact](#contact)
+- [Install](#install)
+    + [Compatibility](#compatibility)
+- [Getting Started](#getting-started)
+  * [Usage](#usage)
+    + [Commands](#commands)
+    + [Args](#args)
+      - [mcluster specific args](#mcluster-specific-args)
+      - [call specific args](#call-specific-args)
+  * [Configuration and Settings](#configuration-and-settings)
+  * [Data Input/formats](#data-input-formats)
+    + [Square distance matrix](#square-distance-matrix)
+    + [Apache parquet](#apache-parquet)
+  * [Output/Results](#output-results)
+- [Troubleshooting and FAQs](#troubleshooting-and-faqs)
+- [Benchmarking](#benchmarking)
+- [Legal and Compliance Information](#legal-and-compliance-information)
+- [Updates and Release Notes](#updates-and-release-notes)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
+
 # Introduction
 
 Surveillance and outbreak analysis of pathogens has been operationalized by multiple public health laboratories around the world using gene-by-gene, SNP and k-mer approaches to produce estimates of genetic distance between sets of samples. Standard phylogentic or heirarchal clustering approaches group samples based on distances but need to be recalculated each time a new sample is added. The lack of repeatable genetic units or nomenclature between runs of clustering makes communication between different groups difficult, especially with the poor scaling of these approaches to larger sample sizes. 
@@ -17,6 +42,7 @@ Within our public health partners, there is a need for a clustering service whic
 ## Citation
 
 Robertson, James, Wells, Matthew, Schonfeld, Justin, Reimer, Aleisha. Genomic Address Service: Convenient package for de novo clustering and sample assignment to existing clusters. 2023. [https://github.com/phac-nml/genomic_address_service](https://github.com/phac-nml/genomic_address_service)
+
 ## Contact
 
 For any questions, issues or comments please make a Github issue or reach out to [**James Robertson**](james.robertson@phac-aspc.gc.ca).
@@ -36,14 +62,17 @@ Install the latest master branch version directly from Github:
         pip install git+https://github.com/phac-nml/genomic_address_service.git
         
 ### Compatibility
+
 List out Dependencies and/or packages as appropriate
 
 # Getting Started
+
 ## Usage
 
 `gas command args`
 
 ### Commands
+
 There are three commands that gas uses:
 
 1. **mcluster** - de novo nested multi-level clustering
@@ -51,6 +80,7 @@ There are three commands that gas uses:
 4. **test** - test functionality on a small dataset
 
 ### Args
+
 There are a number of arguments that are specific for each command. They can be found directly by adding `--help` after each command. The following are common arguments:
 
 - `-o`, `--outdir` - output directory to put cluster results
@@ -60,10 +90,12 @@ There are a number of arguments that are specific for each command. They can be 
 - `-f`, `--force` - overwrite existing out directory
 
 #### mcluster specific args
+
 - `-i`, `--matrix` - TSV formatted distance matrix or parquet
 - `-d`, `--delimiter` - delimiter desired for nomenclature code [default="."]
 
 #### call specific args
+
 - `-d`, `--dists` - a 3 column file [query_id, ref_id, dist] in TSV or parquet format
 - `-r`, `--rclusters` - existing cluster file in TSV or parquet format
 - `-j`, `--thresh_map` - Json file of [colname:threshold]
@@ -71,7 +103,8 @@ There are a number of arguments that are specific for each command. They can be 
 - `-l`, `--delimiter` - delimiter desired for nomenclature code [default="."]
 
 
-## Configuration and Settings:
+## Configuration and Settings
+
 Thresholds must be configured when using GAS. These threshold must be determined manually through testing and establishment of practical criteria for each pathogen of interest. 
 
 For instance, in PulseNet Canada they have determined the use of '10,5,0' to be the threshold of choice for their pathogen surveillance program. [Publication on going]
@@ -92,7 +125,9 @@ For instance, in PulseNet Canada they have determined the use of '10,5,0' to be 
 - Distance matrix units can be of float, or integer type with the constrain that the diagonal must be 0 and the first line must be a header with all of the samples
 
 ### Apache parquet
+
 - More information on the open-source column-oriented data format can be found [here](https://parquet.apache.org/).
+
 ## Output/Results
 
 ```
@@ -104,7 +139,7 @@ For instance, in PulseNet Canada they have determined the use of '10,5,0' to be 
 └── run.json - Contains logging information for the run including parameters, newick tree, and threshold mapping info
 ```
 
-# Troubleshooting and FAQs:
+# Troubleshooting and FAQs
 
 1. Mcluster fails due to missing scipy, with the following error:
 ```
@@ -117,7 +152,7 @@ ModuleNotFoundError: No module named 'scipy'
 
 Coming soon.
 
-# Legal and Compliance Information:
+# Legal and Compliance Information
 
 Copyright Government of Canada 2023
 
@@ -134,5 +169,6 @@ under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 
-# Updates and Release Notes:
+# Updates and Release Notes
+
 Please see the `CHANGELOG.md`
