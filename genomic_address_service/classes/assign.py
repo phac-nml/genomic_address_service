@@ -81,8 +81,6 @@ class assign:
         self.process_memberships()
         self.ref_labels = set(self.memberships_dict.keys())
         self.init_nomenclature_tracker()
-        #print('18PF1510' in self.query_df['query_id'].values.tolist())
-        #sys.exit()
         self.assign()
 
 
@@ -155,7 +153,6 @@ class assign:
                 if not code in lookup:
                     lookup[code] = list()
                 lookup[code].append(id)
-
         self.memberships_lookup = lookup
 
     def get_dist_summary(self,q_id,r_id):
@@ -178,6 +175,7 @@ class assign:
         subset = self.query_df
         unassigned_ids = set(subset['query_id'].unique())
         num_ranks = len(self.thresholds)
+        rank_ids = list(self.nomenclature_cluster_tracker.keys())
 
         for idx,thresh in enumerate(self.thresholds):
             if len(unassigned_ids) == 0:
@@ -225,7 +223,6 @@ class assign:
                     a = a.split('.')
 
                 #Blank the digits of the code which are past the rank
-                rank_ids = list(self.nomenclature_cluster_tracker.keys())
                 a.reverse()
                 for i in range(0,idx):
                     a[i] = None
