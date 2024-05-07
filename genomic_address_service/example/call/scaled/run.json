@@ -1,0 +1,38 @@
+{
+    "profile_dists": "version: 1.0.1",
+    "analysis_start_time": "07/05/2024 13:23:56",
+    "analysis_end_time": "07/05/2024 13:23:56",
+    "parameters": {
+        "query": "call/query.profile.txt",
+        "ref": "call/ref.profile.txt",
+        "outdir": "call/scaled/",
+        "outfmt": "pairwise",
+        "file_type": "text",
+        "distm": "hamming",
+        "missing_thresh": 1.0,
+        "sample_qual_thresh": 1.0,
+        "match_threshold": -1,
+        "mapping_file": null,
+        "batch_size": null,
+        "max_mem": null,
+        "force": true,
+        "skip": false,
+        "columns": null,
+        "count_missing": false,
+        "cpus": 1
+    },
+    "query_profile_info": {
+        "num_samples": 5,
+        "num_samples_pass": 5,
+        "failed_samples": [],
+        "parsed_file_path": "call/scaled/query_profile.text"
+    },
+    "ref_profile_info": {
+        "num_samples": 5,
+        "num_samples_pass": 5,
+        "failed_samples": [],
+        "parsed_file_path": "call/scaled/ref_profile.text"
+    },
+    "loci_removed": [],
+    "result_file": "call/scaled/results.text"
+}

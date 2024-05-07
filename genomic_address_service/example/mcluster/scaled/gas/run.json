@@ -1,0 +1,27 @@
+{
+    "genomic address service: de novo clustering": "version: 0.1.1",
+    "analysis_start_time": "07/05/2024 13:04:02",
+    "analysis_end_time": "07/05/2024 13:04:02",
+    "parameters": {
+        "matrix": "full/scaled/results.text",
+        "outdir": "full/scaled/gas",
+        "method": "average",
+        "thresholds": "100,90,80,70,60,50,40,30,20,10,0",
+        "delimeter": ".",
+        "force": true
+    },
+    "threshold_map": {
+        "level_1": 100.0,
+        "level_2": 90.0,
+        "level_3": 80.0,
+        "level_4": 70.0,
+        "level_5": 60.0,
+        "level_6": 50.0,
+        "level_7": 40.0,
+        "level_8": 30.0,
+        "level_9": 20.0,
+        "level_10": 10.0,
+        "level_11": 0.0
+    },
+    "result_file": "full/scaled/gas/clusters.text"
+}
