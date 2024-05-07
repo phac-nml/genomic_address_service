@@ -39,6 +39,56 @@ A number of different software/pipelines have been published to address the issu
 
 Within our public health partners, there is a need for a clustering service which can perform de novo clustering based on average, complete, and single linkage that can then be partitioned into clusters based on multiple thresholds. Additionally, there is a need to assign new samples into an existing clustering to provide stable nomenclature for communication between different partners and stakeholders. To address needs of users within our team we have designed an integrated solution for calculating distance matrices and querying genetically similar samples, within a defined threshold, to support outbreak and surveillance activities. We provide the flexibility to have standard text based outputs and have included [parquet](https://parquet.apache.org/) format for highthrough put needs. It is implemented in pure python and currently is only available in a single threaded version but later refinements may include the support for multiprocessing. To facilitate integration of the tool into larger workflows it will also be implemented as a nextflow workflow.
 
+## mcluster
+This module performs de novo clustering on a square distance matrix and a set of user defined thresholds to produce a set of flat clustering
+and a newick formatted dendrogram for viewing by external programs. GAS is designed to work in conjunction with [profile_dists ](https://github.com/phac-nml/profile_dists) which is a fast and easy way to produce square distance matricies and three column pairwise comparison
+(query_id, ref_id, distance) using allele profile format but can work on snp tables as well.
+
+```
+  gas mcluster -i ./example/mcluster/hamming/results.text -t 10,9,8,7,6,5,4,3,2,1,0 -o ./gas_test
+
+```
+-- Hamming is exact difference counts from profile_dists
+
+OR
+
+```
+  gas mcluster -i ./example/mcluster/hamming/results.text -t 100,90,80,70,60,50,40,30,20,10,0 -o ./gas_test
+
+```
+-- Scaled is percentage difference of samples from profile_dists
+
+
+
+## call
+
+This module performs assignment of new samples into an existing clustering which will preserve the existing cluster designations. It is important to not have sample name collisons (repeated sample id's) as these will be rejected from being processed. This includes id's duplicated between reference and query sets. The call module accepts a pair-wise distance formatted file where the set of queries are run against a database which includes themselves.  Otherwise, the samples which are contained in the query and are meant to cluster together will not because there is no distance by which to group them. The clusters file must contain a column for each level of theshold supplied but they do not have to be named in the format that mcluster provides (level_1,..level_n). For example, clusters could be named (A,..,Z).
+
+#Generate pairwise distance file
+```
+  profile_dists -q ./example/call/query.profile.txt -r ./example/call/ref.profile.txt --outfmt pairwise --distm hamming -o ./example/call/hamming
+
+```
+
+OR
+```
+  profile_dists -q ./example/call/query.profile.txt -r ./example/call/ref.profile.txt --outfmt pairwise --distm scaled -o ./example/call/scaled
+
+```
+
+#Run call
+```
+  gas call -t 10,9,8,7,6,5,4,3,2,1,0 -o ./example/call/hamming/gas -r ./example/call/clusters.text -d ./example/call/hamming/results.text --force
+
+```
+
+OR
+```
+  gas call -t 100,90,80,70,60,50,40,30,20,10,0 -o ./example/call/scaled/gas -r ./example/call/clusters.text -d ./example/call/scaled/results.text
+
+```
+
+
 ## Citation
 
 Robertson, James, Wells, Matthew, Schonfeld, Justin, Reimer, Aleisha. Genomic Address Service: Convenient package for de novo clustering and sample assignment to existing clusters. 2023. [https://github.com/phac-nml/genomic_address_service](https://github.com/phac-nml/genomic_address_service)
@@ -73,7 +123,7 @@ List out Dependencies and/or packages as appropriate
 
 ### Commands
 
-There are three commands that gas uses:
+GAS provides three modules t:
 
 1. **mcluster** - de novo nested multi-level clustering
 2. **call** - call genomic address based on existing clusterings
@@ -132,10 +182,9 @@ For instance, in PulseNet Canada they have determined the use of '10,5,0' to be 
 
 ```
 {Output folder name}
-├── distances.{text|parquet} - Three column file of [query_id, ref_if, distance]
 ├── thresholds.json - JSON formated mapping of columns to distance thresholds
-├── clusters.{text|parquet} - Either symmetric distance matrix or three column file of [query_id, ref_if, distance]
-├── tree.newick - Newick formatted dendrogram of the linkage matrix produced by SciPy
+├── clusters.text - Tab-delimited file {id, address, level_1,..level_n} where each level corresponds to a specified threshold
+├── tree.newick - Newick formatted dendrogram of the linkage matrix produced by SciPy (*mcluster only*)
 └── run.json - Contains logging information for the run including parameters, newick tree, and threshold mapping info
 ```
 
