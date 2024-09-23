@@ -56,7 +56,7 @@ def write_threshold_map(data,file):
 
     fh.close()
 
-def write_cluster_assignments(file,memberships,threshold_map,outfmt,delimeter=".",sample_col='id',address_col='address'):
+def write_cluster_assignments(file ,memberships, threshold_map, outfmt, delimeter=".", sample_col='id', address_col='address'):
     results = {}
     threshold_keys = list(threshold_map.keys())
     for id in memberships:
