@@ -24,7 +24,7 @@ def parse_args():
     parser.add_argument('-j', '--thresh_map', type=str, required=False, help='Json file of colname:threshold',
                         default=None)
     parser.add_argument('-s', '--sample_col', type=str, required=False, help='Column name for sample id',
-                        default='sample_id')
+                        default='id')
     parser.add_argument('-c', '--address_col', type=str, required=False, help='Column name for genomic address',
                         default='address')
     parser.add_argument('-t', '--thresholds', type=str, required=False, help='thresholds delimited by , columns will be treated in sequential order')
@@ -34,7 +34,6 @@ def parse_args():
     parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
     parser.add_argument('-f', '--force', required=False, help='Overwrite existing directory',
                         action='store_true')
-
     return parser.parse_args()
 
 
@@ -120,7 +119,7 @@ def run_call(config):
 
     run_data['result_file'] = os.path.join(outdir, "results.{}".format(outfmt))
 
-    write_cluster_assignments(run_data['result_file'], cluster_assignments, threshold_map, outfmt,delimeter,sample_col,address_col)
+    write_cluster_assignments(run_data['result_file'], cluster_assignments, threshold_map, outfmt, delimeter, sample_col, address_col)
 
     with open(os.path.join(outdir,"run.json"),'w') as fh:
         fh.write(json.dumps(run_data, indent=4))
