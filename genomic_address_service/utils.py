@@ -56,7 +56,7 @@ def write_threshold_map(data,file):
 
     fh.close()
 
-def write_cluster_assignments(file,memberships,threshold_map,outfmt,delimeter="."):
+def write_cluster_assignments(file,memberships,threshold_map,outfmt,delimeter=".",sample_col='id',address_col='address'):
     results = {}
     threshold_keys = list(threshold_map.keys())
     for id in memberships:
@@ -65,6 +65,7 @@ def write_cluster_assignments(file,memberships,threshold_map,outfmt,delimeter=".
         for idx,value in enumerate(address.split(delimeter)):
             results[id][threshold_keys[idx]] = value
     df = pd.DataFrame.from_dict(results,orient='index')
+    df = df[[sample_col,address_col]]
     if outfmt == 'text':
         df.to_csv(file,header=True,sep="\t",index=False)
     else:

@@ -24,8 +24,13 @@ class assign:
     nomenclature_cluster_tracker = {}
 
 
-    def __init__(self,dist_file,membership_file,threshold_map,linkage_method):
+    def __init__(self,dist_file,membership_file,threshold_map,linkage_method,address_col, sample_col):
         file_type = None
+        
+        if not linkage_method in self.avail_methods:
+            self.status = False
+            self.error_msgs.append(f'Provided {linkage_method} is not one of the accepted {self.avail_methods}')
+
         if is_file_ok(dist_file):
             (file_type, self.query_df) = self.read_data( dist_file)
             self.dist_type = self.guess_dist_type()
@@ -40,7 +45,7 @@ class assign:
             return
 
         if is_file_ok(membership_file):
-            (membership_file, self.memberships_df) = self.read_data(membership_file)
+            (_, self.memberships_df) = self.read_data(membership_file)
         else:
             self.error_msgs.append(f'Provided {membership_file} file does not exist or is empty')
             self.status = False
@@ -48,42 +53,57 @@ class assign:
         if file_type is None:
             self.status = False
 
+        self.address_col = address_col
+        self.sample_col = sample_col
+
         #Important sort distances smallest to largest
         self.threshold_map = {k: v for k, v in sorted(threshold_map.items(), key=lambda item: item[1])}
         self.thresholds = sorted(list(self.threshold_map.values()))
 
         columns = self.memberships_df.columns.values.tolist()
-        filt_columns = []
-        columns_to_remove = []
-        self.memberships_df = self.memberships_df.set_index(columns[0])
-        columns = self.memberships_df.columns.values.tolist()
-        for c in columns:
-            if c in ['id','sample_id','sample','st','address','genotype','nomenclature']:
-                columns_to_remove.append(c)
-                continue
-            filt_columns.append(c)
-
-        self.memberships_df = self.memberships_df.drop(columns_to_remove,axis=1)
-
-        if not self.check_membership_columns(filt_columns):
-            self.error_msgs.append(f'Could not find a threshold for all columns in: {membership_file}: {filt_columns} vs. {list(self.threshold_map.keys())}')
+        if not sample_col in columns:
             self.status = False
-
+            self.error_msgs.append(f'Could not find sample column: {sample_col} in the file {membership_file}: columns: {columns}')
+        if not address_col in columns:
+            self.status = False
+            self.error_msgs.append(f'Could not find address column: {address_col} in the file {membership_file}: columns: {columns}')            
         if not self.status:
             return
 
-        if not linkage_method in self.avail_methods:
+        self.memberships_df = self.memberships_df[[sample_col,address_col]]
+        self.memberships_df = self.format_df(self.memberships_df.set_index(sample_col).to_dict()[address_col])
+        if len(self.error_samples) > 0:
             self.status = False
-            self.error_msgs.append(f'Provided {linkage_method} is not one of the accepted {self.avail_methods}')
-
-
+            self.error_msgs.append(f'Genomic address too short for samples: {self.error_samples} based on {self.threshold_map}')
+        if not self.status:
+            return      
+         
         self.query_labels = set(self.query_df.columns.values.tolist())
         self.process_memberships()
         self.ref_labels = set(self.memberships_dict.keys())
         self.init_nomenclature_tracker()
         self.assign()
 
-
+    def format_df(self,data,delim='.'):
+        num_thresholds = len(self.thresholds)
+        self.error_samples = []
+        membership = {}
+        for sample_id in data:
+            address = data[sample_id].split(delim)
+            if len(address) != num_thresholds:
+                self.error_samples.append(sample_id)
+                continue
+            membership[sample_id] = {}
+            for idx,value in enumerate(address):
+                l = f'level_{idx}'
+                try:
+                    value = int(value)
+                except Exception:
+                    self.error_samples.append(sample_id)
+                    del membership[sample_id]
+                    break                 
+                membership[sample_id][l] = int(value)
+        return pd.DataFrame.from_dict(membership,orient='index')
 
 
     def check_membership_columns(self,cols):
@@ -132,13 +152,10 @@ class assign:
 
     def init_nomenclature_tracker(self):
         nomenclature_cluster_tracker = self.memberships_df.max().to_frame().T.to_dict()
-        cols = list(nomenclature_cluster_tracker)
-        for col in cols:
-            if not col in self.threshold_map:
-                del nomenclature_cluster_tracker[col]
         for col in nomenclature_cluster_tracker:
             nomenclature_cluster_tracker[col] = nomenclature_cluster_tracker[col][0] + 1
         self.nomenclature_cluster_tracker = nomenclature_cluster_tracker
+
 
     def process_memberships(self):
         lookup = {}
@@ -186,6 +203,7 @@ class assign:
             for q_id in query_ids:
                 a = [None] * num_ranks
                 if q_id in self.memberships_dict:
+                    unassigned_ids = unassigned_ids - set(q_id)
                     continue
                 tmp_df = filt_df[filt_df['query_id'] == q_id]
                 ref_ids = tmp_df['ref_id'].unique()
@@ -213,9 +231,7 @@ class assign:
                 if r_id == q_id:
                     continue
 
-
                 unassigned_ids = unassigned_ids - set([q_id])
-
 
                 #remove the last n codes from the address based on the threshold
                 #Pad the code out with None
@@ -228,7 +244,6 @@ class assign:
                     a[i] = None
                 a.reverse()
 
-                #print(self.memberships_lookup)
                 for i,value in enumerate(a):
                     if value is not None:
                         continue
