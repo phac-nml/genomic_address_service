@@ -1,17 +1,16 @@
 import copy
 import sys
-
+from statistics import mean
 import pandas as pd
 from genomic_address_service.constants import EXTENSIONS, PD_HEADER
 from genomic_address_service.utils import is_file_ok
-
+from genomic_address_service.classes.reader import dist_reader
 class assign:
     avail_methods = ['average','complete','single']
     threshold_map = {}
     thresholds = []
     linkage_method = 'single'
     sample_labels = []
-    query_df = None
     query_labels = set()
     memberships_df = None
     memberships_dict = {}
@@ -24,21 +23,17 @@ class assign:
     nomenclature_cluster_tracker = {}
 
 
-    def __init__(self,dist_file,membership_file,threshold_map,linkage_method,address_col, sample_col):
+    def __init__(self,dist_file,membership_file,threshold_map,linkage_method,address_col, sample_col, batch_size):
+        self.dist_file = dist_file
+        self.batch_size = batch_size
         file_type = None
         
         if not linkage_method in self.avail_methods:
             self.status = False
             self.error_msgs.append(f'Provided {linkage_method} is not one of the accepted {self.avail_methods}')
 
-        if is_file_ok(dist_file):
-            (file_type, self.query_df) = self.read_data( dist_file)
-            self.dist_type = self.guess_dist_type()
-        else:
+        if not is_file_ok(dist_file):
             self.error_msgs.append(f'Provided {dist_file} file does not exist or is empty')
-            self.status = False
-
-        if file_type is None:
             self.status = False
 
         if not self.status:
@@ -49,26 +44,28 @@ class assign:
         else:
             self.error_msgs.append(f'Provided {membership_file} file does not exist or is empty')
             self.status = False
-
-        if file_type is None:
-            self.status = False
+        
+        if not self.status:
+            return
 
         self.address_col = address_col
         self.sample_col = sample_col
 
         #Important sort distances smallest to largest
-        self.threshold_map = {k: v for k, v in sorted(threshold_map.items(), key=lambda item: item[1])}
-        self.thresholds = sorted(list(self.threshold_map.values()))
+        self.threshold_map = threshold_map
+        self.thresholds = list(self.threshold_map.values())
 
         columns = self.memberships_df.columns.values.tolist()
-        if not sample_col in columns:
+        if sample_col not in columns:
             self.status = False
             self.error_msgs.append(f'Could not find sample column: {sample_col} in the file {membership_file}: columns: {columns}')
-        if not address_col in columns:
+        if address_col not in columns:
             self.status = False
             self.error_msgs.append(f'Could not find address column: {address_col} in the file {membership_file}: columns: {columns}')            
+
         if not self.status:
             return
+
 
         self.memberships_df = self.memberships_df[[sample_col,address_col]]
         self.memberships_df = self.format_df(self.memberships_df.set_index(sample_col).to_dict()[address_col])
@@ -78,11 +75,10 @@ class assign:
         if not self.status:
             return      
          
-        self.query_labels = set(self.query_df.columns.values.tolist())
         self.process_memberships()
         self.ref_labels = set(self.memberships_dict.keys())
         self.init_nomenclature_tracker()
-        self.assign()
+        self.assign(n_records=batch_size)
 
     def format_df(self,data,delim='.'):
         num_thresholds = len(self.thresholds)
@@ -115,6 +111,40 @@ class assign:
         return  is_ok
 
 
+    def init_nomenclature_tracker(self):
+        nomenclature_cluster_tracker = self.memberships_df.max().to_frame().T.to_dict()
+        for col in nomenclature_cluster_tracker:
+            nomenclature_cluster_tracker[col] = nomenclature_cluster_tracker[col][0] + 1
+        self.nomenclature_cluster_tracker = nomenclature_cluster_tracker
+
+
+    def process_memberships(self):
+        lookup = {}
+        for row in self.memberships_df.itertuples():
+            values = [str(x) for x in list(row)]
+            id = values[0]
+            values = values[1:]
+            self.memberships_dict[id] = ".".join([str(x) for x in values])
+            for idx,value in enumerate(values):
+                code = ".".join(values[0:idx+1])
+                if not code in lookup:
+                    lookup[code] = list()
+                lookup[code].append(id)
+        self.memberships_lookup = lookup
+
+    def get_dist_summary(self,dists):
+        min_dist = min(dists)
+        ave_dist = mean(dists)
+        max_dist = max(dists)
+        return {'min':min_dist,'mean':ave_dist,'max':max_dist}
+
+    def get_threshold_idx(self,dist):
+
+        for i in reversed(range(0,len(self.thresholds))):
+            if dist <= self.thresholds[i]:
+                return i
+        return 0
+    
     def guess_file_type(self,f):
         file_type = None
         for t in EXTENSIONS:
@@ -123,19 +153,7 @@ class assign:
                     file_type = t
                     break
         return file_type
-
-    def guess_dist_type(self):
-        cols = self.query_df.columns.values.tolist()
-        is_pd_fmt = True
-        for c in PD_HEADER:
-            if not c in cols:
-                is_pd_fmt = False
-                break
-        if is_pd_fmt:
-            return 'pd'
-        else:
-            return 'matrix'
-
+    
     def read_data(self,f):
         df = pd.DataFrame()
         file_type = self.guess_file_type(f)
@@ -149,120 +167,65 @@ class assign:
                 storage_options=None,)
 
         return (file_type, df)
-
-    def init_nomenclature_tracker(self):
-        nomenclature_cluster_tracker = self.memberships_df.max().to_frame().T.to_dict()
-        for col in nomenclature_cluster_tracker:
-            nomenclature_cluster_tracker[col] = nomenclature_cluster_tracker[col][0] + 1
-        self.nomenclature_cluster_tracker = nomenclature_cluster_tracker
-
-
-    def process_memberships(self):
-        lookup = {}
-
-        for row in self.memberships_df.itertuples():
-            values = [str(x) for x in list(row)]
-            id = values[0]
-            values = values[1:]
-            self.memberships_dict[id] = ".".join([str(x) for x in values])
-            for idx,value in enumerate(values):
-                code = ".".join(values[0:idx+1])
-                if not code in lookup:
-                    lookup[code] = list()
-                lookup[code].append(id)
-        self.memberships_lookup = lookup
-
-    def get_dist_summary(self,q_id,r_id):
-        filt_df = self.query_df[self.query_df['query_id'] == q_id]
-        address = self.memberships_dict[r_id]
-        filt_df = filt_df[filt_df['ref_id'].isin(self.memberships_lookup[address])]
-        min_dist = filt_df['dist'].min()
-        ave_dist = filt_df['dist'].mean()
-        max_dist = filt_df['dist'].max()
-        return {'min':min_dist,'mean':ave_dist,'max':max_dist}
-
-    def lookup_col_by_dist(self,d):
-        for col in self.threshold_map:
-            if self.threshold_map[col] == d:
-                return col
-        return None
-
-
-    def assign(self):
-        subset = self.query_df
-        unassigned_ids = set(subset['query_id'].unique())
-        num_ranks = len(self.thresholds)
+    
+    def assign(self, n_records=1000,delim="\t"):
+        min_dist = min(self.thresholds)
+        max_dist = max(self.thresholds)
+        reader_obj = dist_reader(f=self.dist_file,min_dist=min_dist, max_dist=max_dist, n_records=n_records,delim=delim)
+        query_ids = set()
         rank_ids = list(self.nomenclature_cluster_tracker.keys())
-
-        for idx,thresh in enumerate(self.thresholds):
-            if len(unassigned_ids) == 0:
-                break
-            subset = subset[subset['query_id'].isin(list(unassigned_ids))]
-            filt_df = subset[subset['dist'] <= thresh].sort_values(by=['dist'])
-            query_ids = filt_df['query_id'].unique()
-            for q_id in query_ids:
-                a = [None] * num_ranks
-                if q_id in self.memberships_dict:
-                    unassigned_ids = unassigned_ids - set(q_id)
+        num_ranks = len(self.thresholds)
+        for dists in reader_obj.read_data():
+            query_ids = query_ids | set(dists.keys())
+            for qid in dists:
+                is_eligible = False
+                self.query_labels.add(qid)
+                query_addr = [None] * num_ranks
+                if qid in self.memberships_dict:
                     continue
-                tmp_df = filt_df[filt_df['query_id'] == q_id]
-                ref_ids = tmp_df['ref_id'].unique()
-                if len(ref_ids) == 0:
-                    continue
-                checked_addresses = set()
-
-                for r_id in ref_ids:
-                    if r_id == q_id or not r_id in self.memberships_dict:
+                for rid in dists[qid]:
+                    if rid == qid or rid not in self.memberships_dict:
                         continue
-                    a = copy.deepcopy(self.memberships_dict[r_id])
-                    if a in checked_addresses:
+                    pairwise_dist = dists[qid][rid]
+                    thresh_idx = self.get_threshold_idx(pairwise_dist)
+                    thresh_value = self.thresholds[thresh_idx]
+                    
+                    #save unnecessary work
+                    if thresh_value < pairwise_dist:
                         continue
-                    summary = self.get_dist_summary(q_id, r_id)
-                    checked_addresses.add(a)
-                    is_eligible = True
-                    if self.linkage_method == 'complete' and summary['max'] > thresh:
-                        is_eligible = False
-                    elif self.linkage_method == 'average' and summary['mean'] > thresh:
-                        is_eligible = False
-                    if is_eligible:
-                        break
-
-                #Sample is too distant to be assigned at this threshold
-                if r_id == q_id:
-                    continue
-
-                unassigned_ids = unassigned_ids - set([q_id])
-
-                #remove the last n codes from the address based on the threshold
-                #Pad the code out with None
-                if isinstance(a,str):
-                    a = a.split('.')
-
-                #Blank the digits of the code which are past the rank
-                a.reverse()
-                for i in range(0,idx):
-                    a[i] = None
-                a.reverse()
-
-                for i,value in enumerate(a):
-                    if value is not None:
-                        continue
-                    a[i] = self.nomenclature_cluster_tracker[rank_ids[i]]
-                    self.nomenclature_cluster_tracker[rank_ids[i]]+=1
-                self.memberships_dict[q_id] = ".".join([str(x) for x in a])
-
-                for i, value in enumerate(a):
-                    code = ".".join([str(x) for x in a[0:i + 1]])
-                    if not code in self.memberships_lookup:
-                        self.memberships_lookup[code] = list()
-                    self.memberships_lookup[code].append(q_id)
 
 
-        for q_id in unassigned_ids:
-            a = [None] * num_ranks
-            for i, value in enumerate(a):
-                if value is not None:
-                    continue
-                a[i] = self.nomenclature_cluster_tracker[rank_ids[i]]
-                self.nomenclature_cluster_tracker[rank_ids[i]] += 1
-            self.memberships_dict[q_id] = ".".join([str(x) for x in a])
+                    ref_address = self.memberships_dict[rid].split('.')[0:thresh_idx+1]
+                    alen = len(ref_address)
+                    for i in range(0,len(ref_address)):
+                        addr = ".".join(ref_address[0:alen-i])
+                        if addr not in self.memberships_lookup:
+                            continue
+                        addr_members = self.memberships_lookup[addr]
+                        addr_dists = []
+                        for id in addr_members:
+                            addr_dists.append(dists[qid][id])
+                        if len(addr_dists) == 0:
+                            continue
+                        summary = self.get_dist_summary(addr_dists)
+                        
+                        is_eligible = True
+                        if self.linkage_method == 'complete' and summary['max'] > thresh_value:
+                            is_eligible = False
+                        elif self.linkage_method == 'average' and summary['mean'] > thresh_value:
+                            is_eligible = False
+                        
+                        if is_eligible:
+                            for idx,value in enumerate(addr.split('.')):
+                                query_addr[idx] = value
+                            break
+                    
+                    
+                    for idx,value in enumerate(query_addr):
+                        if value is None:
+                            query_addr[idx] = self.nomenclature_cluster_tracker[rank_ids[idx]]
+                            self.nomenclature_cluster_tracker[rank_ids[idx]]+=1
+                    
+                    break
+        
+                self.memberships_dict[qid] = ".".join([str(x) for x in query_addr])

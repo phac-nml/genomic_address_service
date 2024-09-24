@@ -31,6 +31,7 @@ def parse_args():
     parser.add_argument('-o','--outdir', type=str, required=True, help='Output directory to put cluster results')
     parser.add_argument('-u', '--outfmt', type=str, required=False, help='Output format for assignments [text, parquet]',default='text')
     parser.add_argument('-l', '--delimeter', type=str, required=False, help='delimeter desired for nomenclature code',default=".")
+    parser.add_argument('-b', '--batch_size', type=int, required=False, help='Number of records to process at a time',default=100)
     parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
     parser.add_argument('-f', '--force', required=False, help='Overwrite existing directory',
                         action='store_true')
@@ -52,6 +53,7 @@ def run_call(config):
     address_col = config['address_col']
     sample_col = config['sample_col']
     run_data = CALL_RUN_DATA
+    batch_size = config['batch_size']
 
     run_data['analysis_start_time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     run_data['parameters'] = config
@@ -108,7 +110,7 @@ def run_call(config):
     run_data['threshold_map'] = threshold_map
     write_threshold_map(threshold_map, os.path.join(outdir, "thresholds.json"))
 
-    obj = assign(dist_file,membership_file,threshold_map,linkage_method,address_col,sample_col)
+    obj = assign(dist_file,membership_file,threshold_map,linkage_method,address_col,sample_col,batch_size)
 
     if obj.status == False:
         print(f'Error something went wrong with cluster assignment. check error messages {obj.error_msgs}')
