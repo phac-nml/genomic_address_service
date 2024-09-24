@@ -171,7 +171,7 @@ class assign:
     def assign(self, n_records=1000,delim="\t"):
         min_dist = min(self.thresholds)
         max_dist = max(self.thresholds)
-        reader_obj = dist_reader(f=self.dist_file,min_dist=min_dist, max_dist=max_dist, n_records=n_records,delim=delim)
+        reader_obj = dist_reader(f=self.dist_file,min_dist=min_dist, max_dist=None, n_records=n_records,delim=delim)
         query_ids = set()
         rank_ids = list(self.nomenclature_cluster_tracker.keys())
         num_ranks = len(self.thresholds)
@@ -183,6 +183,7 @@ class assign:
                 query_addr = [None] * num_ranks
                 if qid in self.memberships_dict:
                     continue
+
                 for rid in dists[qid]:
                     if rid == qid or rid not in self.memberships_dict:
                         continue
@@ -191,41 +192,37 @@ class assign:
                     thresh_value = self.thresholds[thresh_idx]
                     
                     #save unnecessary work
-                    if thresh_value < pairwise_dist:
-                        continue
-
-
-                    ref_address = self.memberships_dict[rid].split('.')[0:thresh_idx+1]
-                    alen = len(ref_address)
-                    for i in range(0,len(ref_address)):
-                        addr = ".".join(ref_address[0:alen-i])
-                        if addr not in self.memberships_lookup:
-                            continue
-                        addr_members = self.memberships_lookup[addr]
-                        addr_dists = []
-                        for id in addr_members:
-                            addr_dists.append(dists[qid][id])
-                        if len(addr_dists) == 0:
-                            continue
-                        summary = self.get_dist_summary(addr_dists)
+                    if thresh_value > pairwise_dist:
+                        ref_address = self.memberships_dict[rid].split('.')[0:thresh_idx+1]
+                        alen = len(ref_address)
+                        for i in range(0,len(ref_address)):
+                            addr = ".".join(ref_address[0:alen-i])
+                            if addr not in self.memberships_lookup:
+                                continue
+                            addr_members = self.memberships_lookup[addr]
+                            addr_dists = []
+                            for id in addr_members:
+                                addr_dists.append(dists[qid][id])
+                            if len(addr_dists) == 0:
+                                continue
+                            summary = self.get_dist_summary(addr_dists)
+                            
+                            is_eligible = True
+                            if self.linkage_method == 'complete' and summary['max'] > thresh_value:
+                                is_eligible = False
+                            elif self.linkage_method == 'average' and summary['mean'] > thresh_value:
+                                is_eligible = False
+                            
+                            if is_eligible:
+                                for idx,value in enumerate(addr.split('.')):
+                                    query_addr[idx] = value
+                                break
                         
-                        is_eligible = True
-                        if self.linkage_method == 'complete' and summary['max'] > thresh_value:
-                            is_eligible = False
-                        elif self.linkage_method == 'average' and summary['mean'] > thresh_value:
-                            is_eligible = False
-                        
-                        if is_eligible:
-                            for idx,value in enumerate(addr.split('.')):
-                                query_addr[idx] = value
-                            break
-                    
-                    
                     for idx,value in enumerate(query_addr):
                         if value is None:
                             query_addr[idx] = self.nomenclature_cluster_tracker[rank_ids[idx]]
                             self.nomenclature_cluster_tracker[rank_ids[idx]]+=1
-                    
+
                     break
         
                 self.memberships_dict[qid] = ".".join([str(x) for x in query_addr])
