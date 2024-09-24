@@ -170,7 +170,6 @@ class assign:
     
     def assign(self, n_records=1000,delim="\t"):
         min_dist = min(self.thresholds)
-        max_dist = max(self.thresholds)
         reader_obj = dist_reader(f=self.dist_file,min_dist=min_dist, max_dist=None, n_records=n_records,delim=delim)
         query_ids = set()
         rank_ids = list(self.nomenclature_cluster_tracker.keys())

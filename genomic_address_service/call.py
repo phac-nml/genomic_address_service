@@ -100,12 +100,6 @@ def run_call(config):
     else:
         threshold_map = init_threshold_map(membership_file,thresholds)
 
-    if len(threshold_map) == 0 and thresh_map_file is not None:
-        print(f'Error {thresh_map_file } is malformed or empty')
-        sys.exit()
-    elif  len(threshold_map) == 0 :
-        print(f'Error {thresholds }  supplied thresholds do not equal the number of threshold columns in {membership_file}')
-        sys.exit()
 
     run_data['threshold_map'] = threshold_map
     write_threshold_map(threshold_map, os.path.join(outdir, "thresholds.json"))
