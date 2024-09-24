@@ -71,21 +71,10 @@ def write_cluster_assignments(file ,memberships, threshold_map, outfmt, delimete
     else:
         fp.write(file, df, compression='GZIP')
 
-def init_threshold_map(file,thresholds):
+def init_threshold_map(thresholds):
     thresh_map = {}
-    df = pd.read_csv(file,header=0,sep="\t")
-    cols = df.columns.values.tolist()
-    valid_cols = []
-    for idx,value in enumerate(cols):
-        if value in ['sample_id','id','ST','nomenclature','address']:
-            continue
-        valid_cols.append(value)
-
-    if len(valid_cols) != len(thresholds):
-        return {}
-
-    for idx,value in enumerate(valid_cols):
-        thresh_map[value] = thresholds[idx]
+    for idx,value in enumerate(thresholds):
+        thresh_map[idx] = value
 
     return thresh_map
 

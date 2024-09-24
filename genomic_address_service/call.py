@@ -98,7 +98,7 @@ def run_call(config):
     if thresh_map_file is not None:
         threshold_map = json.load(open(thresh_map_file,'r'))
     else:
-        threshold_map = init_threshold_map(membership_file,thresholds)
+        threshold_map = init_threshold_map(thresholds)
 
 
     run_data['threshold_map'] = threshold_map
