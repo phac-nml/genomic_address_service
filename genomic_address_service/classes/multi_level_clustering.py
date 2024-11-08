@@ -54,7 +54,7 @@ class multi_level_clustering:
             return "%s:%f%s" % (leaf_names[node.id], parentdist - node.dist, newick)
         else:
             if len(newick) > 0:
-                newick = f"):{(parentdist - node.dist) / 2}{newick}"
+                newick = f"):{parentdist - node.dist}{newick}"
             else:
                 newick = ");"
             newick = self.buildNewick(node.get_left(), newick, node.dist, leaf_names)
