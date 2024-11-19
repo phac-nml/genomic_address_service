@@ -22,3 +22,5 @@ Changed README format to standard DAAD README, added useage arguments.
 ### `Dependencies`
 
 ### `Deprecated`
+
+[0.1.3]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.1.3
