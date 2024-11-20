@@ -1,6 +1,6 @@
 from genomic_address_service.version import __version__
 EXTENSIONS = {'text': ['.txt','.tsv','.mat','.text'],
-    'parquet': ['.parq','.parquet','.pq']}
+    'parquet': ['parquet','.parquet','.pq']}
 PD_HEADER = [
     'query_id',
     'ref_id',
