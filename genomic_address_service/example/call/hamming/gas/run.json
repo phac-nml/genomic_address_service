@@ -1,0 +1,30 @@
+{
+    "genomic address service: cluster assignment": "version: 0.1.1",
+    "analysis_start_time": "07/05/2024 13:30:56",
+    "analysis_end_time": "",
+    "parameters": {
+        "dists": "call/hamming/results.text",
+        "rclusters": "call/clusters.text",
+        "method": "average",
+        "thresh_map": null,
+        "thresholds": "10,9,8,7,6,5,4,3,2,1,0",
+        "outdir": "call/hamming/gas",
+        "outfmt": "text",
+        "delimeter": ".",
+        "force": true
+    },
+    "threshold_map": {
+        "level_1": 10.0,
+        "level_2": 9.0,
+        "level_3": 8.0,
+        "level_4": 7.0,
+        "level_5": 6.0,
+        "level_6": 5.0,
+        "level_7": 4.0,
+        "level_8": 3.0,
+        "level_9": 2.0,
+        "level_10": 1.0,
+        "level_11": 0.0
+    },
+    "result_file": "call/hamming/gas/results.text"
+}

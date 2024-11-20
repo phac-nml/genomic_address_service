@@ -56,7 +56,7 @@ def write_threshold_map(data,file):
 
     fh.close()
 
-def write_cluster_assignments(file,memberships,threshold_map,outfmt,delimeter="."):
+def write_cluster_assignments(file ,memberships, threshold_map, outfmt, delimeter=".", sample_col='id', address_col='address'):
     results = {}
     threshold_keys = list(threshold_map.keys())
     for id in memberships:
@@ -65,26 +65,16 @@ def write_cluster_assignments(file,memberships,threshold_map,outfmt,delimeter=".
         for idx,value in enumerate(address.split(delimeter)):
             results[id][threshold_keys[idx]] = value
     df = pd.DataFrame.from_dict(results,orient='index')
+    df = df[[sample_col,address_col]]
     if outfmt == 'text':
         df.to_csv(file,header=True,sep="\t",index=False)
     else:
         fp.write(file, df, compression='GZIP')
 
-def init_threshold_map(file,thresholds):
+def init_threshold_map(thresholds):
     thresh_map = {}
-    df = pd.read_csv(file,header=0,sep="\t")
-    cols = df.columns.values.tolist()
-    valid_cols = []
-    for idx,value in enumerate(cols):
-        if value in ['sample_id','id','ST','nomenclature','address']:
-            continue
-        valid_cols.append(value)
-
-    if len(valid_cols) != len(thresholds):
-        return {}
-
-    for idx,value in enumerate(valid_cols):
-        thresh_map[value] = thresholds[idx]
+    for idx,value in enumerate(thresholds):
+        thresh_map[idx] = value
 
     return thresh_map
 

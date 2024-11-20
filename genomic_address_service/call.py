@@ -23,36 +23,40 @@ def parse_args():
                         default='average')
     parser.add_argument('-j', '--thresh_map', type=str, required=False, help='Json file of colname:threshold',
                         default=None)
+    parser.add_argument('-s', '--sample_col', type=str, required=False, help='Column name for sample id',
+                        default='id')
+    parser.add_argument('-c', '--address_col', type=str, required=False, help='Column name for genomic address',
+                        default='address')
     parser.add_argument('-t', '--thresholds', type=str, required=False, help='thresholds delimited by , columns will be treated in sequential order')
     parser.add_argument('-o','--outdir', type=str, required=True, help='Output directory to put cluster results')
     parser.add_argument('-u', '--outfmt', type=str, required=False, help='Output format for assignments [text, parquet]',default='text')
     parser.add_argument('-l', '--delimeter', type=str, required=False, help='delimeter desired for nomenclature code',default=".")
+    parser.add_argument('-b', '--batch_size', type=int, required=False, help='Number of records to process at a time',default=100)
     parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
     parser.add_argument('-f', '--force', required=False, help='Overwrite existing directory',
                         action='store_true')
-
     return parser.parse_args()
 
 
-
-def run():
-    cmd_args = parse_args()
-    dist_file = cmd_args.dists
-    membership_file = cmd_args.rclusters
-    thresh_map_file = cmd_args.thresh_map
-    outdir = cmd_args.outdir
-    linkage_method = cmd_args.method
-    thresholds = cmd_args.thresholds
+def run_call(config):
+    dist_file = config['dists']
+    membership_file = config['rclusters']
+    thresh_map_file = config['thresh_map']
+    outdir = config['outdir']
+    linkage_method = config['method']
+    thresholds = config['thresholds']
     if thresholds is not None:
-        thresholds = [float(x) for x in cmd_args.thresholds.split(',')]
-    delimeter = cmd_args.delimeter
-    force = cmd_args.force
-    outfmt = cmd_args.outfmt
-
+        thresholds = [float(x) for x in thresholds.split(',')]
+    delimeter = config['delimeter']
+    force = config['force']
+    outfmt = config['outfmt']
+    address_col = config['address_col']
+    sample_col = config['sample_col']
     run_data = CALL_RUN_DATA
+    batch_size = config['batch_size']
 
     run_data['analysis_start_time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    run_data['parameters'] = vars(cmd_args)
+    run_data['parameters'] = config
 
     if outfmt not in ['text','parquet']:
         print(f'Error please specify a either text or parquet as the output format you specified: {outfmt}')
@@ -94,19 +98,13 @@ def run():
     if thresh_map_file is not None:
         threshold_map = json.load(open(thresh_map_file,'r'))
     else:
-        threshold_map = init_threshold_map(membership_file,thresholds)
+        threshold_map = init_threshold_map(thresholds)
 
-    if len(threshold_map) == 0 and thresh_map_file is not None:
-        print(f'Error {thresh_map_file } is malformed or empty')
-        sys.exit()
-    elif  len(threshold_map) == 0 :
-        print(f'Error {thresholds }  supplied thresholds do not equal the number of threshold columns in {membership_file}')
-        sys.exit()
 
     run_data['threshold_map'] = threshold_map
     write_threshold_map(threshold_map, os.path.join(outdir, "thresholds.json"))
 
-    obj = assign(dist_file,membership_file,threshold_map,linkage_method)
+    obj = assign(dist_file,membership_file,threshold_map,linkage_method,address_col,sample_col,batch_size)
 
     if obj.status == False:
         print(f'Error something went wrong with cluster assignment. check error messages {obj.error_msgs}')
@@ -117,12 +115,16 @@ def run():
 
     run_data['result_file'] = os.path.join(outdir, "results.{}".format(outfmt))
 
-    write_cluster_assignments(run_data['result_file'], cluster_assignments, threshold_map, outfmt,delimeter)
+    write_cluster_assignments(run_data['result_file'], cluster_assignments, threshold_map, outfmt, delimeter, sample_col, address_col)
 
     with open(os.path.join(outdir,"run.json"),'w') as fh:
         fh.write(json.dumps(run_data, indent=4))
 
-    run_data['analysis_end_time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    run_data['analysis_end_time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")  
+
+def run():
+    cmd_args = parse_args()
+    run_call(vars(cmd_args))
 
 # call main function
 if __name__ == '__main__':
