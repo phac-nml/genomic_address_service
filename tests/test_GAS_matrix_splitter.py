@@ -41,15 +41,16 @@ def test_get_file_length(mock_matrix_file):
     ms = matrix_splitter(file_path=mock_matrix_file, 
                          out_path=dummy_out_path, 
                          batch_size=dummy_batch_size)
-    expected_line_count = 10
+    expected_line_count = 3
     assert ms.get_file_length() == expected_line_count, "get_file_length did not return the expected number of lines"
 
 def test_prep_batch_ranges(big_mock_matrix_file, output_directory):
     batch_size = 1
     ms = matrix_splitter(big_mock_matrix_file, output_directory, batch_size)
     ms.prep_batch_ranges()
-    assert ms.num_batches == 2 
+    assert ms.num_batches == 5 
     assert len(ms.ranges) == ms.num_batches
+    assert ms.ranges == [(i, i+1) for i in range(0, ms.num_batches)]
 
 @pytest.mark.parametrize("method_name", ["parse_distance_matrix_bins", "parse_distance_matrix_partitions"])
 def test_parse_methods(big_mock_matrix_file, output_directory, method_name):
