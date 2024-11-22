@@ -74,12 +74,8 @@ def test_write_cluster_assignments(outfmt):
     os.unlink(tmpfile.name)
 
 def test_init_threshold_map():
-    with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.txt') as tmpfile:
-        tmpfile.write("id\tsample_id\tST\tnomenclature\taddress\tlevel_1\tlevel_2\tlevel_3\n")
-        tmpfile.write("1\tSample1\tST1\tNom1\tAddr1\t0.1\t0.2\t0.3\n")
-        tmpfile.seek(0)
-        thresholds = [0.1, 0.2, 0.3]
-        result = init_threshold_map(tmpfile.name, thresholds)
-        expected_result = {'level_1': 0.1, 'level_2': 0.2, 'level_3': 0.3}
+    thresholds = [0.1, 0.2, 0.3]
+    result = init_threshold_map(thresholds)
+    expected_result = {0: 0.1, 1: 0.2, 2: 0.3}
     assert result == expected_result
-    os.unlink(tmpfile.name)
+    
