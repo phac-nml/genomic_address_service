@@ -51,7 +51,7 @@ class matrix_splitter:
         rem = self.batch_size % self.num_batches
         ranges = []
         for i in range(0,self.num_batches):
-            ranges.append(i*self.batch_size,i*self.batch_size+self.batch_size)
+            ranges.append((i*self.batch_size,i*self.batch_size+self.batch_size))
         if rem != 0:
             r = ranges[-1]
             r[1] = self.num_lines
