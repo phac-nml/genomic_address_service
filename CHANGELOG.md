@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Converted `data[sample_id]` to a string in the `format_df` function with `assign.py` to prevent `AttributeErrors` when non-string values are in the genomic address.
 
+### `Added`
+
+- Fixed pytests
+- Added github actions for pytest and branch protection
+
 ## v1.0dev - [date]
 
 Initial release of phac-nml/genomic_address_service
