@@ -5,13 +5,18 @@ name: Python package
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches:
+      - dev
   pull_request:
-    branches: [ $default-branch ]
+  release:
+    types: [published]
+
 
 jobs:
-  build:
-
+  test:
+    name: Run pytest
+    # Only run on push if this is the phac-nml dev branch (merged PRs)
+    if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'phac-nml/genomic_address_service') }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
