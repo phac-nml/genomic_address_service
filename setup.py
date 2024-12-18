@@ -50,7 +50,7 @@ setup(
     install_requires=[
         'pyarrow==12.0.0',
         'numba==0.59.1',
-        'numpy==1.24.4',
+        'numpy==1.26.4',
         'tables==3.8.0',
         'six>=1.16.0',
         'pandas==2.0.2 ',
