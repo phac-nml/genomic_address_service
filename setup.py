@@ -30,7 +30,7 @@ setup(
     name='genomic_address_service',
     include_package_data=True,
     version=__version__,
-    python_requires='>=3.10.0,<4',
+    python_requires='>=3.10.0,<3.13.0',
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     packages=find_packages(exclude=['tests']),
@@ -49,7 +49,7 @@ setup(
 
     install_requires=[
         'pyarrow==12.0.0',
-        'numba==0.57.1',
+        'numba==0.59.1',
         'numpy==1.24.4',
         'tables==3.8.0',
         'six>=1.16.0',
