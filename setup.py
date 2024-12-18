@@ -30,7 +30,7 @@ setup(
     name='genomic_address_service',
     include_package_data=True,
     version=__version__,
-    python_requires='>=3.8.2,<4',
+    python_requires='>=3.10.0,<3.13.0',
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     packages=find_packages(exclude=['tests']),
@@ -48,13 +48,16 @@ setup(
     },
 
     install_requires=[
-        'pyarrow==12.0.0',
-        'fastparquet==2023.4.0',
-        'numba==0.57.1',
-        'numpy==1.24.4',
-        'tables==3.8.0',
+        'pyarrow>=14.0.0',
+        'numba==0.59.1',
+        'numpy==1.26.4',
+        'tables==3.9.1',
         'six>=1.16.0',
         'pandas==2.0.2 ',
+        'pytest==8.3.3',
+        'scipy==1.14.1',
+        'psutil==6.1.0',
+        'fastparquet==2023.4.0' #Will drop support of fastparquet in future versions
 
     ],
 
