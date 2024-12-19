@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Fixed`
 
-- Converted `data[sample_id]` to a string in the `format_df` function with `assign.py` to prevent `AttributeErrors` when non-string values are in the genomic address.
+- Converted `data[sample_id]` to a string in the `format_df` function with `assign.py` to prevent `AttributeErrors` when non-string values are in the genomic address. [PR14](https://github.com/phac-nml/genomic_address_service/pull/14)
+- Updated `buildNewick` formula to use cophenetic distances for branch lengths, aligning cluster visualization with BioNumerics dendrogram representation. [PR15](https://github.com/phac-nml/genomic_address_service/pull/15)
 
 ### `Added`
 
