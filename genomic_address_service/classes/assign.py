@@ -85,7 +85,7 @@ class assign:
         self.error_samples = []
         membership = {}
         for sample_id in data:
-            address = data[sample_id].split(delim)
+            address = str(data[sample_id]).split(delim)
             if len(address) != num_thresholds:
                 self.error_samples.append(sample_id)
                 continue
