@@ -191,7 +191,7 @@ class assign:
                     thresh_value = self.thresholds[thresh_idx]
                     
                     #save unnecessary work
-                    if thresh_value > pairwise_dist:
+                    if thresh_value >= pairwise_dist:
                         ref_address = self.memberships_dict[rid].split('.')[0:thresh_idx+1]
                         alen = len(ref_address)
                         for i in range(0,len(ref_address)):
