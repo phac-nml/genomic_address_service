@@ -1,6 +1,6 @@
 from genomic_address_service.constants import EXTENSIONS
 from pyarrow.parquet import ParquetFile
-import pyarrow as pa 
+import pyarrow as pa
 from genomic_address_service.utils import  get_file_length, get_file_header
 
 class dist_reader:
@@ -10,6 +10,10 @@ class dist_reader:
     row_number = 0
 
     def __init__(self, f, min_dist=None, max_dist=None, n_records=1000,delim="\t") -> None:
+        self.record_ids = set()
+        self.dists = {}
+        self.file_handle = None
+        self.row_number = 0
         self.fpath = f
         self.delim = delim
         self.min_dist = min_dist
@@ -19,7 +23,7 @@ class dist_reader:
         if min_dist is None and max_dist is None:
             self.filter = False
 
-    
+
     def guess_file_type(self,f):
         file_type = None
         for t in EXTENSIONS:
@@ -28,23 +32,23 @@ class dist_reader:
                     file_type = t
                     break
         return file_type
-    
+
     def guess_dist_type(self, fpath, ftype, delim="\t"):
         if ftype == 'text':
             header = get_file_header(fpath).split(delim)
             num_rows = get_file_length(fpath)
         elif ftype == 'parquet':
-            pf = ParquetFile(fpath) 
+            pf = ParquetFile(fpath)
             first_rows = next(pf.iter_batches(batch_size = self.n_records))
-            df = pa.Table.from_batches([first_rows]).to_pandas() 
+            df = pa.Table.from_batches([first_rows]).to_pandas()
             header = list(df.columns)
             num_rows = pf.num_row_groups
-        
+
         if len(header) == 3 and num_rows != 3:
             return 'pd'
         else:
             return 'matrix'
-    
+
     def read_pd(self):
         for line in self.file_handle:
             self.row_number+=1
@@ -59,7 +63,7 @@ class dist_reader:
                 yield self.dists
                 self.dists = {}
 
-            if qid not in self.record_ids:  
+            if qid not in self.record_ids:
                 self.record_ids.add(qid)
                 self.dists[qid] = {}
             if self.filter:
@@ -68,11 +72,11 @@ class dist_reader:
                         continue
                 if self.max_dist is not None:
                      if d > self.max_dist:
-                        continue                   
+                        continue
             self.dists[qid][rid] = d
         self.sort_distances()
 
-    
+
     def sort_distances(self):
         for qid in self.dists:
             self.dists[qid] = {k: v for k, v in sorted(self.dists[qid].items(), key=lambda item: item[1])}
@@ -86,11 +90,11 @@ class dist_reader:
                 self.sort_distances()
                 yield self.dists
                 self.dists = {}
-            
-            if qid not in self.record_ids:  
+
+            if qid not in self.record_ids:
                 self.record_ids.add(qid)
                 self.dists[qid] = {}
-                
+
             values = list(map(float, line[1:]))
             for i in range(0,len(values)):
                 rid = self.header[i]
@@ -101,11 +105,11 @@ class dist_reader:
                             continue
                     if self.max_dist is not None:
                         if d > self.max_dist:
-                            continue     
+                            continue
                 self.dists[qid][rid] = d
         self.sort_distances()
 
-           
+
     def read_data(self):
         ftype = self.guess_file_type(self.fpath)
         dist_type = self.guess_dist_type(self.fpath, ftype, self.delim)
@@ -131,6 +135,6 @@ class dist_reader:
 
 
 
-    
 
-    
+
+
