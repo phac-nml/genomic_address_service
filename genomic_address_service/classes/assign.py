@@ -7,31 +7,15 @@ from genomic_address_service.utils import is_file_ok
 from genomic_address_service.classes.reader import dist_reader
 class assign:
     avail_methods = ["average", "complete", "single"]
-    threshold_map = {}
-    thresholds = []
-    linkage_method = "single"
-    sample_labels = []
-    query_labels = set()
-    memberships_df = None
-    memberships_dict = {}
-    memberships_lookup = {}
-    ref_labels = set()
-    dist_type = "matrix"
-    error_msgs = []
-    status = True
-    assignments = {}
-    nomenclature_cluster_tracker = {}
-    query_ids = set()
 
 
     def __init__(self,dist_file,membership_file,threshold_map,linkage_method,address_col, sample_col, batch_size):
         self.dist_file = dist_file
         self.batch_size = batch_size
         file_type = None
-        self.avail_methods = ['average','complete','single']
-        self.threshold_map = {}
+        self.threshold_map = threshold_map
         self.thresholds = []
-        self.linkage_method = 'single'
+        self.linkage_method = linkage_method
         self.sample_labels = []
         self.query_labels = set()
         self.memberships_df = None
@@ -129,10 +113,10 @@ class assign:
 
 
     def init_nomenclature_tracker(self):
-        nomenclature_cluster_tracker = self.memberships_df.max().to_frame().T.to_dict()
-        for col in nomenclature_cluster_tracker:
-            nomenclature_cluster_tracker[col] = nomenclature_cluster_tracker[col][0] + 1
-        self.nomenclature_cluster_tracker = nomenclature_cluster_tracker
+        self.nomenclature_cluster_tracker = self.memberships_df.max().to_frame().T.to_dict()
+        for col in self.nomenclature_cluster_tracker:
+            self.nomenclature_cluster_tracker[col] = self.nomenclature_cluster_tracker[col][0] + 1
+        self.nomenclature_cluster_tracker = self.nomenclature_cluster_tracker
 
 
     def process_memberships(self):
@@ -189,11 +173,11 @@ class assign:
         min_dist = min(self.thresholds)
         reader_obj = None
         reader_obj = dist_reader(f=self.dist_file,min_dist=min_dist, max_dist=None, n_records=n_records,delim=delim)
-        query_ids = set()
+        self.query_ids = set()
         rank_ids = list(self.nomenclature_cluster_tracker.keys())
         num_ranks = len(self.thresholds)
         for dists in reader_obj.read_data():
-            query_ids = query_ids | set(dists.keys())
+            self.query_ids = self.query_ids | set(dists.keys())
             for qid in dists:
                 is_eligible = False
                 self.query_labels.add(qid)

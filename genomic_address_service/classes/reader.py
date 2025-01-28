@@ -4,10 +4,6 @@ import pyarrow as pa
 from genomic_address_service.utils import  get_file_length, get_file_header
 
 class dist_reader:
-    record_ids = set()
-    dists = {}
-    file_handle = None
-    row_number = 0
 
     def __init__(self, f, min_dist=None, max_dist=None, n_records=1000,delim="\t") -> None:
         self.record_ids = set()
