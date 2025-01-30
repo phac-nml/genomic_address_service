@@ -68,3 +68,9 @@ def test_check_thresh(results_dist, reference_clusters):
     threshold_map = {0: 1.0, 1: 1.0}
     z = assign(dist_file=results_dist, membership_file=reference_clusters, threshold_map=threshold_map, linkage_method='single', address_col = "address", sample_col='id', batch_size=100)
     assert z.memberships_dict == {'sample1': '1.1', 'sample2': '1.1', 'sample3': '1.1', 'sampleQ': '1.1'}
+    threshold_map = {0: 1.0, 1: 2.0}
+    z = assign(dist_file=results_dist, membership_file=reference_clusters, threshold_map=threshold_map, linkage_method='single', address_col = "address", sample_col='id', batch_size=100)
+    assert z.memberships_dict == {'sample1': '1.1', 'sample2': '1.1', 'sample3': '1.1', 'sampleQ': '1.1'}
+    threshold_map = {0: 1.0, 1: 3.0}
+    z = assign(dist_file=results_dist, membership_file=reference_clusters, threshold_map=threshold_map, linkage_method='single', address_col = "address", sample_col='id', batch_size=100)
+    assert z.memberships_dict == {'sample1': '1.1', 'sample2': '1.1', 'sample3': '1.1', 'sampleQ': '1.1'}
