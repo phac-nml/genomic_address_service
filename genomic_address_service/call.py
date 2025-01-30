@@ -105,14 +105,14 @@ def run_call(config):
     write_threshold_map(threshold_map, os.path.join(outdir, "thresholds.json"))
 
     obj = assign(dist_file,membership_file,threshold_map,linkage_method,address_col,sample_col,batch_size)
-    print(obj.memberships_dict)
+
     if obj.status == False:
         print(f'Error something went wrong with cluster assignment. check error messages {obj.error_msgs}')
         sys.exit()
     cluster_assignments = obj.memberships_dict
 
     run_data['result_file'] = os.path.join(outdir, "results.{}".format(outfmt))
-    print(threshold_map)
+
     write_cluster_assignments(run_data['result_file'], cluster_assignments, threshold_map, outfmt, delimeter, sample_col, address_col)
 
     with open(os.path.join(outdir,"run.json"),'w') as fh:
