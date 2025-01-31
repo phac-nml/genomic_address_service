@@ -116,8 +116,6 @@ class assign:
         self.nomenclature_cluster_tracker = self.memberships_df.max().to_frame().T.to_dict()
         for col in self.nomenclature_cluster_tracker:
             self.nomenclature_cluster_tracker[col] = self.nomenclature_cluster_tracker[col][0] + 1
-        self.nomenclature_cluster_tracker = self.nomenclature_cluster_tracker
-
 
     def process_memberships(self):
         lookup = {}
