@@ -67,7 +67,7 @@ class dist_reader:
                     if d < self.min_dist:
                         continue
                 if self.max_dist is not None:
-                     if d > self.max_dist:
+                    if d > self.max_dist:
                         continue
             self.dists[qid][rid] = d
         self.sort_distances()
