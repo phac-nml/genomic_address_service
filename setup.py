@@ -32,7 +32,7 @@ setup(
     version=__version__,
     python_requires='>=3.10.0,<3.13.0',
     setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    tests_require=['pytest', 'pytest-workflow'],
     packages=find_packages(exclude=['tests']),
     url='https://github.com/phac-nml/genomic_address_service',
     license='GPLv3',
