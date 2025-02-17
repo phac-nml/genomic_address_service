@@ -30,6 +30,8 @@ class dist_reader:
         return file_type
 
     def guess_dist_type(self, fpath, ftype, delim="\t"):
+        header = []
+        num_rows = 0
         if ftype == 'text':
             header = get_file_header(fpath).split(delim)
             num_rows = get_file_length(fpath)
@@ -63,9 +65,6 @@ class dist_reader:
                 self.record_ids.add(qid)
                 self.dists[qid] = {}
             if self.filter:
-                if self.min_dist is not None:
-                    if d < self.min_dist:
-                        continue
                 if self.max_dist is not None:
                      if d > self.max_dist:
                         continue
