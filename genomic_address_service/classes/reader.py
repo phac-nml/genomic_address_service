@@ -55,7 +55,9 @@ class dist_reader:
                 continue
             qid = line[0]
             rid = line[1]
+            
             d = float(line[2])
+            #print(f'{qid} {rid} {d}')
             if qid not in self.record_ids and len(self.dists) >= self.n_records:
                 self.sort_distances()
                 yield self.dists
@@ -69,6 +71,7 @@ class dist_reader:
                      if d > self.max_dist:
                         continue
             self.dists[qid][rid] = d
+        yield self.dists
         self.sort_distances()
 
 
@@ -95,9 +98,6 @@ class dist_reader:
                 rid = self.header[i]
                 d = values[i]
                 if self.filter:
-                    if self.min_dist is not None:
-                        if d < self.min_dist:
-                            continue
                     if self.max_dist is not None:
                         if d > self.max_dist:
                             continue
@@ -114,6 +114,7 @@ class dist_reader:
             self.header = next(self.file_handle).split(self.delim)
         elif ftype == 'parquet':
             self.file_handle = ParquetFile(self.fpath)
+
         if ftype == 'text' and dist_type == 'pd':
             for chunk in self.read_pd():
                 if chunk is not None:
@@ -126,7 +127,8 @@ class dist_reader:
                     yield chunk
             if chunk is None:
                 chunk = self.dists
-        yield chunk
+        
+        return chunk
 
 
 

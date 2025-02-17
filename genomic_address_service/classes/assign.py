@@ -28,7 +28,6 @@ class assign:
         self.assignments = {}
         self.nomenclature_cluster_tracker = {}
         self.query_ids = set()
-
         if not linkage_method in self.avail_methods:
             self.status = False
             self.error_msgs.append(f'Provided {linkage_method} is not one of the accepted {self.avail_methods}')
@@ -221,7 +220,6 @@ class assign:
                         if value is None:
                             query_addr[idx] = self.nomenclature_cluster_tracker[rank_ids[idx]]
                             self.nomenclature_cluster_tracker[rank_ids[idx]]+=1
-
                     break
 
                 self.memberships_dict[qid] = ".".join([str(x) for x in query_addr])
