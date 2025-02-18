@@ -130,6 +130,15 @@ class assign:
                 lookup[code].append(id)
         self.memberships_lookup = lookup
 
+    def add_memberships_lookup(self,sample_id, address):
+        self.memberships_dict[sample_id] = ".".join([str(x) for x in address])
+        for idx in range(0,len(address)):
+            code = ".".join([str(x) for x in address[0:idx+1]])
+            if not code in self.memberships_lookup:
+                self.memberships_lookup[code] = list()
+            self.memberships_lookup[code].append(sample_id)
+
+
     def get_dist_summary(self,dists):
         min_dist = min(dists)
         ave_dist = mean(dists)
@@ -193,6 +202,7 @@ class assign:
                         alen = len(ref_address)
                         for i in range(0,len(ref_address)):
                             addr = ".".join(ref_address[0:alen-i])
+                            
                             if addr not in self.memberships_lookup:
                                 continue
                             addr_members = self.memberships_lookup[addr]
@@ -212,12 +222,13 @@ class assign:
                                 for idx,value in enumerate(addr.split('.')):
                                     query_addr[idx] = value
                                 break
-                            thresh_value = self.thresholds[thresh_idx-1]
-
+                            thresh_value = self.thresholds[thresh_idx-(i+1)]
+                            
                     for idx,value in enumerate(query_addr):
                         if value is None:
                             query_addr[idx] = self.nomenclature_cluster_tracker[rank_ids[idx]]
                             self.nomenclature_cluster_tracker[rank_ids[idx]]+=1
                     break
 
-                self.memberships_dict[qid] = ".".join([str(x) for x in query_addr])
+                self.add_memberships_lookup(qid, query_addr)
+                #self.memberships_dict[qid] = ".".join([str(x) for x in query_addr])
