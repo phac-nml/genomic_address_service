@@ -66,13 +66,10 @@ class dist_reader:
             if qid not in self.record_ids:
                 self.record_ids.add(qid)
                 self.dists[qid] = {}
-            if self.filter:
-                if self.max_dist is not None:
-                     if d > self.max_dist:
-                        continue
             self.dists[qid][rid] = d
-        yield self.dists
         self.sort_distances()
+       
+        yield self.dists
 
 
     def sort_distances(self):
@@ -97,10 +94,6 @@ class dist_reader:
             for i in range(0,len(values)):
                 rid = self.header[i]
                 d = values[i]
-                if self.filter:
-                    if self.max_dist is not None:
-                        if d > self.max_dist:
-                            continue
                 self.dists[qid][rid] = d
         self.sort_distances()
 

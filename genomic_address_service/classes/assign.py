@@ -181,14 +181,12 @@ class assign:
                 query_addr = [None] * num_ranks
                 if qid in self.memberships_dict:
                     continue
-
                 for rid in dists[qid]:
                     if rid == qid or rid not in self.memberships_dict:
                         continue
                     pairwise_dist = dists[qid][rid]
                     thresh_idx = self.get_threshold_idx(pairwise_dist)
                     thresh_value = self.thresholds[thresh_idx]
-
                     #save unnecessary work
                     if thresh_value >= pairwise_dist:
                         ref_address = self.memberships_dict[rid].split('.')[0:thresh_idx+1]
@@ -200,21 +198,21 @@ class assign:
                             addr_members = self.memberships_lookup[addr]
                             addr_dists = []
                             for id in addr_members:
-                                addr_dists.append(dists[qid][id])
+                                if id in dists[qid]:
+                                    addr_dists.append(dists[qid][id])
                             if len(addr_dists) == 0:
                                 continue
                             summary = self.get_dist_summary(addr_dists)
-
                             is_eligible = True
                             if self.linkage_method == 'complete' and summary['max'] > thresh_value:
                                 is_eligible = False
                             elif self.linkage_method == 'average' and summary['mean'] > thresh_value:
                                 is_eligible = False
-
                             if is_eligible:
                                 for idx,value in enumerate(addr.split('.')):
                                     query_addr[idx] = value
                                 break
+                            thresh_value = self.thresholds[thresh_idx-1]
 
                     for idx,value in enumerate(query_addr):
                         if value is None:
