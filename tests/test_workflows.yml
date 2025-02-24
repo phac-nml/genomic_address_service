@@ -1,0 +1,20 @@
+- name: Test help message
+  command: gas --help
+
+- name: Test call help
+  command: gas call --help
+
+- name: Test mcluster help
+  command: gas mcluster --help
+
+- name: Test gas call
+# A seperate test, verfies the contents of the output file as the order of the output is not deterministic
+  command: gas call -d genomic_address_service/example/call/hamming/results.text -r genomic_address_service/example/call/hamming/clusters.text -o test -t 10,9,8,7,6,5,4,3,2,1,0
+  files:
+    - path: "test/results.text"
+
+- name: Test gas mcluster
+  command: gas mcluster -i genomic_address_service/example/mcluster/hamming/results.text -o test_cluster -t 10,9,8,7,6,5,4,3,2,1,0
+  files:
+    - path: "test_cluster/clusters.text"
+      md5sum: 3a5c897c393420f8197fe4ea3aebaa80
