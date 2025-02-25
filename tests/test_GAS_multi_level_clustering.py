@@ -1,15 +1,19 @@
 import pytest
 from genomic_address_service.classes.multi_level_clustering import multi_level_clustering
 import tempfile
+import textwrap
 import os
 
 @pytest.fixture
 def sample_distance_matrix():
-    content = """Header\tLabel1\tLabel2\tLabel3
-Label1\t0.0\t0.1\t0.2
-Label2\t0.1\t0.0\t0.3
-Label3\t0.2\t0.3\t0.0
-"""
+    content = textwrap.dedent(
+        """\
+        Header\tLabel1\tLabel2\tLabel3
+        Label1\t0.0\t0.1\t0.2
+        Label2\t0.1\t0.0\t0.3
+        Label3\t0.2\t0.3\t0.0
+        """
+    )
     with tempfile.NamedTemporaryFile('w+', delete=False) as tmp:
         tmp.write(content)
         tmp.flush()

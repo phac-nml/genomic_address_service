@@ -4,24 +4,28 @@ Tests for reader class
 """
 
 import pytest
+import textwrap
 from genomic_address_service.classes.reader import dist_reader
 import io
 import pandas as pd
 
 @pytest.fixture()
 def query_table_tsv(tmp_path):
-    input_file = """query_id\tref_id\tdist
-sampleQ\tsampleQ\t0
-sampleQ\tsampleN\t0
-sampleQ\tsample1\t1
-sampleQ\tsample2\t1
-sampleQ\tsample3\t2
-sampleN\tsampleQ\t0
-sampleN\tsampleN\t0
-sampleN\tsample1\t1
-sampleN\tsample2\t1
-sampleN\tsample3\t2
-"""
+    input_file = textwrap.dedent(
+        """\
+        query_id\tref_id\tdist
+        sampleQ\tsampleQ\t0
+        sampleQ\tsampleN\t0
+        sampleQ\tsample1\t1
+        sampleQ\tsample2\t1
+        sampleQ\tsample3\t2
+        sampleN\tsampleQ\t0
+        sampleN\tsampleN\t0
+        sampleN\tsample1\t1
+        sampleN\tsample2\t1
+        sampleN\tsample3\t2
+        """
+    )
     df = pd.read_csv(io.StringIO(input_file), sep='\t')
     out_path = tmp_path / "test_file.tsv"
     df.to_csv(out_path, sep='\t', index=False)
@@ -29,18 +33,21 @@ sampleN\tsample3\t2
 
 @pytest.fixture()
 def query_table_pq(tmp_path):
-    input_file = """query_id\tref_id\tdist
-sampleQ\tsampleQ\t0
-sampleQ\tsampleN\t0
-sampleQ\tsample1\t1
-sampleQ\tsample2\t1
-sampleQ\tsample3\t2
-sampleN\tsampleQ\t0
-sampleN\tsampleN\t0
-sampleN\tsample1\t1
-sampleN\tsample2\t1
-sampleN\tsample3\t2
-"""
+    input_file = textwrap.dedent(
+        """\
+        query_id\tref_id\tdist
+        sampleQ\tsampleQ\t0
+        sampleQ\tsampleN\t0
+        sampleQ\tsample1\t1
+        sampleQ\tsample2\t1
+        sampleQ\tsample3\t2
+        sampleN\tsampleQ\t0
+        sampleN\tsampleN\t0
+        sampleN\tsample1\t1
+        sampleN\tsample2\t1
+        sampleN\tsample3\t2
+        """
+    )
     df = pd.read_csv(io.StringIO(input_file), sep='\t')
     out_path = tmp_path / "test_file.parquet"
     df.to_parquet(out_path, index=False)
