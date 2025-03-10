@@ -57,7 +57,6 @@ class dist_reader:
             rid = line[1]
             
             d = float(line[2])
-            #print(f'{qid} {rid} {d}')
             if qid not in self.record_ids and len(self.dists) >= self.n_records:
                 self.sort_distances()
                 yield self.dists

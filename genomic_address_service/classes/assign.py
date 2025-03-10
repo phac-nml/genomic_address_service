@@ -231,4 +231,3 @@ class assign:
                     break
 
                 self.add_memberships_lookup(qid, query_addr)
-                #self.memberships_dict[qid] = ".".join([str(x) for x in query_addr])
