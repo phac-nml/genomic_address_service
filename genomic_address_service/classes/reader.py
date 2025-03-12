@@ -30,6 +30,8 @@ class dist_reader:
         return file_type
 
     def guess_dist_type(self, fpath, ftype, delim="\t"):
+        header = []
+        num_rows = 0
         if ftype == 'text':
             header = get_file_header(fpath).split(delim)
             num_rows = get_file_length(fpath)
@@ -53,6 +55,7 @@ class dist_reader:
                 continue
             qid = line[0]
             rid = line[1]
+            
             d = float(line[2])
             if qid not in self.record_ids and len(self.dists) >= self.n_records:
                 self.sort_distances()
@@ -62,15 +65,10 @@ class dist_reader:
             if qid not in self.record_ids:
                 self.record_ids.add(qid)
                 self.dists[qid] = {}
-            if self.filter:
-                if self.min_dist is not None:
-                    if d < self.min_dist:
-                        continue
-                if self.max_dist is not None:
-                    if d > self.max_dist:
-                        continue
             self.dists[qid][rid] = d
         self.sort_distances()
+       
+        yield self.dists
 
 
     def sort_distances(self):
@@ -95,13 +93,6 @@ class dist_reader:
             for i in range(0,len(values)):
                 rid = self.header[i]
                 d = values[i]
-                if self.filter:
-                    if self.min_dist is not None:
-                        if d < self.min_dist:
-                            continue
-                    if self.max_dist is not None:
-                        if d > self.max_dist:
-                            continue
                 self.dists[qid][rid] = d
         self.sort_distances()
 
@@ -115,6 +106,7 @@ class dist_reader:
             self.header = next(self.file_handle).split(self.delim)
         elif ftype == 'parquet':
             self.file_handle = ParquetFile(self.fpath)
+
         if ftype == 'text' and dist_type == 'pd':
             for chunk in self.read_pd():
                 if chunk is not None:
@@ -127,7 +119,8 @@ class dist_reader:
                     yield chunk
             if chunk is None:
                 chunk = self.dists
-        yield chunk
+        
+        return chunk
 
 
 

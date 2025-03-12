@@ -7,13 +7,15 @@ from genomic_address_service.classes.assign import assign
 
 @pytest.fixture
 def results_dist():
-    content = textwrap.dedent("""\
-    query_id\tref_id\tdist
-    sampleQ\tsampleQ\t0
-    sampleQ\tsample1\t1
-    sampleQ\tsample2\t1
-    sampleQ\tsample3\t2
-""")
+    content = textwrap.dedent(
+        """\
+        query_id\tref_id\tdist
+        sampleQ\tsampleQ\t0
+        sampleQ\tsample1\t1
+        sampleQ\tsample2\t1
+        sampleQ\tsample3\t2
+        """
+    )
     with NamedTemporaryFile('w+', suffix='.tsv', delete=False) as tmp:
         tmp.write(content)
         tmp.flush()
@@ -22,12 +24,14 @@ def results_dist():
 
 @pytest.fixture
 def reference_clusters():
-    content = textwrap.dedent("""\
-    id\taddress\tlevel_1
-    sample1\t1\t1
-    sample2\t1\t1
-    sample3\t1\t1
-""")
+    content = textwrap.dedent(
+        """\
+        id\taddress\tlevel_1
+        sample1\t1\t1
+        sample2\t1\t1
+        sample3\t1\t1
+        """
+    )
     with NamedTemporaryFile('w+', suffix='.tsv', delete=False) as tmp:
         tmp.write(content)
         tmp.flush()
@@ -47,12 +51,14 @@ def test_check_thresh(results_dist, reference_clusters):
 
 @pytest.fixture
 def reference_clusters():
-    content = textwrap.dedent("""\
-    id\taddress
-    sample1\t1.1
-    sample2\t1.1
-    sample3\t1.1
-""")
+    content = textwrap.dedent(
+        """\
+        id\taddress
+        sample1\t1.1
+        sample2\t1.1
+        sample3\t1.1
+        """
+    )
     with NamedTemporaryFile('w+', suffix='.tsv', delete=False) as tmp:
         tmp.write(content)
         tmp.flush()
