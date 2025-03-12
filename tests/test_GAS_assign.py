@@ -2,15 +2,19 @@ import pytest
 import pandas as pd
 from tempfile import NamedTemporaryFile
 import os
+import textwrap
 from genomic_address_service.classes.assign import assign
 
 @pytest.fixture
 def mock_dist_file():
-    content = """query_id\tref_id\tdist
-q1\tq1\t0.0
-q1\tr1\t0.1
-q1\tr2\t0.2
-"""
+    content = textwrap.dedent(
+        """\
+        query_id\tref_id\tdist
+        q1\tq1\t0.0
+        q1\tr1\t0.1
+        q1\tr2\t0.2
+        """
+    )
     with NamedTemporaryFile('w+', suffix='.tsv', delete=False) as tmp:
         tmp.write(content)
         tmp.flush()
@@ -19,10 +23,13 @@ q1\tr2\t0.2
 
 @pytest.fixture
 def mock_membership_file():
-    content = """id\taddress_levels_notsplit
-r1\t1.1
-r2\t2.1
-"""
+    content = textwrap.dedent(
+        """\
+        id\taddress_levels_notsplit
+        r1\t1.1
+        r2\t2.1
+        """
+    )
     with NamedTemporaryFile('w+', suffix='.tsv', delete=False) as tmp:
         tmp.write(content)
         tmp.flush()

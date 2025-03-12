@@ -28,7 +28,6 @@ class assign:
         self.assignments = {}
         self.nomenclature_cluster_tracker = {}
         self.query_ids = set()
-
         if not linkage_method in self.avail_methods:
             self.status = False
             self.error_msgs.append(f'Provided {linkage_method} is not one of the accepted {self.avail_methods}')
@@ -131,6 +130,15 @@ class assign:
                 lookup[code].append(id)
         self.memberships_lookup = lookup
 
+    def add_memberships_lookup(self,sample_id, address):
+        self.memberships_dict[sample_id] = ".".join([str(x) for x in address])
+        for idx in range(0,len(address)):
+            code = ".".join([str(x) for x in address[0:idx+1]])
+            if not code in self.memberships_lookup:
+                self.memberships_lookup[code] = list()
+            self.memberships_lookup[code].append(sample_id)
+
+
     def get_dist_summary(self,dists):
         min_dist = min(dists)
         ave_dist = mean(dists)
@@ -182,46 +190,44 @@ class assign:
                 query_addr = [None] * num_ranks
                 if qid in self.memberships_dict:
                     continue
-
                 for rid in dists[qid]:
                     if rid == qid or rid not in self.memberships_dict:
                         continue
                     pairwise_dist = dists[qid][rid]
                     thresh_idx = self.get_threshold_idx(pairwise_dist)
                     thresh_value = self.thresholds[thresh_idx]
-
                     #save unnecessary work
                     if thresh_value >= pairwise_dist:
                         ref_address = self.memberships_dict[rid].split('.')[0:thresh_idx+1]
                         alen = len(ref_address)
                         for i in range(0,len(ref_address)):
                             addr = ".".join(ref_address[0:alen-i])
+                            
                             if addr not in self.memberships_lookup:
                                 continue
                             addr_members = self.memberships_lookup[addr]
                             addr_dists = []
                             for id in addr_members:
-                                addr_dists.append(dists[qid][id])
+                                if id in dists[qid]:
+                                    addr_dists.append(dists[qid][id])
                             if len(addr_dists) == 0:
                                 continue
                             summary = self.get_dist_summary(addr_dists)
-
                             is_eligible = True
                             if self.linkage_method == 'complete' and summary['max'] > thresh_value:
                                 is_eligible = False
                             elif self.linkage_method == 'average' and summary['mean'] > thresh_value:
                                 is_eligible = False
-
                             if is_eligible:
                                 for idx,value in enumerate(addr.split('.')):
                                     query_addr[idx] = value
                                 break
-
+                            thresh_value = self.thresholds[thresh_idx-(i+1)]
+                            
                     for idx,value in enumerate(query_addr):
                         if value is None:
                             query_addr[idx] = self.nomenclature_cluster_tracker[rank_ids[idx]]
                             self.nomenclature_cluster_tracker[rank_ids[idx]]+=1
-
                     break
 
-                self.memberships_dict[qid] = ".".join([str(x) for x in query_addr])
+                self.add_memberships_lookup(qid, query_addr)

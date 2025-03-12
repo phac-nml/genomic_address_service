@@ -3,6 +3,14 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5] - 2025-03-12
+
+### `Fixed`
+- The final chunk of a file was not being processed (fixed) which resulted in query samples missing from the output [PR #25](https://github.com/phac-nml/genomic_address_service/pull/25)
+- Removed max distance filtering as well because it actually results in incorrect calculations when you have multiple samples which fall outside of the threshold ranges [PR #25](https://github.com/phac-nml/genomic_address_service/pull/25)
+- Fixed a bad assumption that all reference samples within a cluster would be within a range and so have added protection for missing samples [PR #25](https://github.com/phac-nml/genomic_address_service/pull/25)
+- Several of these issues only occur when multiple samples were being assigned at once which was due to the fact that the lookup membership was not being updated (they had to both found new clusters and be part of the same clusters) [PR #25](https://github.com/phac-nml/genomic_address_service/pull/25)
+
 ## [0.1.4] - 2025-01-31
 
 ### `Fixed`
@@ -41,3 +49,4 @@ Changed README format to standard DAAD README, added useage arguments.
 
 [0.1.3]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.1.3
 [0.1.4]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.1.4
+[0.1.5]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.1.5
