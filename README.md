@@ -1,9 +1,14 @@
+[![Python Versions][language-badge]][language-link]
 [![PyPI](https://img.shields.io/badge/Install%20with-PyPI-blue)](https://pypi.org/project/genomic_address_service/#description)
 [![Bioconda](https://img.shields.io/badge/Install%20with-bioconda-green)](https://anaconda.org/bioconda/genomic_address_service)
 [![Conda](https://img.shields.io/conda/dn/bioconda/profile_dists?color=green)](https://anaconda.org/bioconda/genomic_address_service)
 [![License: Apache-2.0](https://img.shields.io/github/license/phac-nml/genomic_address_service)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Python package](https://github.com/phac-nml/genomic_address_service/actions/workflows/ci.yml/badge.svg)](https://github.com/phac-nml/genomic_address_service/actions/workflows/ci.yml)
 
 <img src="https://github.com/phac-nml/genomic_address_service/blob/main/logo.png?raw=true" width = "150" height="189">
+
+[language-badge]:       https://img.shields.io/badge/python-3.11_|_3.12_|_3.13-blue
+[language-link]:        http://www.python.org/
 
 # Genomic Address Service
 
