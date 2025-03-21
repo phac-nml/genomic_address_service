@@ -26,7 +26,6 @@ def parse_args():
 
     return parser.parse_args()
 
-
 def write_clusters(clusters,num_thresholds,file,delimeter="."):
     header = ['id','address']
     for i in range(num_thresholds):
@@ -38,20 +37,17 @@ def write_clusters(clusters,num_thresholds,file,delimeter="."):
             address = f'{delimeter}'.join([str(x) for x in clusters[id]])
             fh.write("{}\n".format("\t".join(str(x) for x in ([id, address ] + clusters[id]))))
 
-
-
-def run():
-    cmd_args = parse_args()
-    matrix = cmd_args.matrix
-    outdir = cmd_args.outdir
-    method = cmd_args.method
-    thresholds = [float(x) for x in cmd_args.thresholds.split(',')]
-    delimeter= cmd_args.delimeter
-    force = cmd_args.force
+def mcluster(cmd_args):
+    matrix = cmd_args["matrix"]
+    outdir = cmd_args["outdir"]
+    method = cmd_args["method"]
+    thresholds = [float(x) for x in cmd_args["thresholds"].split(',')]
+    delimeter= cmd_args["delimeter"]
+    force = cmd_args["force"]
 
     run_data = MC_RUN_DATA
     run_data['analysis_start_time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    run_data['parameters'] = vars(cmd_args)
+    run_data['parameters'] = cmd_args
     t_map = format_threshold_map(thresholds)
     run_data['threshold_map'] = t_map
     if not is_file_ok(matrix):
@@ -91,6 +87,9 @@ def run():
     with open(os.path.join(outdir,"run.json"),'w') as fh:
         fh.write(json.dumps(run_data, indent=4))
 
+def run():
+    cmd_args = parse_args()
+    mcluster(vars(cmd_args))
 
 # call main function
 if __name__ == '__main__':
