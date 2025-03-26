@@ -66,11 +66,65 @@ def test_basic_0(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-def test_delimeter_slash(tmp_path):
+def test_basic_0_10_0_10(tmp_path, capsys):
+    args = {"matrix": get_path("data/matrix/basic.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "average",
+            "thresholds": "0,10,0,10",
+            "delimeter": ".",
+            "force": False}
+
+    with pytest.raises(SystemExit) as exception:
+        mcluster(args)
+
+    assert exception.type == SystemExit
+
+    captured = capsys.readouterr()
+    assert captured.out == "Error: thresholds (0,10,0,10) must be in decreasing order\n"
+
+    assert path.isdir(args["outdir"]) == False
+
+def test_basic_0_0(tmp_path, capsys):
     args = {"matrix": get_path("data/matrix/basic.tsv"),
             "outdir": path.join(tmp_path, "test_out"),
             "method": "average",
             "thresholds": "0,0",
+            "delimeter": ".",
+            "force": False}
+
+    with pytest.raises(SystemExit) as exception:
+        mcluster(args)
+
+    assert exception.type == SystemExit
+
+    captured = capsys.readouterr()
+    assert captured.out == "Error: thresholds (0,0) must be in decreasing order\n"
+
+    assert path.isdir(args["outdir"]) == False
+
+def test_basic_1_2_3(tmp_path, capsys):
+    args = {"matrix": get_path("data/matrix/basic.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "average",
+            "thresholds": "1,2,3",
+            "delimeter": ".",
+            "force": False}
+
+    with pytest.raises(SystemExit) as exception:
+        mcluster(args)
+
+    assert exception.type == SystemExit
+
+    captured = capsys.readouterr()
+    assert captured.out == "Error: thresholds (1,2,3) must be in decreasing order\n"
+
+    assert path.isdir(args["outdir"]) == False
+
+def test_delimeter_slash(tmp_path):
+    args = {"matrix": get_path("data/matrix/basic.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "average",
+            "thresholds": "1,0",
             "delimeter": "/",
             "force": False}
 
@@ -88,16 +142,16 @@ def test_delimeter_slash(tmp_path):
         # E, F share
         # G, H share
         assert ["id", "address", "level_1", "level_2"] in clusters
-        assert ["A", "6/6", "6", "6"] in clusters
-        assert ["B", "7/7", "7", "7"] in clusters
-        assert ["C", "5/5", "5", "5"] in clusters
-        assert ["D", "5/5", "5", "5"] in clusters
-        assert ["E", "4/4", "4", "4"] in clusters
-        assert ["F", "4/4", "4", "4"] in clusters
+        assert ["A", "5/6", "5", "6"] in clusters
+        assert ["B", "5/7", "5", "7"] in clusters
+        assert ["C", "4/5", "4", "5"] in clusters
+        assert ["D", "4/5", "4", "5"] in clusters
+        assert ["E", "3/4", "3", "4"] in clusters
+        assert ["F", "3/4", "3", "4"] in clusters
         assert ["G", "1/1", "1", "1"] in clusters
         assert ["H", "1/1", "1", "1"] in clusters
         assert ["I", "2/2", "2", "2"] in clusters
-        assert ["J", "3/3", "3", "3"] in clusters
+        assert ["J", "2/3", "2", "3"] in clusters
 
     run_path = path.join(args["outdir"], "run.json")
     assert path.isfile(run_path)
@@ -105,11 +159,11 @@ def test_delimeter_slash(tmp_path):
         run_json = json.load(run_file)
 
         assert run_json["parameters"]["method"] == "average"
-        assert run_json["parameters"]["thresholds"] == "0,0"
+        assert run_json["parameters"]["thresholds"] == "1,0"
         assert run_json["parameters"]["delimeter"] == "/"
 
         assert len(run_json["threshold_map"]) == 2
-        assert run_json["threshold_map"]["level_1"] == 0.0
+        assert run_json["threshold_map"]["level_1"] == 1.0
         assert run_json["threshold_map"]["level_2"] == 0.0
 
     thresholds_path = path.join(args["outdir"], "thresholds.json")
@@ -118,7 +172,7 @@ def test_delimeter_slash(tmp_path):
         thresholds_json = json.load(thresholds_file)
 
         assert len(thresholds_json) == 2
-        assert thresholds_json["level_1"] == 0.0
+        assert thresholds_json["level_1"] == 1.0
         assert thresholds_json["level_2"] == 0.0
 
     tree_path = path.join(args["outdir"], "tree.nwk")
@@ -128,7 +182,7 @@ def test_delimeter_0(tmp_path):
     args = {"matrix": get_path("data/matrix/basic.tsv"),
             "outdir": path.join(tmp_path, "test_out"),
             "method": "average",
-            "thresholds": "0,0",
+            "thresholds": "1,0",
             "delimeter": "0",
             "force": False}
 
@@ -146,16 +200,16 @@ def test_delimeter_0(tmp_path):
         # E, F share
         # G, H share
         assert ["id", "address", "level_1", "level_2"] in clusters
-        assert ["A", "606", "6", "6"] in clusters
-        assert ["B", "707", "7", "7"] in clusters
-        assert ["C", "505", "5", "5"] in clusters
-        assert ["D", "505", "5", "5"] in clusters
-        assert ["E", "404", "4", "4"] in clusters
-        assert ["F", "404", "4", "4"] in clusters
+        assert ["A", "506", "5", "6"] in clusters
+        assert ["B", "507", "5", "7"] in clusters
+        assert ["C", "405", "4", "5"] in clusters
+        assert ["D", "405", "4", "5"] in clusters
+        assert ["E", "304", "3", "4"] in clusters
+        assert ["F", "304", "3", "4"] in clusters
         assert ["G", "101", "1", "1"] in clusters
         assert ["H", "101", "1", "1"] in clusters
         assert ["I", "202", "2", "2"] in clusters
-        assert ["J", "303", "3", "3"] in clusters
+        assert ["J", "203", "2", "3"] in clusters
 
     run_path = path.join(args["outdir"], "run.json")
     assert path.isfile(run_path)
@@ -163,11 +217,11 @@ def test_delimeter_0(tmp_path):
         run_json = json.load(run_file)
 
         assert run_json["parameters"]["method"] == "average"
-        assert run_json["parameters"]["thresholds"] == "0,0"
+        assert run_json["parameters"]["thresholds"] == "1,0"
         assert run_json["parameters"]["delimeter"] == "0"
 
         assert len(run_json["threshold_map"]) == 2
-        assert run_json["threshold_map"]["level_1"] == 0.0
+        assert run_json["threshold_map"]["level_1"] == 1.0
         assert run_json["threshold_map"]["level_2"] == 0.0
 
     thresholds_path = path.join(args["outdir"], "thresholds.json")
@@ -176,7 +230,7 @@ def test_delimeter_0(tmp_path):
         thresholds_json = json.load(thresholds_file)
 
         assert len(thresholds_json) == 2
-        assert thresholds_json["level_1"] == 0.0
+        assert thresholds_json["level_1"] == 1.0
         assert thresholds_json["level_2"] == 0.0
 
     tree_path = path.join(args["outdir"], "tree.nwk")
@@ -186,7 +240,7 @@ def test_delimeter_quote(tmp_path):
     args = {"matrix": get_path("data/matrix/basic.tsv"),
             "outdir": path.join(tmp_path, "test_out"),
             "method": "average",
-            "thresholds": "0,0",
+            "thresholds": "1,0",
             "delimeter": '"',
             "force": False}
 
@@ -204,16 +258,16 @@ def test_delimeter_quote(tmp_path):
         # E, F share
         # G, H share
         assert ["id", "address", "level_1", "level_2"] in clusters
-        assert ["A", '6"6', "6", "6"] in clusters
-        assert ["B", '7"7', "7", "7"] in clusters
-        assert ["C", '5"5', "5", "5"] in clusters
-        assert ["D", '5"5', "5", "5"] in clusters
-        assert ["E", '4"4', "4", "4"] in clusters
-        assert ["F", '4"4', "4", "4"] in clusters
+        assert ["A", '5"6', "5", "6"] in clusters
+        assert ["B", '5"7', "5", "7"] in clusters
+        assert ["C", '4"5', "4", "5"] in clusters
+        assert ["D", '4"5', "4", "5"] in clusters
+        assert ["E", '3"4', "3", "4"] in clusters
+        assert ["F", '3"4', "3", "4"] in clusters
         assert ["G", '1"1', "1", "1"] in clusters
         assert ["H", '1"1', "1", "1"] in clusters
         assert ["I", '2"2', "2", "2"] in clusters
-        assert ["J", '3"3', "3", "3"] in clusters
+        assert ["J", '2"3', "2", "3"] in clusters
 
     run_path = path.join(args["outdir"], "run.json")
     assert path.isfile(run_path)
@@ -221,11 +275,11 @@ def test_delimeter_quote(tmp_path):
         run_json = json.load(run_file)
 
         assert run_json["parameters"]["method"] == "average"
-        assert run_json["parameters"]["thresholds"] == "0,0"
-        assert run_json["parameters"]["delimeter"] == "\""
+        assert run_json["parameters"]["thresholds"] == "1,0"
+        assert run_json["parameters"]["delimeter"] == '"'
 
         assert len(run_json["threshold_map"]) == 2
-        assert run_json["threshold_map"]["level_1"] == 0.0
+        assert run_json["threshold_map"]["level_1"] == 1.0
         assert run_json["threshold_map"]["level_2"] == 0.0
 
     thresholds_path = path.join(args["outdir"], "thresholds.json")
@@ -234,7 +288,7 @@ def test_delimeter_quote(tmp_path):
         thresholds_json = json.load(thresholds_file)
 
         assert len(thresholds_json) == 2
-        assert thresholds_json["level_1"] == 0.0
+        assert thresholds_json["level_1"] == 1.0
         assert thresholds_json["level_2"] == 0.0
 
     tree_path = path.join(args["outdir"], "tree.nwk")

@@ -37,6 +37,17 @@ def write_clusters(clusters,num_thresholds,file,delimeter="."):
             address = f'{delimeter}'.join([str(x) for x in clusters[id]])
             fh.write("{}\n".format("\t".join(str(x) for x in ([id, address ] + clusters[id]))))
 
+def valid_thresholds(thresholds):
+    # Thresholds must be strictly decreasing.
+    valid = False
+
+    if all(thresholds[i] > thresholds[i+1] for i in range(len(thresholds)-1)):
+        valid = True
+    else:
+        valid = False
+
+    return valid
+
 def mcluster(cmd_args):
     matrix = cmd_args["matrix"]
     outdir = cmd_args["outdir"]
@@ -50,12 +61,17 @@ def mcluster(cmd_args):
     run_data['parameters'] = cmd_args
     t_map = format_threshold_map(thresholds)
     run_data['threshold_map'] = t_map
+
     if not is_file_ok(matrix):
         print(f'Error {matrix} does not exist or is empty')
         sys.exit()
 
     if not method in CLUSTER_METHODS:
         print(f'Error {method} is not one of the accepeted methods {CLUSTER_METHODS}')
+        sys.exit()
+
+    if not valid_thresholds(thresholds):
+        print(f'Error: thresholds ({cmd_args["thresholds"]}) must be in decreasing order')
         sys.exit()
 
     if os.path.isdir(outdir) and not force:
