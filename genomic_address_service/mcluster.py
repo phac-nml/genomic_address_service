@@ -37,22 +37,26 @@ def write_clusters(clusters,num_thresholds,file,delimeter="."):
             address = f'{delimeter}'.join([str(x) for x in clusters[id]])
             fh.write("{}\n".format("\t".join(str(x) for x in ([id, address ] + clusters[id]))))
 
-def valid_thresholds(thresholds):
-    # Thresholds must be strictly decreasing.
-    valid = False
+def process_thresholds(thresholds):
 
-    if all(thresholds[i] > thresholds[i+1] for i in range(len(thresholds)-1)):
-        valid = True
-    else:
-        valid = False
+    try:
+        processed = [float(x) for x in thresholds]
+    except ValueError:
+        message = f'thresholds {thresholds} must all be integers or floats'
+        raise Exception(message)
 
-    return valid
+    # Thresholds must be strictly decreasing:
+    if not all(processed[i] > processed[i+1] for i in range(len(processed)-1)):
+        message = f'thresholds {thresholds} must be in decreasing order'
+        raise Exception(message)
+    
+    return processed
 
 def mcluster(cmd_args):
     matrix = cmd_args["matrix"]
     outdir = cmd_args["outdir"]
     method = cmd_args["method"]
-    thresholds = [float(x) for x in cmd_args["thresholds"].split(',')]
+    thresholds = process_thresholds(cmd_args["thresholds"].split(','))
     delimeter= cmd_args["delimeter"]
     force = cmd_args["force"]
 
@@ -63,20 +67,16 @@ def mcluster(cmd_args):
     run_data['threshold_map'] = t_map
 
     if not is_file_ok(matrix):
-        print(f'Error {matrix} does not exist or is empty')
-        sys.exit()
+        message = f'{matrix} does not exist or is empty'
+        raise Exception(message) 
 
     if not method in CLUSTER_METHODS:
-        print(f'Error {method} is not one of the accepeted methods {CLUSTER_METHODS}')
-        sys.exit()
-
-    if not valid_thresholds(thresholds):
-        print(f'Error: thresholds ({cmd_args["thresholds"]}) must be in decreasing order')
-        sys.exit()
+        message = f'{method} is not one of the accepeted methods {CLUSTER_METHODS}'
+        raise Exception(message) 
 
     if os.path.isdir(outdir) and not force:
-        print(f'Error {outdir} exists, if you would like to overwrite, then specify --force')
-        sys.exit()
+        message = f'{outdir} exists, if you would like to overwrite, then specify --force'
+        raise Exception(message) 
 
     if not os.path.isdir(outdir):
         os.makedirs(outdir, 0o755)
@@ -86,8 +86,8 @@ def mcluster(cmd_args):
     memberships = mc.get_memberships()
 
     if len(memberships) == 0:
-        print(f'Error something when wrong during clustering')
-        sys.exit()
+        message = f'something when wrong during clustering'
+        raise Exception(message) 
 
     run_data['result_file'] = os.path.join(outdir,"clusters.text")
 

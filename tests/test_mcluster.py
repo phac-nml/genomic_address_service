@@ -66,7 +66,7 @@ def test_basic_0(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-def test_basic_0_10_0_10(tmp_path, capsys):
+def test_thresholds_0_10_0_10(tmp_path):
     args = {"matrix": get_path("data/matrix/basic.tsv"),
             "outdir": path.join(tmp_path, "test_out"),
             "method": "average",
@@ -74,17 +74,15 @@ def test_basic_0_10_0_10(tmp_path, capsys):
             "delimeter": ".",
             "force": False}
 
-    with pytest.raises(SystemExit) as exception:
+    with pytest.raises(Exception) as exception:
         mcluster(args)
 
-    assert exception.type == SystemExit
-
-    captured = capsys.readouterr()
-    assert captured.out == "Error: thresholds (0,10,0,10) must be in decreasing order\n"
+    assert exception.type == Exception
+    assert str(exception.value) == "thresholds ['0', '10', '0', '10'] must be in decreasing order"
 
     assert path.isdir(args["outdir"]) == False
 
-def test_basic_0_0(tmp_path, capsys):
+def test_thresholds_0_0(tmp_path):
     args = {"matrix": get_path("data/matrix/basic.tsv"),
             "outdir": path.join(tmp_path, "test_out"),
             "method": "average",
@@ -92,17 +90,15 @@ def test_basic_0_0(tmp_path, capsys):
             "delimeter": ".",
             "force": False}
 
-    with pytest.raises(SystemExit) as exception:
+    with pytest.raises(Exception) as exception:
         mcluster(args)
 
-    assert exception.type == SystemExit
-
-    captured = capsys.readouterr()
-    assert captured.out == "Error: thresholds (0,0) must be in decreasing order\n"
+    assert exception.type == Exception
+    assert str(exception.value) == "thresholds ['0', '0'] must be in decreasing order"
 
     assert path.isdir(args["outdir"]) == False
 
-def test_basic_1_2_3(tmp_path, capsys):
+def test_thresholds_1_2_3(tmp_path):
     args = {"matrix": get_path("data/matrix/basic.tsv"),
             "outdir": path.join(tmp_path, "test_out"),
             "method": "average",
@@ -110,13 +106,27 @@ def test_basic_1_2_3(tmp_path, capsys):
             "delimeter": ".",
             "force": False}
 
-    with pytest.raises(SystemExit) as exception:
+    with pytest.raises(Exception) as exception:
         mcluster(args)
 
-    assert exception.type == SystemExit
+    assert exception.type == Exception
+    assert str(exception.value) == "thresholds ['1', '2', '3'] must be in decreasing order"
 
-    captured = capsys.readouterr()
-    assert captured.out == "Error: thresholds (1,2,3) must be in decreasing order\n"
+    assert path.isdir(args["outdir"]) == False
+
+def test_thresholds_string(tmp_path):
+    args = {"matrix": get_path("data/matrix/basic.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "average",
+            "thresholds": "cat,dog",
+            "delimeter": ".",
+            "force": False}
+
+    with pytest.raises(Exception) as exception:
+        mcluster(args)
+
+    assert exception.type == Exception
+    assert str(exception.value) == "thresholds ['cat', 'dog'] must all be integers or floats"
 
     assert path.isdir(args["outdir"]) == False
 
