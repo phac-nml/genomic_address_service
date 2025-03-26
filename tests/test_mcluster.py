@@ -303,3 +303,86 @@ def test_delimeter_quote(tmp_path):
 
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
+
+def test_matrix_missing(tmp_path):
+    args = {"matrix": get_path("data/matrix/basic_MISSING.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "average",
+            "thresholds": "0",
+            "delimeter": ".",
+            "force": False}
+
+    with pytest.raises(Exception) as exception:
+        mcluster(args)
+
+    assert exception.type == Exception
+    assert "data/matrix/basic_MISSING.tsv does not exist or is empty" in str(exception.value)
+
+    assert path.isdir(args["outdir"]) == False
+
+def test_matrix_empty(tmp_path):
+    args = {"matrix": get_path("data/matrix/empty.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "average",
+            "thresholds": "0",
+            "delimeter": ".",
+            "force": False}
+
+    with pytest.raises(Exception) as exception:
+        mcluster(args)
+
+    assert exception.type == Exception
+    assert "data/matrix/empty.tsv does not exist or is empty" in str(exception.value)
+
+    assert path.isdir(args["outdir"]) == False
+
+def test_method_invalid_nope(tmp_path):
+    # method = "nope"
+    args = {"matrix": get_path("data/matrix/basic.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "nope",
+            "thresholds": "0",
+            "delimeter": ".",
+            "force": False}
+
+    with pytest.raises(Exception) as exception:
+        mcluster(args)
+
+    assert exception.type == Exception
+    assert str(exception.value) == "nope is not one of the accepeted methods ['average', 'complete', 'single']"
+
+    assert path.isdir(args["outdir"]) == False
+
+def test_method_invalid_singl(tmp_path):
+    # method = "singl"
+    args = {"matrix": get_path("data/matrix/basic.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "singl",
+            "thresholds": "0",
+            "delimeter": ".",
+            "force": False}
+
+    with pytest.raises(Exception) as exception:
+        mcluster(args)
+
+    assert exception.type == Exception
+    assert str(exception.value) == "singl is not one of the accepeted methods ['average', 'complete', 'single']"
+
+    assert path.isdir(args["outdir"]) == False
+
+def test_method_invalid_1(tmp_path):
+    # method = "1"
+    args = {"matrix": get_path("data/matrix/basic.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "1",
+            "thresholds": "0",
+            "delimeter": ".",
+            "force": False}
+
+    with pytest.raises(Exception) as exception:
+        mcluster(args)
+
+    assert exception.type == Exception
+    assert str(exception.value) == "1 is not one of the accepeted methods ['average', 'complete', 'single']"
+
+    assert path.isdir(args["outdir"]) == False
