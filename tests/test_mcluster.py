@@ -386,3 +386,104 @@ def test_method_invalid_1(tmp_path):
     assert str(exception.value) == "1 is not one of the accepeted methods ['average', 'complete', 'single']"
 
     assert path.isdir(args["outdir"]) == False
+
+def test_method_single(tmp_path):
+    # method = "single"
+    # thresholds = "2,1,0"
+    # NOTE: thresholds are cophenetic!
+
+    """
+    The distance matrix at "data/matrix/basic.tsv" will generate
+    the following single linkage:
+
+    10: [ 2.  3.  0.  2.] -> (C,D)
+    11: [ 4.  5.  0.  2.] -> (E,F)
+    12: [ 6.  7.  0.  2.] -> (G,H)
+    13: [ 0.  1.  1.  2.] -> (A,B)
+    14: [ 8.  9.  1.  2.] -> (I,J)
+    15: [10. 13.  2.  4.] -> ((C,D), (A,B))
+    16: [11. 15.  3.  6.] -> ((E,F), ((C,D), (A,B)))
+    17: [12. 14.  3.  4.] -> ((G,H), (I,J))
+    18: [16. 17.  6. 10.] -> (((E,F), ((C,D), (A,B))), ((G,H), (I,J)))
+
+    When threshold=2, the following will be grouped and labelled
+    together when flattened:
+
+    - ((C,D), (A,B))
+    - (G,H)
+    - (I,J)
+    - (E,F)
+
+    When threshold=1:
+
+    - (C,D)
+    - (A,B)
+    - (G,H)
+    - (I,J)
+    - (E,F)
+
+    When threshold=0:
+
+    - A
+    - B
+    - (C,D)
+    - (G,H)
+    - (E,F)
+    - I
+    - J
+    """
+
+    args = {"matrix": get_path("data/matrix/basic.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "single",
+            "thresholds": "2,1,0",
+            "delimeter": ".",
+            "force": False}
+
+    mcluster(args)
+
+    assert path.isdir(args["outdir"])
+
+    clusters_path = path.join(args["outdir"], "clusters.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        assert ["id", "address", "level_1", "level_2", "level_3"] in clusters
+        assert ["A", "2.3.3", "2", "3", "3"] in clusters
+        assert ["B", "2.3.4", "2", "3", "4"] in clusters
+        assert ["C", "2.2.2", "2", "2", "2"] in clusters
+        assert ["D", "2.2.2", "2", "2", "2"] in clusters
+        assert ["E", "1.1.1", "1", "1", "1"] in clusters
+        assert ["F", "1.1.1", "1", "1", "1"] in clusters
+        assert ["G", "3.4.5", "3", "4", "5"] in clusters
+        assert ["H", "3.4.5", "3", "4", "5"] in clusters
+        assert ["I", "4.5.6", "4", "5", "6"] in clusters
+        assert ["J", "4.5.7", "4", "5", "7"] in clusters
+
+    run_path = path.join(args["outdir"], "run.json")
+    assert path.isfile(run_path)
+    with open(run_path) as run_file:
+        run_json = json.load(run_file)
+
+        assert run_json["parameters"]["method"] == "single"
+        assert run_json["parameters"]["thresholds"] == "2,1,0"
+        assert run_json["parameters"]["delimeter"] == "."
+
+        assert len(run_json["threshold_map"]) == 3
+        assert run_json["threshold_map"]["level_1"] == 2.0
+        assert run_json["threshold_map"]["level_2"] == 1.0
+        assert run_json["threshold_map"]["level_3"] == 0.0
+
+    thresholds_path = path.join(args["outdir"], "thresholds.json")
+    assert path.isfile(thresholds_path)
+    with open(thresholds_path) as thresholds_file:
+        thresholds_json = json.load(thresholds_file)
+
+        assert len(thresholds_json) == 3
+        assert thresholds_json["level_1"] == 2.0
+        assert thresholds_json["level_2"] == 1.0
+        assert thresholds_json["level_3"] == 0.0
+
+    tree_path = path.join(args["outdir"], "tree.nwk")
+    assert path.isfile(tree_path)
