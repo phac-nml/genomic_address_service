@@ -78,10 +78,6 @@ means cluster index 10 is made from cluster index 2 and 3, has a distance of 0 (
 
 means cluster index 15 is composed of 10 and 13, has a distance of 2, and contains 4 elements ((C,D), (A,B)). Etc.
 
-### Distances
-
-The distances reported in the linkage are cophenetic, meaning that here they are effectively halved. This matters because later `fcluster` uses these cophenetic distances and compares them to the input `thresholds`, so the thresholds must be understand to be cophenetic.
-
 ## Generating Flat Clusters from Linkage
 
 Flattening the hierarchical linkage into clusters just descends down the linkage and stops once the two children of the node have a distance that is less than or equal to the threshold value. The same linkage is used for various thresholds, since the thresholds only change how the cluster is flattened, not how it was originally hierarchically organized.
