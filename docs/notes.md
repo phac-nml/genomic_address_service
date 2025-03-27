@@ -1,0 +1,123 @@
+# Single Linkage Clustering Assignment Example
+
+There are two parts to assigning a clustering label: generating a hierarchical linkage and flattening that linkage into clusters (with labels).
+
+## Input Distance Matrix
+
+```
+dists  A  B  C  D  E  F  G  H  I  J
+A      0  1  2  2  5  5  6  6  9  9
+B      1  0  3  3  6  6  7  7  9  9
+C      2  3  0  0  3  3  6  6  9  9
+D      2  3  0  0  3  3  6  6  9  9
+E      5  6  3  3  0  0  6  6  9  9
+F      5  6  3  3  0  0  6  6  9  9
+G      6  7  6  6  6  6  0  0  3  3
+H      6  7  6  6  6  6  0  0  3  3
+I      9  9  9  9  9  9  3  3  0  1
+J      9  9  9  9  9  9  3  3  1  0
+```
+
+## 1-D Condensed Distance Matrix
+
+`[1. 2. 2. 5. 5. 6. 6. 9. 9. 3. 3. 6. 6. 7. 7. 9. 9. 0. 3. 3. 6. 6. 9. 9. 3. 3. 6. 6. 9. 9. 0. 6. 6. 9. 9. 6. 6. 9. 9. 0. 3. 3. 3. 3. 1.]`
+
+Notice that this is functionally the top right part of the distance matrix (above the main diagonal) all in one row.
+
+## Linkage
+
+`scipy.cluster.hierarchy.linkage` will generate this linkage matrix Z (my rendition):
+
+```
+10: [ 2.  3.  0.  2.] -> (C,D)
+11: [ 4.  5.  0.  2.] -> (E,F)
+12: [ 6.  7.  0.  2.] -> (G,H)
+13: [ 0.  1.  1.  2.] -> (A,B)
+14: [ 8.  9.  1.  2.] -> (I,J)
+15: [10. 13.  2.  4.] -> ((C,D), (A,B))
+16: [11. 15.  3.  6.] -> ((E,F), ((C,D), (A,B)))
+17: [12. 14.  3.  4.] -> ((G,H), (I,J))
+18: [16. 17.  6. 10.] -> (((E,F), ((C,D), (A,B))), ((G,H), (I,J)))
+```
+
+With the following extended implicit linkage matrix:
+
+```
+0: [ 0.  0.  0.  1.] -> (A)
+1: [ 1.  1.  0.  1.] -> (B)
+2: [ 2.  2.  0.  1.] -> (C)
+3: [ 3.  3.  0.  1.] -> (D)
+4: [ 4.  4.  0.  1.] -> (E)
+5: [ 5.  5.  0.  1.] -> (F)
+6: [ 6.  6.  0.  1.] -> (G)
+7: [ 7.  7.  0.  1.] -> (H)
+8: [ 8.  8.  0.  1.] -> (I)
+9: [ 9.  9.  0.  1.] -> (J)
+10: [ 2.  3.  0.  2.] -> (C,D)
+11: [ 4.  5.  0.  2.] -> (E,F)
+12: [ 6.  7.  0.  2.] -> (G,H)
+13: [ 0.  1.  1.  2.] -> (A,B)
+14: [ 8.  9.  1.  2.] -> (I,J)
+15: [10. 13.  2.  4.] -> ((C,D), (A,B))
+16: [11. 15.  3.  6.] -> ((E,F), ((C,D), (A,B)))
+17: [12. 14.  3.  4.] -> ((G,H), (I,J))
+18: [16. 17.  6. 10.] -> (((E,F), ((C,D), (A,B))), ((G,H), (I,J)))
+```
+
+The form I'm showing it is like this:
+
+`cluster_index: [ cluster_index_1.  cluster_index_2.  distance.  num_elements.] -> (representation)`
+
+Where `cluster_index` is composed of two other clusters (`cluster_index_1.` and `cluster_index_2.`) with a distance between them of `distance.` and has `num_elements.` elements. `cluster_index` 0-(n-1) are implicit and are clusters with one element each (themselves). So this:
+
+`10: [ 2.  3.  0.  2.] -> (C,D)`
+
+means cluster index 10 is made from cluster index 2 and 3, has a distance of 0 (between children), and contains 2 original elements (C, D). And this:
+
+`15: [10. 13.  2.  4.] -> ((C,D), (A,B))`
+
+means cluster index 15 is composed of 10 and 13, has a distance of 2, and contains 4 elements ((C,D), (A,B)). Etc.
+
+## Generating Flat Clusters from Linkage
+
+Flattening the hierarchical linkage into clusters just descends down the linkage and stops once the two children of the node have a distance that is less than or equal to the threshold value. The same linkage is used for various thresholds, since the thresholds only change how the cluster is flattened, not how it was originally hierarchically organized.
+
+### Example
+
+A threshold of `2` would mean:
+
+```
+18 (root) distance is 6 > 2, descend to children (16, 17)
+
+16 distance is 3 > 2, descend to children (11, 15)
+17 distance is 3 > 2, descend to children (12, 14)
+
+11 distance is 0 <= 2, label together (E,F)
+15 distance is 2 <= 2, label together ((C,D), (A,B))
+12 distance is 0 <= 2, label together (G,H)
+14 distance is 1 <= 2, label together (I,J)
+```
+
+## Labeling Clusters
+
+Since labels don't mean anything other than showing the group, this matches the program output:
+
+```
+id      address level_1
+A       2       2
+B       2       2
+C       2       2
+D       2       2
+E       1       1
+F       1       1
+G       3       3
+H       3       3
+I       4       4
+J       4       4
+```
+
+## Links
+
+https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html
+
+https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.fcluster.html
