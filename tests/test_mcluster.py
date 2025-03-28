@@ -637,3 +637,80 @@ def test_method_single(tmp_path):
 
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
+
+def test_method_complete(tmp_path):
+    # method = "complete"
+    # thresholds = "10,8,5"
+
+    """
+    The distance matrix at "data/matrix/small.tsv" will generate
+    the following single linkage:
+
+    5: [0. 1. 1. 2.] -> (A,B)
+    6: [2. 5. 5. 3.] -> (C,(A,B))
+    7: [3. 6. 8. 4.] -> (D,(C,(A,B)))
+    8: [4. 7. 10. 5.] -> (E,(D,(C,(A,B))))
+
+    When threshold=10, the following will be grouped and labelled
+    together when flattened:
+
+    - {A, B, C, D, E}
+
+    When threshold=8:
+
+    - {A, B, C, D}, {E}
+
+    When threshold=5:
+
+    - {A, B, C}, {D}, {E}
+    """
+
+    args = {"matrix": get_path("data/matrix/small.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "complete",
+            "thresholds": "10,8,5",
+            "delimeter": ".",
+            "force": False}
+
+    mcluster(args)
+
+    assert path.isdir(args["outdir"])
+
+    clusters_path = path.join(args["outdir"], "clusters.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        assert ["id", "address", "level_1", "level_2", "level_3"] in clusters
+        assert ["A", "1.1.1", "1", "1", "1"] in clusters
+        assert ["B", "1.1.1", "1", "1", "1"] in clusters
+        assert ["C", "1.1.1", "1", "1", "1"] in clusters
+        assert ["D", "1.1.2", "1", "1", "2"] in clusters
+        assert ["E", "1.2.3", "1", "2", "3"] in clusters
+
+    run_path = path.join(args["outdir"], "run.json")
+    assert path.isfile(run_path)
+    with open(run_path) as run_file:
+        run_json = json.load(run_file)
+
+        assert run_json["parameters"]["method"] == "complete"
+        assert run_json["parameters"]["thresholds"] == "10,8,5"
+        assert run_json["parameters"]["delimeter"] == "."
+
+        assert len(run_json["threshold_map"]) == 3
+        assert run_json["threshold_map"]["level_1"] == 10.0
+        assert run_json["threshold_map"]["level_2"] == 8.0
+        assert run_json["threshold_map"]["level_3"] == 5.0
+
+    thresholds_path = path.join(args["outdir"], "thresholds.json")
+    assert path.isfile(thresholds_path)
+    with open(thresholds_path) as thresholds_file:
+        thresholds_json = json.load(thresholds_file)
+
+        assert len(thresholds_json) == 3
+        assert thresholds_json["level_1"] == 10.0
+        assert thresholds_json["level_2"] == 8.0
+        assert thresholds_json["level_3"] == 5.0
+
+    tree_path = path.join(args["outdir"], "tree.nwk")
+    assert path.isfile(tree_path)

@@ -116,7 +116,129 @@ I       4       4
 J       4       4
 ```
 
-## Links
+# Complete Linkage Example
+
+## Distance Matrix
+
+```
+dists    A    B    C    D    E
+A        0    1    2    3    4
+B        1    0    5    6    7
+C        2    5    0    8    9
+D        3    6    8    0    10
+E        4    7    9    10   0
+```
+
+## Manual Complete Linkage
+
+### Round 1
+
+The smallest distance is (A,B). Cluster and recalculate:
+
+```
+dists    (A,B)    C    D    E
+(A,B)    0        5    6    7
+C        5        0    8    9
+D        6        8    0    10
+E        7        9    10   0
+```
+
+### Round 2
+
+The smallest distance is ((A,B),C). Cluster and recalculate:
+
+```
+dists        ((A,B),C)    D    E
+((A,B),C)    0            8    9
+D            8            0    10
+E            9            10   0
+```
+
+### Round 3
+
+The smallest distance is (((A,B),C),D). Cluster and recalculate:
+
+```
+dists            (((A,B),C),D)    E
+(((A,B),C),D)    0                10
+E                10               0
+```
+
+### Round 4
+
+The smallest distance and only remaining cluster operation is ((((A,B),C),D),E).
+
+## Generated Linkage (Programmatically)
+
+```
+5: [0. 1. 1. 2.] -> (A,B)
+6: [2. 5. 5. 3.] -> (C,(A,B))
+7: [3. 6. 8. 4.] -> (D,(C,(A,B)))
+8: [4. 7. 10. 5.] -> (E,(D,(C,(A,B))))
+```
+
+Which matches the manually calculated linkage.
+
+## Generating Flat Clusters from Linkage
+
+We can see from above (third column of the linkage) that `{1, 5, 8, 10}` are distances between clusters in the linkage. So we should choose thresholds that are aware of these (for demonstration and testing purposes).
+
+### threshold=10
+
+Root: `8: [4. 7. 10. 5.] -> (E,(D,(C,(A,B))))`
+
+The whole linkage's distance is `10<=10`, so everything will cluster together as the same label.
+
+Result: `{A,B,C,D,E}`
+
+### threshold=8
+
+Root: `8: [4. 7. 10. 5.] -> (E,(D,(C,(A,B))))`
+
+The distance is too great (`10>8`). We need to descend to the children (4 and 7):
+
+`4: [4. 4. 0. 1.] -> (E) (implicit)`  
+`7: [3. 6. 8. 4.] -> (D,(C,(A,B)))`
+
+4 is implicit and has a distance of `0<=8`, so it forms one cluster: E
+7 has a distance of `8<=8`, so all of it forms one cluster: A,B,C,D
+
+Result: {A,B,C,D}, {E}
+
+### threshold=5
+
+Root: `8: [4. 7. 10. 5.] -> (E,(D,(C,(A,B))))`
+
+The distance is too great (`10>5`). We need to descend to the children (4 and 7):
+
+`4: [4. 4. 0. 1.] -> (E) (implicit)`  
+`7: [3. 6. 8. 4.] -> (D,(C,(A,B)))`
+
+4 is implicit and has a distance of `0<=5`, so it forms one cluster: E
+7 has a distance of `8>5`, so we need to descend to the children (3 and 6).
+
+`3: [3. 3. 0. 1.] -> (D) (implicit)`  
+`6: [2. 5. 5. 3.] -> (C,(A,B))`
+
+3 is implicit and has a distance of `0<=5`, so it forms one cluster: D
+6 has a distance of `5<=5`, so all of it forms one cluster: A,B,C
+
+Result: `{A,B,C}, {D}, {E}`
+
+## GAS mcluster / fcluster Output
+
+```
+id      address level_1 level_2 level_3
+A       1.1.1   1       1       1
+B       1.1.1   1       1       1
+C       1.1.1   1       1       1
+D       1.1.2   1       1       2
+E       1.2.3   1       2       3
+```
+
+Which matches the manual expectation calculated above.
+
+# Links
 
 https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html
 
