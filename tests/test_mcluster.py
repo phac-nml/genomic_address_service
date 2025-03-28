@@ -84,7 +84,6 @@ def test_basic_wikipedia(tmp_path):
             "delimeter": ".",
             "force": False}
 
-    print(args["outdir"])
     # t=25
     # a,b,c,e
     # d
@@ -141,6 +140,72 @@ def test_basic_wikipedia(tmp_path):
         assert thresholds_json["level_1"] == 25.0
         assert thresholds_json["level_2"] == 18.0
         assert thresholds_json["level_3"] == 0.0
+
+    tree_path = path.join(args["outdir"], "tree.nwk")
+    assert path.isfile(tree_path)
+
+def test_threshold_same(tmp_path):
+    # Tests behaviour that similar thresholds create similar clusters.
+    args = {"matrix": get_path("data/matrix/wikipedia-single.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "single",
+            "thresholds": "20,19,18",
+            "delimeter": ".",
+            "force": False}
+
+    """
+    The linkage will look like this:
+
+    [ 0.  1. 17.  2.]
+    [ 2.  5. 21.  3.]
+    [ 4.  6. 21.  4.]
+    [ 3.  7. 28.  5.]
+
+    Reminder that the third column is distances, so thresholds of
+    20,19,18 will split the linkage at the same place every time:
+
+    {a,b}, {c}, {d}, {e}
+    """
+
+    mcluster(args)
+
+    assert path.isdir(args["outdir"])
+
+    clusters_path = path.join(args["outdir"], "clusters.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        assert ["id", "address", "level_1", "level_2", "level_3"] in clusters
+        assert ["a", "1.1.1", "1", "1", "1"] in clusters
+        assert ["b", "1.1.1", "1", "1", "1"] in clusters
+        assert ["c", "2.2.2", "2", "2", "2"] in clusters
+        assert ["d", "4.4.4", "4", "4", "4"] in clusters
+        assert ["e", "3.3.3", "3", "3", "3"] in clusters
+
+    run_path = path.join(args["outdir"], "run.json")
+    assert path.isfile(run_path)
+    with open(run_path) as run_file:
+        run_json = json.load(run_file)
+
+        assert run_json["parameters"]["method"] == "single"
+        assert run_json["parameters"]["thresholds"] == "20,19,18"
+        assert run_json["parameters"]["delimeter"] == "."
+
+        assert len(run_json["threshold_map"]) == 3
+        assert run_json["threshold_map"]["level_1"] == 20.0
+        assert run_json["threshold_map"]["level_2"] == 19.0
+        assert run_json["threshold_map"]["level_3"] == 18.0
+
+    thresholds_path = path.join(args["outdir"], "thresholds.json")
+    assert path.isfile(thresholds_path)
+    with open(thresholds_path) as thresholds_file:
+        thresholds_json = json.load(thresholds_file)
+
+        assert len(thresholds_json) == 3
+        assert thresholds_json["level_1"] == 20.0
+        assert thresholds_json["level_2"] == 19.0
+        assert thresholds_json["level_3"] == 18.0
 
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
@@ -214,6 +279,24 @@ def test_thresholds_string(tmp_path):
 
     assert exception.type == Exception
     assert str(exception.value) == "thresholds ['cat', 'dog'] must all be integers or floats"
+
+    assert path.isdir(args["outdir"]) == False
+
+def test_no_thresholds(tmp_path):
+    # "thresholds": ""
+    # This should fail because there are no thresholds.
+    args = {"matrix": get_path("data/matrix/basic.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "single",
+            "thresholds": "",
+            "delimeter": ".",
+            "force": False}
+
+    with pytest.raises(Exception) as exception:
+        mcluster(args)
+
+    assert exception.type == Exception
+    assert str(exception.value) == "thresholds [''] must all be integers or floats"
 
     assert path.isdir(args["outdir"]) == False
 
