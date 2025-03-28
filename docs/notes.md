@@ -238,6 +238,46 @@ E       1.2.3   1       2       3
 
 Which matches the manual expectation calculated above.
 
+# Average Linkage Example
+
+## Distance Matrix
+
+```
+dists    A    B    C
+A        0    4    8
+B        4    0    12
+C        8    12    0
+```
+
+## Manual Complete Linkage
+
+### Round 1
+
+The smallest distance is (A,B). Cluster and recalculate:
+
+```
+dists    (A,B)    C
+(A,B)    0        10
+C        10       0
+```
+
+```
+dist((A,B), C) = (dist(A, C) + dist(B, C)) / (size((A,B)) * size(C))
+dist((A,B), C) = (8 + 12) / (2 * 1)
+dist((A,B), C) = 10
+```
+
+## Round 2
+
+The only remaining option is clustering (A,B) with C: ((A,B), C).
+
+## Generated Linkage (Programmatically)
+
+3: [ 0.  1.  4.  2.] -> (A,B)
+4: [ 2.  3. 10.  3.] -> (C, (A,B))
+
+Which matches our manual calculation above.
+
 # Links
 
 https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html
