@@ -104,8 +104,15 @@ def mcluster(cmd_args):
         fh.write(json.dumps(run_data, indent=4))
 
 def run():
+
     cmd_args = parse_args()
-    mcluster(vars(cmd_args))
+
+    try:
+        mcluster(vars(cmd_args))
+
+    except Exception as exception:
+        print("Exception: " + str(exception))
+        sys.exit()
 
 # call main function
 if __name__ == '__main__':
