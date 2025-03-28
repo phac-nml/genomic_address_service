@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from argparse import (ArgumentParser, ArgumentDefaultsHelpFormatter, RawDescriptionHelpFormatter)
 from genomic_address_service.version import __version__
-from genomic_address_service.constants import CLUSTER_METHODS, MC_RUN_DATA
+from genomic_address_service.constants import CLUSTER_METHODS, build_mc_run_data
 from genomic_address_service.classes.multi_level_clustering import multi_level_clustering
 from genomic_address_service.utils import is_file_ok, format_threshold_map, write_threshold_map
 
@@ -60,7 +60,7 @@ def mcluster(cmd_args):
     delimeter= cmd_args["delimeter"]
     force = cmd_args["force"]
 
-    run_data = MC_RUN_DATA
+    run_data = build_mc_run_data()
     run_data['analysis_start_time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     run_data['parameters'] = cmd_args
     t_map = format_threshold_map(thresholds)
