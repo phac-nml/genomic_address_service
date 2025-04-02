@@ -621,6 +621,83 @@ def test_method_invalid_1(tmp_path):
 
     assert path.isdir(args["outdir"]) == False
 
+def test_many_thresholds(tmp_path):
+    # Checks the property that so long as thresholds are always
+    # decreasing, the correspondingly assigned labels can never
+    # decrease. For example:
+    # Good: 1.1.1.2.3
+    # Bad: 1.1.2.1.1
+    args = {"matrix": get_path("data/matrix/wikipedia-single.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "single",
+            "thresholds": "26,24,22,20,18,16,14,12,10,8,6,4,2,0",
+            "delimeter": ".",
+            "force": False}
+
+    mcluster(args)
+
+    assert path.isdir(args["outdir"])
+
+    clusters_path = path.join(args["outdir"], "clusters.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        assert ["a", "1.1.1.1.1.1.1.1.1.1.1.1.1.1", "1","1","1","1","1","1","1","1","1","1","1","1","1","1"] in clusters
+        assert ["b", "1.1.1.1.1.2.2.2.2.2.2.2.2.2", "1","1","1","1","1","2","2","2","2","2","2","2","2","2"] in clusters
+        assert ["c", "1.1.1.2.2.3.3.3.3.3.3.3.3.3", "1","1","1","2","2","3","3","3","3","3","3","3","3","3"] in clusters
+        assert ["d", "2.2.2.4.4.5.5.5.5.5.5.5.5.5", "2","2","2","4","4","5","5","5","5","5","5","5","5","5"] in clusters
+        assert ["e", "1.1.1.3.3.4.4.4.4.4.4.4.4.4", "1","1","1","3","3","4","4","4","4","4","4","4","4","4"] in clusters
+
+    run_path = path.join(args["outdir"], "run.json")
+    assert path.isfile(run_path)
+    with open(run_path) as run_file:
+        run_json = json.load(run_file)
+
+        assert run_json["parameters"]["method"] == "single"
+        assert run_json["parameters"]["thresholds"] == "26,24,22,20,18,16,14,12,10,8,6,4,2,0"
+        assert run_json["parameters"]["delimeter"] == "."
+
+        assert len(run_json["threshold_map"]) == 14
+        assert run_json["threshold_map"]["level_1"] == 26.0
+        assert run_json["threshold_map"]["level_2"] == 24.0
+        assert run_json["threshold_map"]["level_3"] == 22.0
+        assert run_json["threshold_map"]["level_4"] == 20.0
+        assert run_json["threshold_map"]["level_5"] == 18.0
+        assert run_json["threshold_map"]["level_6"] == 16.0
+        assert run_json["threshold_map"]["level_7"] == 14.0
+        assert run_json["threshold_map"]["level_8"] == 12.0
+        assert run_json["threshold_map"]["level_9"] == 10.0
+        assert run_json["threshold_map"]["level_10"] == 8.0
+        assert run_json["threshold_map"]["level_11"] == 6.0
+        assert run_json["threshold_map"]["level_12"] == 4.0
+        assert run_json["threshold_map"]["level_13"] == 2.0
+        assert run_json["threshold_map"]["level_14"] == 0.0
+
+    thresholds_path = path.join(args["outdir"], "thresholds.json")
+    assert path.isfile(thresholds_path)
+    with open(thresholds_path) as thresholds_file:
+        thresholds_json = json.load(thresholds_file)
+
+        assert len(thresholds_json) == 14
+        assert thresholds_json["level_1"] == 26.0
+        assert thresholds_json["level_2"] == 24.0
+        assert thresholds_json["level_3"] == 22.0
+        assert thresholds_json["level_4"] == 20.0
+        assert thresholds_json["level_5"] == 18.0
+        assert thresholds_json["level_6"] == 16.0
+        assert thresholds_json["level_7"] == 14.0
+        assert thresholds_json["level_8"] == 12.0
+        assert thresholds_json["level_9"] == 10.0
+        assert thresholds_json["level_10"] == 8.0
+        assert thresholds_json["level_11"] == 6.0
+        assert thresholds_json["level_12"] == 4.0
+        assert thresholds_json["level_13"] == 2.0
+        assert thresholds_json["level_14"] == 0.0
+
+    tree_path = path.join(args["outdir"], "tree.nwk")
+    assert path.isfile(tree_path)
+
 def test_method_single(tmp_path):
     # method = "single"
     # thresholds = "2,1,0"
