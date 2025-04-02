@@ -10,7 +10,7 @@ def get_path(location):
     directory = path.dirname(path.abspath(__file__))
     return path.join(directory, location)
 
-def test_basic_0(tmp_path):
+def test_basic(tmp_path):
     # A basic example with one threshold (0) where every
     # item should only cluster with itself or others with
     # a distance of 0.
@@ -69,7 +69,7 @@ def test_basic_0(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-def test_basic_wikipedia(tmp_path):
+def test_wikipedia(tmp_path):
     # Ensures mcluster generates the same output as this
     # example on Wikipedia (2025-03-28):
     # https://en.wikipedia.org/wiki/Single-linkage_clustering
