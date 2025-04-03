@@ -38,7 +38,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def run_call(config):
+def call(config):
     dist_file = config['dists']
     membership_file = config['rclusters']
     thresh_map_file = config['thresh_map']
@@ -122,7 +122,13 @@ def run_call(config):
 
 def run():
     cmd_args = parse_args()
-    run_call(vars(cmd_args))
+
+    try:
+        call(vars(cmd_args))
+
+    except Exception as exception:
+        print("Exception: " + str(exception))
+        sys.exit()
 
 # call main function
 if __name__ == '__main__':

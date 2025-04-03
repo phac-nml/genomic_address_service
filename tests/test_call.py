@@ -5,9 +5,7 @@ A simple test for running gas call
 
 import pytest
 import pathlib as p
-from genomic_address_service.call import run_call 
-
-
+from genomic_address_service.call import call
 
 
 def test_run_call(tmp_path):
@@ -28,7 +26,7 @@ def test_run_call(tmp_path):
     config['address_col'] = "address"
     config['batch_size'] = 100
     config['sample_col'] = "id"
-    run_call(config)
+    call(config)
     outdir = p.Path(config["outdir"])
     output_file = outdir / "results.text"
     assert output_file.read_text().split("\n").sort() == input_results.read_text().split("\n").sort()
