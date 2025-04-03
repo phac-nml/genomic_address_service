@@ -8,6 +8,7 @@ from genomic_address_service.constants import CLUSTER_METHODS, CALL_RUN_DATA
 from genomic_address_service.utils import is_file_ok, write_threshold_map, write_cluster_assignments, \
 init_threshold_map
 from genomic_address_service.classes.assign import assign
+from genomic_address_service.mcluster import process_thresholds
 
 
 def parse_args():
@@ -37,7 +38,6 @@ def parse_args():
                         action='store_true')
     return parser.parse_args()
 
-
 def call(config):
     dist_file = config['dists']
     membership_file = config['rclusters']
@@ -46,7 +46,7 @@ def call(config):
     linkage_method = config['method']
     thresholds = config['thresholds']
     if thresholds is not None:
-        thresholds = [float(x) for x in thresholds.split(',')]
+        thresholds = process_thresholds(config["thresholds"].split(','))
     delimeter = config['delimeter']
     force = config['force']
     outfmt = config['outfmt']
