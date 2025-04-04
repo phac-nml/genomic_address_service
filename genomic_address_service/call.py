@@ -59,36 +59,36 @@ def call(config):
     run_data['parameters'] = config
 
     if outfmt not in ['text','parquet']:
-        print(f'Error please specify a either text or parquet as the output format you specified: {outfmt}')
-        sys.exit()
+        message = f'Error please specify a either text or parquet as the output format you specified: {outfmt}'
+        raise Exception(message)
 
     if len(delimiter) > 1 or delimiter == "\t" or delimiter == "\n":
-        print(f'Error please specify a different delimiter {delimiter} ie. ,|.|\\||-')
-        sys.exit()
+        message = f'Error please specify a different delimiter {delimiter} ie. ,|.|\\||-'
+        raise Exception(message)
 
     if thresholds is None and thresh_map_file is None:
-        print(f'Error you must specify --thresholds or --threshold_map')
-        sys.exit()
+        message = f'Error you must specify --thresholds or --threshold_map'
+        raise Exception(message)
 
     if not is_file_ok(dist_file):
-        print(f'Error {dist_file} does not exist or is empty')
-        sys.exit()
+        message = f'Error {dist_file} does not exist or is empty'
+        raise Exception(message)
 
     if not is_file_ok(membership_file ):
-        print(f'Error {membership_file } does not exist or is empty')
-        sys.exit()
+        message = f'Error {membership_file} does not exist or is empty'
+        raise Exception(message)
 
     if thresh_map_file is not None and not is_file_ok(thresh_map_file ):
-        print(f'Error {thresh_map_file } does not exist or is empty')
-        sys.exit()
+        message = f'Error {thresh_map_file} does not exist or is empty'
+        raise Exception(message)
 
     if not linkage_method in CLUSTER_METHODS:
-        print(f'Error {linkage_method} is not one of the accepeted methods {CLUSTER_METHODS}')
-        sys.exit()
+        message = f'Error {linkage_method} is not one of the accepeted methods {CLUSTER_METHODS}'
+        raise Exception(message)
 
     if os.path.isdir(outdir) and not force:
-        print(f'Error {outdir} exists, if you would like to overwrite, then specify --force')
-        sys.exit()
+        message = f'Error {outdir} exists, if you would like to overwrite, then specify --force'
+        raise Exception(message)
 
     if not os.path.isdir(outdir):
         os.makedirs(outdir, 0o755)

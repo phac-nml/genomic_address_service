@@ -10,6 +10,7 @@ import csv
 import json
 
 from genomic_address_service.call import call
+from genomic_address_service.constants import CLUSTER_METHODS
 
 
 def get_path(location):
@@ -606,3 +607,277 @@ def test_address_errors(tmp_path):
         "\nError: address could not be converted to an integer for samples ['D'].")
 
     assert path.isfile(path.join(output_path, "results.text")) == False
+
+def test_output_format_invalid(tmp_path):
+    # Tests an invalid output format.
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "INVALID"
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f'Error please specify a either text or parquet as the output format you specified: {config["outfmt"]}'
+
+def test_delimiter_too_long(tmp_path):
+    # Tests a delimiter that's too long (multiple characters).
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = ".."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f'Error please specify a different delimiter {config["delimiter"]} ie. ,|.|\\||-'
+
+def test_delimiter_tab(tmp_path):
+    # Tests a tab delimiter.
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "\t"
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f'Error please specify a different delimiter {config["delimiter"]} ie. ,|.|\\||-'
+
+def test_delimiter_newline(tmp_path):
+    # Tests a newline delimiter.
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "\n"
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f'Error please specify a different delimiter {config["delimiter"]} ie. ,|.|\\||-'
+
+def test_no_thresholds(tmp_path):
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = None
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f'Error you must specify --thresholds or --threshold_map'
+
+def test_missing_cluster_file(tmp_path):
+    config = {}
+
+    clusters_path = get_path("data/clusters/file_does_not_exist123.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f'Error {config["rclusters"]} does not exist or is empty'
+
+def test_missing_pairwise_file(tmp_path):
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/file_does_not_exist123.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f'Error {config["dists"]} does not exist or is empty'
+
+def test_missing_threshold_file(tmp_path):
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = None
+    config["thresh_map"] = get_path("data/does_not_exist123.json")
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f'Error {config["thresh_map"]} does not exist or is empty'
+
+def test_linkage_invalid(tmp_path):
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "INVALID"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f'Error {config["method"]} is not one of the accepeted methods {CLUSTER_METHODS}'
