@@ -187,8 +187,6 @@ def test_threshold_same(tmp_path):
 def test_thresholds_0_10_0(tmp_path):
     # "thresholds": "0,10,0"
     # This should fail because thresholds must be decreasing.
-
-    # A basic test of GAS call.
     config = {}
 
     clusters_path = get_path("data/clusters/basic.tsv")
@@ -219,3 +217,211 @@ def test_thresholds_0_10_0(tmp_path):
     assert str(exception.value) == "thresholds ['0', '10', '0'] must be in decreasing order"
 
     assert path.isdir(output_path) == False
+
+def test_thresholds_0_0(tmp_path):
+    # "thresholds": "0,0"
+    # This should fail because thresholds must be decreasing.
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = "0,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimeter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == "thresholds ['0', '0'] must be in decreasing order"
+
+    assert path.isdir(output_path) == False
+
+def test_thresholds_1_2_3(tmp_path):
+    # "thresholds": "1,2,3"
+    # This should fail because thresholds must be decreasing.
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = "1,2,3"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimeter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == "thresholds ['1', '2', '3'] must be in decreasing order"
+
+    assert path.isdir(output_path) == False
+
+def test_thresholds_string(tmp_path):
+    # "thresholds": "cat,dog"
+    # This should fail because thresholds must be integers or floats.
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = "cat,dog"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimeter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == "thresholds ['cat', 'dog'] must all be integers or floats"
+
+    assert path.isdir(output_path) == False
+
+def test_no_thresholds(tmp_path):
+    # "thresholds": ""
+    # This should fail because there are no thresholds.
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = ""
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimeter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == "thresholds [''] must all be integers or floats"
+
+    assert path.isdir(output_path) == False
+
+def test_delimeter_slash(tmp_path):
+    # "delimeter": "/"
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimeter"] = "/"
+
+    config["batch_size"] = 100
+
+    call(config)
+
+    assert path.isdir(output_path)
+
+    # Clusters
+    clusters_path = path.join(output_path, "results.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        # The new E is the same as the existing B (1.1.2)
+        # The new F is the same as the existing D (1.1.4)
+
+        assert ["id", "address"] in clusters
+        assert ["A", "1/1/1"] in clusters
+        assert ["B", "1/1/2"] in clusters
+        assert ["C", "1/1/3"] in clusters
+        assert ["D", "1/1/4"] in clusters
+        assert ["E", "1/1/2"] in clusters
+        assert ["F", "1/1/4"] in clusters
+
+    # Run JSON
+    run_path = path.join(output_path, "run.json")
+    assert path.isfile(run_path)
+    with open(run_path) as run_file:
+        run_json = json.load(run_file)
+
+        assert run_json["parameters"]["method"] == "single"
+        assert run_json["parameters"]["thresholds"] == "5/3/0"
+        assert run_json["parameters"]["delimeter"] == "."
+
+        assert len(run_json["threshold_map"]) == 3
+        assert run_json["threshold_map"]["0"] == 5.0
+        assert run_json["threshold_map"]["1"] == 3.0
+        assert run_json["threshold_map"]["2"] == 0.0
+
+    # Thresholds JSON
+    thresholds_path = path.join(output_path, "thresholds.json")
+    assert path.isfile(thresholds_path)
+    with open(thresholds_path) as thresholds_file:
+        thresholds_json = json.load(thresholds_file)
+
+        assert len(thresholds_json) == 3
+        assert thresholds_json["0"] == 5.0
+        assert thresholds_json["1"] == 3.0
+        assert thresholds_json["2"] == 0.0
