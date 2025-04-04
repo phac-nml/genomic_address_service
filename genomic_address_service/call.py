@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from argparse import (ArgumentParser, ArgumentDefaultsHelpFormatter, RawDescriptionHelpFormatter)
 from genomic_address_service.version import __version__
-from genomic_address_service.constants import CLUSTER_METHODS, CALL_RUN_DATA
+from genomic_address_service.constants import CLUSTER_METHODS, build_call_run_data
 from genomic_address_service.utils import is_file_ok, write_threshold_map, write_cluster_assignments, \
 init_threshold_map
 from genomic_address_service.classes.assign import assign
@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument('-t', '--thresholds', type=str, required=False, help='thresholds delimited by , columns will be treated in sequential order')
     parser.add_argument('-o','--outdir', type=str, required=True, help='Output directory to put cluster results')
     parser.add_argument('-u', '--outfmt', type=str, required=False, help='Output format for assignments [text, parquet]',default='text')
-    parser.add_argument('-l', '--delimiter', type=str, required=False, help='delimiter desired for nomenclature code',default=".")
+    parser.add_argument('-l', '--delimiter', type=str, required=False, help='The delimiter used within addresses in the input cluster file, as well as the delimiter to use for addresses in the output.', default=".")
     parser.add_argument('-b', '--batch_size', type=int, required=False, help='Number of records to process at a time',default=100)
     parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
     parser.add_argument('-f', '--force', required=False, help='Overwrite existing directory',
@@ -52,7 +52,7 @@ def call(config):
     outfmt = config['outfmt']
     address_col = config['address_col']
     sample_col = config['sample_col']
-    run_data = CALL_RUN_DATA
+    run_data = build_call_run_data()
     batch_size = config['batch_size']
 
     run_data['analysis_start_time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -62,9 +62,8 @@ def call(config):
         print(f'Error please specify a either text or parquet as the output format you specified: {outfmt}')
         sys.exit()
 
-
     if len(delimiter) > 1 or delimiter == "\t" or delimiter == "\n":
-        print(f'Error please specify a different delimiter {delimiter} ie. ,|.|\||-')
+        print(f'Error please specify a different delimiter {delimiter} ie. ,|.|\\||-')
         sys.exit()
 
     if thresholds is None and thresh_map_file is None:
@@ -87,7 +86,6 @@ def call(config):
         print(f'Error {linkage_method} is not one of the accepeted methods {CLUSTER_METHODS}')
         sys.exit()
 
-
     if os.path.isdir(outdir) and not force:
         print(f'Error {outdir} exists, if you would like to overwrite, then specify --force')
         sys.exit()
@@ -104,7 +102,7 @@ def call(config):
     run_data['threshold_map'] = threshold_map
     write_threshold_map(threshold_map, os.path.join(outdir, "thresholds.json"))
 
-    obj = assign(dist_file,membership_file,threshold_map,linkage_method,address_col,sample_col,batch_size)
+    obj = assign(dist_file,membership_file,threshold_map,linkage_method,address_col,sample_col,batch_size, delimiter)
 
     if obj.status == False:
         print(f'Error something went wrong with cluster assignment. check error messages {obj.error_msgs}')

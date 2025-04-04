@@ -23,11 +23,14 @@ def build_mc_run_data():
 
     return run_data
 
-CALL_RUN_DATA = {
-    'genomic address service: cluster assignment': f'version: {__version__}',
-    'analysis_start_time':'',
-    'analysis_end_time':'',
-    'parameters':{},
-    'threshold_map':{},
-    'result_file':''
-}
+def build_call_run_data():
+    run_data = {
+        'genomic address service: cluster assignment': f'version: {__version__}',
+        'analysis_start_time':'',
+        'analysis_end_time':'',
+        'parameters':{},
+        'threshold_map':{},
+        'result_file':''
+    }
+
+    return run_data

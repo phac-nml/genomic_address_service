@@ -9,7 +9,7 @@ class assign:
     avail_methods = ["average", "complete", "single"]
 
 
-    def __init__(self,dist_file,membership_file,threshold_map,linkage_method,address_col, sample_col, batch_size):
+    def __init__(self,dist_file,membership_file,threshold_map,linkage_method,address_col, sample_col, batch_size, delimiter):
         self.dist_file = dist_file
         self.batch_size = batch_size
         file_type = None
@@ -28,6 +28,8 @@ class assign:
         self.assignments = {}
         self.nomenclature_cluster_tracker = {}
         self.query_ids = set()
+        self.delimiter = delimiter
+
         if not linkage_method in self.avail_methods:
             self.status = False
             self.error_msgs.append(f'Provided {linkage_method} is not one of the accepted {self.avail_methods}')
@@ -68,7 +70,7 @@ class assign:
 
 
         self.memberships_df = self.memberships_df[[sample_col,address_col]]
-        self.memberships_df = self.format_df(self.memberships_df.set_index(sample_col).to_dict()[address_col])
+        self.memberships_df = self.format_df(self.memberships_df.set_index(sample_col).to_dict()[address_col], self.delimiter)
         if len(self.error_samples) > 0:
             self.status = False
             self.error_msgs.append(f'Genomic address too short for samples: {self.error_samples} based on {self.threshold_map}')
@@ -80,7 +82,7 @@ class assign:
         self.init_nomenclature_tracker()
         self.assign(n_records=batch_size)
 
-    def format_df(self,data,delim='.'):
+    def format_df(self,data, delim='.'):
         num_thresholds = len(self.thresholds)
         self.error_samples = []
         membership = {}
@@ -122,18 +124,18 @@ class assign:
             values = [str(x) for x in list(row)]
             id = values[0]
             values = values[1:]
-            self.memberships_dict[id] = ".".join([str(x) for x in values])
+            self.memberships_dict[id] = self.delimiter.join([str(x) for x in values])
             for idx,value in enumerate(values):
-                code = ".".join(values[0:idx+1])
+                code = self.delimiter.join(values[0:idx+1])
                 if not code in lookup:
                     lookup[code] = list()
                 lookup[code].append(id)
         self.memberships_lookup = lookup
 
     def add_memberships_lookup(self,sample_id, address):
-        self.memberships_dict[sample_id] = ".".join([str(x) for x in address])
+        self.memberships_dict[sample_id] = self.delimiter.join([str(x) for x in address])
         for idx in range(0,len(address)):
-            code = ".".join([str(x) for x in address[0:idx+1]])
+            code = self.delimiter.join([str(x) for x in address[0:idx+1]])
             if not code in self.memberships_lookup:
                 self.memberships_lookup[code] = list()
             self.memberships_lookup[code].append(sample_id)
@@ -198,10 +200,10 @@ class assign:
                     thresh_value = self.thresholds[thresh_idx]
                     #save unnecessary work
                     if thresh_value >= pairwise_dist:
-                        ref_address = self.memberships_dict[rid].split('.')[0:thresh_idx+1]
+                        ref_address = self.memberships_dict[rid].split(self.delimiter)[0:thresh_idx+1]
                         alen = len(ref_address)
                         for i in range(0,len(ref_address)):
-                            addr = ".".join(ref_address[0:alen-i])
+                            addr = self.delimiter.join(ref_address[0:alen-i])
                             
                             if addr not in self.memberships_lookup:
                                 continue
@@ -219,7 +221,7 @@ class assign:
                             elif self.linkage_method == 'average' and summary['mean'] > thresh_value:
                                 is_eligible = False
                             if is_eligible:
-                                for idx,value in enumerate(addr.split('.')):
+                                for idx,value in enumerate(addr.split(self.delimiter)):
                                     query_addr[idx] = value
                                 break
                             thresh_value = self.thresholds[thresh_idx-(i+1)]
