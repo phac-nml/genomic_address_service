@@ -19,14 +19,14 @@ def parse_args():
     parser.add_argument('-o','--outdir', type=str, required=True, help='Output directory to put cluster results')
     parser.add_argument('-m','--method', type=str, required=False, help='cluster method [single, complete, average]',default='average')
     parser.add_argument('-t','--thresholds', type=str, required=True, help='thresholds delimited by ,')
-    parser.add_argument('-d', '--delimeter', type=str, required=False, help='delimeter desired for nomenclature code',default=".")
+    parser.add_argument('-d', '--delimiter', type=str, required=False, help='delimiter desired for nomenclature code',default=".")
     parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
     parser.add_argument('-f', '--force', required=False, help='Overwrite existing directory',
                         action='store_true')
 
     return parser.parse_args()
 
-def write_clusters(clusters,num_thresholds,file,delimeter="."):
+def write_clusters(clusters,num_thresholds,file,delimiter="."):
     header = ['id','address']
     for i in range(num_thresholds):
         header.append(f'level_{i+1}')
@@ -34,7 +34,7 @@ def write_clusters(clusters,num_thresholds,file,delimeter="."):
     with open(file,'w') as fh:
         fh.write("{}\n".format(header))
         for id in clusters:
-            address = f'{delimeter}'.join([str(x) for x in clusters[id]])
+            address = f'{delimiter}'.join([str(x) for x in clusters[id]])
             fh.write("{}\n".format("\t".join(str(x) for x in ([id, address ] + clusters[id]))))
 
 def process_thresholds(thresholds):
@@ -57,7 +57,7 @@ def mcluster(cmd_args):
     outdir = cmd_args["outdir"]
     method = cmd_args["method"]
     thresholds = process_thresholds(cmd_args["thresholds"].split(','))
-    delimeter= cmd_args["delimeter"]
+    delimiter= cmd_args["delimiter"]
     force = cmd_args["force"]
 
     run_data = build_mc_run_data()
@@ -91,7 +91,7 @@ def mcluster(cmd_args):
 
     run_data['result_file'] = os.path.join(outdir,"clusters.text")
 
-    write_clusters(memberships, len(thresholds), run_data['result_file'], delimeter)
+    write_clusters(memberships, len(thresholds), run_data['result_file'], delimiter)
 
     write_threshold_map(t_map, os.path.join(outdir,"thresholds.json"))
 

@@ -28,7 +28,7 @@ def test_run_call(tmp_path):
     config['outdir'] = str(tmp_path / "test_out")
     config['method'] = "average"
     config['thresholds'] = "10,9,8,7,6,5,4,3,2,1,0"
-    config['delimeter'] = "."
+    config['delimiter'] = "."
     config['force'] = False
     config['outfmt'] = "text"
     config['address_col'] = "address"
@@ -60,7 +60,7 @@ def test_basic(tmp_path):
 
     config["sample_col"] = "id"
     config["address_col"] = "address"
-    config["delimeter"] = "."
+    config["delimiter"] = "."
 
     config["batch_size"] = 100
 
@@ -93,7 +93,7 @@ def test_basic(tmp_path):
 
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "5,3,0"
-        assert run_json["parameters"]["delimeter"] == "."
+        assert run_json["parameters"]["delimiter"] == "."
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["0"] == 5.0
@@ -133,7 +133,7 @@ def test_threshold_same(tmp_path):
 
     config["sample_col"] = "id"
     config["address_col"] = "address"
-    config["delimeter"] = "."
+    config["delimiter"] = "."
 
     config["batch_size"] = 100
 
@@ -166,7 +166,7 @@ def test_threshold_same(tmp_path):
 
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "10,9,8"
-        assert run_json["parameters"]["delimeter"] == "."
+        assert run_json["parameters"]["delimiter"] == "."
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["0"] == 10.0
@@ -206,7 +206,7 @@ def test_thresholds_0_10_0(tmp_path):
 
     config["sample_col"] = "id"
     config["address_col"] = "address"
-    config["delimeter"] = "."
+    config["delimiter"] = "."
 
     config["batch_size"] = 100
 
@@ -240,7 +240,7 @@ def test_thresholds_0_0(tmp_path):
 
     config["sample_col"] = "id"
     config["address_col"] = "address"
-    config["delimeter"] = "."
+    config["delimiter"] = "."
 
     config["batch_size"] = 100
 
@@ -274,7 +274,7 @@ def test_thresholds_1_2_3(tmp_path):
 
     config["sample_col"] = "id"
     config["address_col"] = "address"
-    config["delimeter"] = "."
+    config["delimiter"] = "."
 
     config["batch_size"] = 100
 
@@ -308,7 +308,7 @@ def test_thresholds_string(tmp_path):
 
     config["sample_col"] = "id"
     config["address_col"] = "address"
-    config["delimeter"] = "."
+    config["delimiter"] = "."
 
     config["batch_size"] = 100
 
@@ -342,7 +342,7 @@ def test_no_thresholds(tmp_path):
 
     config["sample_col"] = "id"
     config["address_col"] = "address"
-    config["delimeter"] = "."
+    config["delimiter"] = "."
 
     config["batch_size"] = 100
 
@@ -354,8 +354,8 @@ def test_no_thresholds(tmp_path):
 
     assert path.isdir(output_path) == False
 
-def test_delimeter_slash(tmp_path):
-    # "delimeter": "/"
+def test_delimiter_slash(tmp_path):
+    # "delimiter": "/"
     config = {}
 
     clusters_path = get_path("data/clusters/basic.tsv")
@@ -375,7 +375,7 @@ def test_delimeter_slash(tmp_path):
 
     config["sample_col"] = "id"
     config["address_col"] = "address"
-    config["delimeter"] = "/"
+    config["delimiter"] = "/"
 
     config["batch_size"] = 100
 
@@ -408,7 +408,7 @@ def test_delimeter_slash(tmp_path):
 
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "5/3/0"
-        assert run_json["parameters"]["delimeter"] == "."
+        assert run_json["parameters"]["delimiter"] == "."
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["0"] == 5.0

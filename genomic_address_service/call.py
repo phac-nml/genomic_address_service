@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument('-t', '--thresholds', type=str, required=False, help='thresholds delimited by , columns will be treated in sequential order')
     parser.add_argument('-o','--outdir', type=str, required=True, help='Output directory to put cluster results')
     parser.add_argument('-u', '--outfmt', type=str, required=False, help='Output format for assignments [text, parquet]',default='text')
-    parser.add_argument('-l', '--delimeter', type=str, required=False, help='delimeter desired for nomenclature code',default=".")
+    parser.add_argument('-l', '--delimiter', type=str, required=False, help='delimiter desired for nomenclature code',default=".")
     parser.add_argument('-b', '--batch_size', type=int, required=False, help='Number of records to process at a time',default=100)
     parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
     parser.add_argument('-f', '--force', required=False, help='Overwrite existing directory',
@@ -47,7 +47,7 @@ def call(config):
     thresholds = config['thresholds']
     if thresholds is not None:
         thresholds = process_thresholds(config["thresholds"].split(','))
-    delimeter = config['delimeter']
+    delimiter = config['delimiter']
     force = config['force']
     outfmt = config['outfmt']
     address_col = config['address_col']
@@ -63,8 +63,8 @@ def call(config):
         sys.exit()
 
 
-    if len(delimeter) > 1 or delimeter == "\t" or delimeter == "\n":
-        print(f'Error please specify a different delimeter {delimeter} ie. ,|.|\||-')
+    if len(delimiter) > 1 or delimiter == "\t" or delimiter == "\n":
+        print(f'Error please specify a different delimiter {delimiter} ie. ,|.|\||-')
         sys.exit()
 
     if thresholds is None and thresh_map_file is None:
@@ -113,7 +113,7 @@ def call(config):
 
     run_data['result_file'] = os.path.join(outdir, "results.{}".format(outfmt))
 
-    write_cluster_assignments(run_data['result_file'], cluster_assignments, threshold_map, outfmt, delimeter, sample_col, address_col)
+    write_cluster_assignments(run_data['result_file'], cluster_assignments, threshold_map, outfmt, delimiter, sample_col, address_col)
 
     with open(os.path.join(outdir,"run.json"),'w') as fh:
         fh.write(json.dumps(run_data, indent=4))

@@ -18,7 +18,7 @@ def test_basic(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "0",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     mcluster(args)
@@ -53,7 +53,7 @@ def test_basic(tmp_path):
 
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "0"
-        assert run_json["parameters"]["delimeter"] == "."
+        assert run_json["parameters"]["delimiter"] == "."
 
         assert len(run_json["threshold_map"]) == 1
         assert run_json["threshold_map"]["level_1"] == 0.0
@@ -81,7 +81,7 @@ def test_wikipedia(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "25,18,0",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     # t=25
@@ -124,7 +124,7 @@ def test_wikipedia(tmp_path):
 
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "25,18,0"
-        assert run_json["parameters"]["delimeter"] == "."
+        assert run_json["parameters"]["delimiter"] == "."
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["level_1"] == 25.0
@@ -150,7 +150,7 @@ def test_threshold_same(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "20,19,18",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     """
@@ -190,7 +190,7 @@ def test_threshold_same(tmp_path):
 
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "20,19,18"
-        assert run_json["parameters"]["delimeter"] == "."
+        assert run_json["parameters"]["delimiter"] == "."
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["level_1"] == 20.0
@@ -217,7 +217,7 @@ def test_thresholds_0_10_0_10(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "0,10,0,10",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     with pytest.raises(Exception) as exception:
@@ -235,7 +235,7 @@ def test_thresholds_0_0(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "0,0",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     with pytest.raises(Exception) as exception:
@@ -253,7 +253,7 @@ def test_thresholds_1_2_3(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "1,2,3",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     with pytest.raises(Exception) as exception:
@@ -271,7 +271,7 @@ def test_thresholds_string(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "cat,dog",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     with pytest.raises(Exception) as exception:
@@ -289,7 +289,7 @@ def test_no_thresholds(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     with pytest.raises(Exception) as exception:
@@ -300,13 +300,13 @@ def test_no_thresholds(tmp_path):
 
     assert path.isdir(args["outdir"]) == False
 
-def test_delimeter_slash(tmp_path):
-    # "delimeter": "/"
+def test_delimiter_slash(tmp_path):
+    # "delimiter": "/"
     args = {"matrix": get_path("data/matrix/basic.tsv"),
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "1,0",
-            "delimeter": "/",
+            "delimiter": "/",
             "force": False}
 
     mcluster(args)
@@ -341,7 +341,7 @@ def test_delimeter_slash(tmp_path):
 
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "1,0"
-        assert run_json["parameters"]["delimeter"] == "/"
+        assert run_json["parameters"]["delimiter"] == "/"
 
         assert len(run_json["threshold_map"]) == 2
         assert run_json["threshold_map"]["level_1"] == 1.0
@@ -359,13 +359,13 @@ def test_delimeter_slash(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-def test_delimeter_0(tmp_path):
-    # "delimeter": "0"
+def test_delimiter_0(tmp_path):
+    # "delimiter": "0"
     args = {"matrix": get_path("data/matrix/basic.tsv"),
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "1,0",
-            "delimeter": "0",
+            "delimiter": "0",
             "force": False}
 
     mcluster(args)
@@ -400,7 +400,7 @@ def test_delimeter_0(tmp_path):
 
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "1,0"
-        assert run_json["parameters"]["delimeter"] == "0"
+        assert run_json["parameters"]["delimiter"] == "0"
 
         assert len(run_json["threshold_map"]) == 2
         assert run_json["threshold_map"]["level_1"] == 1.0
@@ -418,13 +418,13 @@ def test_delimeter_0(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-def test_delimeter_1(tmp_path):
-    # "delimeter": "1"
+def test_delimiter_1(tmp_path):
+    # "delimiter": "1"
     args = {"matrix": get_path("data/matrix/basic.tsv"),
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "1,0",
-            "delimeter": "1",
+            "delimiter": "1",
             "force": False}
 
     mcluster(args)
@@ -459,7 +459,7 @@ def test_delimeter_1(tmp_path):
 
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "1,0"
-        assert run_json["parameters"]["delimeter"] == "1"
+        assert run_json["parameters"]["delimiter"] == "1"
 
         assert len(run_json["threshold_map"]) == 2
         assert run_json["threshold_map"]["level_1"] == 1.0
@@ -477,13 +477,13 @@ def test_delimeter_1(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-def test_delimeter_quote(tmp_path):
-    # "delimeter": '"'
+def test_delimiter_quote(tmp_path):
+    # "delimiter": '"'
     args = {"matrix": get_path("data/matrix/basic.tsv"),
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "1,0",
-            "delimeter": '"',
+            "delimiter": '"',
             "force": False}
 
     mcluster(args)
@@ -518,7 +518,7 @@ def test_delimeter_quote(tmp_path):
 
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "1,0"
-        assert run_json["parameters"]["delimeter"] == '"'
+        assert run_json["parameters"]["delimiter"] == '"'
 
         assert len(run_json["threshold_map"]) == 2
         assert run_json["threshold_map"]["level_1"] == 1.0
@@ -542,7 +542,7 @@ def test_matrix_missing(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "0",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     with pytest.raises(Exception) as exception:
@@ -559,7 +559,7 @@ def test_matrix_empty(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "0",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     with pytest.raises(Exception) as exception:
@@ -576,7 +576,7 @@ def test_method_invalid_nope(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "nope",
             "thresholds": "0",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     with pytest.raises(Exception) as exception:
@@ -593,7 +593,7 @@ def test_method_invalid_singl(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "singl",
             "thresholds": "0",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     with pytest.raises(Exception) as exception:
@@ -610,7 +610,7 @@ def test_method_invalid_1(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "1",
             "thresholds": "0",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     with pytest.raises(Exception) as exception:
@@ -631,7 +631,7 @@ def test_many_thresholds(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "26,24,22,20,18,16,14,12,10,8,6,4,2,0",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     mcluster(args)
@@ -656,7 +656,7 @@ def test_many_thresholds(tmp_path):
 
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "26,24,22,20,18,16,14,12,10,8,6,4,2,0"
-        assert run_json["parameters"]["delimeter"] == "."
+        assert run_json["parameters"]["delimiter"] == "."
 
         assert len(run_json["threshold_map"]) == 14
         assert run_json["threshold_map"]["level_1"] == 26.0
@@ -747,7 +747,7 @@ def test_method_single(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "2,1,0",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     mcluster(args)
@@ -778,7 +778,7 @@ def test_method_single(tmp_path):
 
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "2,1,0"
-        assert run_json["parameters"]["delimeter"] == "."
+        assert run_json["parameters"]["delimiter"] == "."
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["level_1"] == 2.0
@@ -829,7 +829,7 @@ def test_method_complete(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "complete",
             "thresholds": "10,8,5",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     mcluster(args)
@@ -855,7 +855,7 @@ def test_method_complete(tmp_path):
 
         assert run_json["parameters"]["method"] == "complete"
         assert run_json["parameters"]["thresholds"] == "10,8,5"
-        assert run_json["parameters"]["delimeter"] == "."
+        assert run_json["parameters"]["delimiter"] == "."
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["level_1"] == 10.0
@@ -904,7 +904,7 @@ def test_method_average(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "complete",
             "thresholds": "12,8,2",
-            "delimeter": ".",
+            "delimiter": ".",
             "force": False}
 
     mcluster(args)
@@ -928,7 +928,7 @@ def test_method_average(tmp_path):
 
         assert run_json["parameters"]["method"] == "complete"
         assert run_json["parameters"]["thresholds"] == "12,8,2"
-        assert run_json["parameters"]["delimeter"] == "."
+        assert run_json["parameters"]["delimiter"] == "."
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["level_1"] == 12.0
