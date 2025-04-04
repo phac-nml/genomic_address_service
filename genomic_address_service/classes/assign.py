@@ -5,9 +5,13 @@ import pandas as pd
 from genomic_address_service.constants import EXTENSIONS, PD_HEADER
 from genomic_address_service.utils import is_file_ok
 from genomic_address_service.classes.reader import dist_reader
-class assign:
-    avail_methods = ["average", "complete", "single"]
 
+class assign:
+    ERROR_MISSING_DELIMITER = "delimiter was not found"
+    ERROR_TOO_SHORT = "genomic address too short"
+    ERROR_NON_INTEGER = "address could not be converted to an integer"
+
+    avail_methods = ["average", "complete", "single"]
 
     def __init__(self,dist_file,membership_file,threshold_map,linkage_method,address_col, sample_col, batch_size, delimiter):
         self.dist_file = dist_file
@@ -29,6 +33,12 @@ class assign:
         self.nomenclature_cluster_tracker = {}
         self.query_ids = set()
         self.delimiter = delimiter
+
+        self.error_samples = {
+            self.ERROR_MISSING_DELIMITER: [],
+            self.ERROR_TOO_SHORT: [],
+            self.ERROR_NON_INTEGER: []
+        } # message -> list of IDs
 
         if not linkage_method in self.avail_methods:
             self.status = False
@@ -68,12 +78,21 @@ class assign:
         if not self.status:
             return
 
-
         self.memberships_df = self.memberships_df[[sample_col,address_col]]
         self.memberships_df = self.format_df(self.memberships_df.set_index(sample_col).to_dict()[address_col], self.delimiter)
-        if len(self.error_samples) > 0:
+
+        if len(self.error_samples[self.ERROR_MISSING_DELIMITER]) > 0:
             self.status = False
-            self.error_msgs.append(f'Genomic address too short for samples: {self.error_samples} based on {self.threshold_map}')
+            self.error_msgs.append(f'Error: {self.ERROR_MISSING_DELIMITER} for samples {self.error_samples[self.ERROR_MISSING_DELIMITER]}.')
+
+        if len(self.error_samples[self.ERROR_TOO_SHORT]) > 0:
+            self.status = False
+            self.error_msgs.append(f'Error: {self.ERROR_TOO_SHORT} for samples {self.error_samples[self.ERROR_TOO_SHORT]} based on {self.threshold_map}.')
+
+        if len(self.error_samples[self.ERROR_NON_INTEGER]) > 0:
+            self.status = False
+            self.error_msgs.append(f'Error: {self.ERROR_NON_INTEGER} for samples {self.error_samples[self.ERROR_NON_INTEGER]}.')
+
         if not self.status:
             return
 
@@ -84,12 +103,21 @@ class assign:
 
     def format_df(self,data, delim='.'):
         num_thresholds = len(self.thresholds)
-        self.error_samples = []
         membership = {}
+
         for sample_id in data:
             address = str(data[sample_id]).split(delim)
+
+            # Did we get the wrong number of address components?
             if len(address) != num_thresholds:
-                self.error_samples.append(sample_id)
+
+                # No delimiter:
+                if (not delim in data[sample_id]) and num_thresholds > 1:
+                    self.error_samples[self.ERROR_MISSING_DELIMITER].append(sample_id)
+                # Length problem:
+                else:
+                    self.error_samples[self.ERROR_TOO_SHORT].append(sample_id)
+
                 continue
             membership[sample_id] = {}
             for idx,value in enumerate(address):
@@ -97,7 +125,7 @@ class assign:
                 try:
                     value = int(value)
                 except Exception:
-                    self.error_samples.append(sample_id)
+                    self.error_samples[self.ERROR_NON_INTEGER].append(sample_id)
                     del membership[sample_id]
                     break
                 membership[sample_id][l] = int(value)

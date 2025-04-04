@@ -105,8 +105,13 @@ def call(config):
     obj = assign(dist_file,membership_file,threshold_map,linkage_method,address_col,sample_col,batch_size, delimiter)
 
     if obj.status == False:
-        print(f'Error something went wrong with cluster assignment. check error messages {obj.error_msgs}')
-        sys.exit()
+        exception_message = f'something went wrong with cluster assignment. Check error messages:'
+
+        for error_message in obj.error_msgs:
+            exception_message += "\n" + str(error_message)
+
+        raise Exception(exception_message)
+
     cluster_assignments = obj.memberships_dict
 
     run_data['result_file'] = os.path.join(outdir, "results.{}".format(outfmt))

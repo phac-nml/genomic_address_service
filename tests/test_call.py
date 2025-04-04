@@ -497,3 +497,112 @@ def test_delimiter_r(tmp_path):
         assert thresholds_json["0"] == 5.0
         assert thresholds_json["1"] == 3.0
         assert thresholds_json["2"] == 0.0
+
+def test_delimiter_mismatch_all(tmp_path):
+    # The `--delimiter` doesn't match the delimiter used in
+    # the cluster file.
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "/"
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == ("something went wrong with cluster assignment. Check error messages:\n" +
+        "Error: delimiter was not found for samples ['A', 'B', 'C', 'D'].")
+
+    assert path.isfile(path.join(output_path, "results.text")) == False
+
+def test_delimiter_mismatch_some(tmp_path):
+    # The `--delimiter` doesn't match the delimiter used in
+    # the cluster file.
+    config = {}
+
+    clusters_path = get_path("data/clusters/delimiter_mix.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "/"
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == ("something went wrong with cluster assignment. Check error messages:\n" +
+        "Error: delimiter was not found for samples ['A', 'C'].")
+
+    assert path.isfile(path.join(output_path, "results.text")) == False
+
+def test_address_errors(tmp_path):
+    # Multiple different address errors:
+    # - wrong delimiter
+    # - wrong length
+    # - non-integer
+    config = {}
+
+    clusters_path = get_path("data/clusters/address_errors.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["outfmt"] = "text"
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == ("something went wrong with cluster assignment. Check error messages:" +
+        "\nError: delimiter was not found for samples ['A']."
+        "\nError: genomic address too short for samples ['B', 'C'] based on {0: 5.0, 1: 3.0, 2: 0.0}."
+        "\nError: address could not be converted to an integer for samples ['D'].")
+
+    assert path.isfile(path.join(output_path, "results.text")) == False
