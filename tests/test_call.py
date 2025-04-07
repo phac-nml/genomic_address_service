@@ -637,7 +637,7 @@ def test_output_format_invalid(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == f'Error please specify a either text or parquet as the output format you specified: {config["outfmt"]}'
+    assert str(exception.value) == f'please specify a either text or parquet as the output format you specified: {config["outfmt"]}'
 
 def test_delimiter_too_long(tmp_path):
     # Tests a delimiter that's too long (multiple characters).
@@ -668,7 +668,7 @@ def test_delimiter_too_long(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == f'Error please specify a different delimiter {config["delimiter"]} ie. ,|.|\\||-'
+    assert str(exception.value) == f'please specify a different delimiter {config["delimiter"]} ie. ,|.|\\||-'
 
 def test_delimiter_tab(tmp_path):
     # Tests a tab delimiter.
@@ -699,7 +699,7 @@ def test_delimiter_tab(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == f'Error please specify a different delimiter {config["delimiter"]} ie. ,|.|\\||-'
+    assert str(exception.value) == f'please specify a different delimiter {config["delimiter"]} ie. ,|.|\\||-'
 
 def test_delimiter_newline(tmp_path):
     # Tests a newline delimiter.
@@ -730,7 +730,7 @@ def test_delimiter_newline(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == f'Error please specify a different delimiter {config["delimiter"]} ie. ,|.|\\||-'
+    assert str(exception.value) == f'please specify a different delimiter {config["delimiter"]} ie. ,|.|\\||-'
 
 def test_no_thresholds(tmp_path):
     config = {}
@@ -760,7 +760,7 @@ def test_no_thresholds(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == f'Error you must specify --thresholds or --threshold_map'
+    assert str(exception.value) == f'you must specify --thresholds or --threshold_map'
 
 def test_missing_cluster_file(tmp_path):
     config = {}
@@ -790,7 +790,7 @@ def test_missing_cluster_file(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == f'Error {config["rclusters"]} does not exist or is empty'
+    assert str(exception.value) == f'{config["rclusters"]} does not exist or is empty'
 
 def test_missing_pairwise_file(tmp_path):
     config = {}
@@ -820,7 +820,7 @@ def test_missing_pairwise_file(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == f'Error {config["dists"]} does not exist or is empty'
+    assert str(exception.value) == f'{config["dists"]} does not exist or is empty'
 
 def test_missing_threshold_file(tmp_path):
     config = {}
@@ -850,7 +850,7 @@ def test_missing_threshold_file(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == f'Error {config["thresh_map"]} does not exist or is empty'
+    assert str(exception.value) == f'{config["thresh_map"]} does not exist or is empty'
 
 def test_linkage_invalid(tmp_path):
     config = {}
@@ -880,4 +880,4 @@ def test_linkage_invalid(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == f'Error {config["method"]} is not one of the accepeted methods {CLUSTER_METHODS}'
+    assert str(exception.value) == f'{config["method"]} is not one of the accepeted methods {CLUSTER_METHODS}'

@@ -38,13 +38,13 @@ def mock_membership_file():
 
 def test_initialization(mock_dist_file, mock_membership_file):
     threshold_map = {"level_0": 0.1, "level_1": 0.2}
-    a = assign(dist_file=mock_dist_file, membership_file=mock_membership_file, threshold_map=threshold_map, linkage_method='single', sample_col='id', address_col='address_levels_notsplit', batch_size=100)
+    a = assign(dist_file=mock_dist_file, membership_file=mock_membership_file, threshold_map=threshold_map, linkage_method='single', sample_col='id', address_col='address_levels_notsplit', batch_size=100, delimiter=".")
     assert a.status, "Initialization failed, check error_msgs for details"
     assert not a.error_msgs, f"Unexpected errors during initialization: {a.error_msgs}"
     assert isinstance(a.memberships_df, pd.DataFrame), "Memberships DataFrame"
 
 def test_check_membership_columns(mock_dist_file, mock_membership_file):
     threshold_map = {"level_0": 0.1, "level_1": 0.2}
-    a = assign(dist_file=mock_dist_file, membership_file=mock_membership_file, threshold_map=threshold_map, linkage_method='single', sample_col='id', address_col='address_levels_notsplit', batch_size=100)
+    a = assign(dist_file=mock_dist_file, membership_file=mock_membership_file, threshold_map=threshold_map, linkage_method='single', sample_col='id', address_col='address_levels_notsplit', batch_size=100, delimiter=".")
     cols = ['level_0', 'level_1']
     assert a.check_membership_columns(cols), "Membership column check failed for valid columns"
