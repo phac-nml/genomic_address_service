@@ -69,6 +69,9 @@ def test_basic(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
+    with open(tree_path) as tree_file:
+        assert tree_file.read().strip() == "(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"
+
 def test_wikipedia(tmp_path):
     # Ensures mcluster generates the same output as this
     # example on Wikipedia (2025-03-28):
@@ -144,6 +147,9 @@ def test_wikipedia(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
+    with open(tree_path) as tree_file:
+        assert tree_file.read().strip() == "((((b:17.000000,a:17.000000):4.0,c:21.000000):0.0,e:21.000000):7.0,d:28.000000);"
+
 def test_threshold_same(tmp_path):
     # Tests behaviour that similar thresholds create similar clusters.
     args = {"matrix": get_path("data/matrix/wikipedia-single.tsv"),
@@ -209,6 +215,9 @@ def test_threshold_same(tmp_path):
 
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
+
+    with open(tree_path) as tree_file:
+        assert tree_file.read().strip() == "((((b:17.000000,a:17.000000):4.0,c:21.000000):0.0,e:21.000000):7.0,d:28.000000);"
 
 def test_thresholds_0_10_0_10(tmp_path):
     # "thresholds": "0,10,0,10"
@@ -359,6 +368,9 @@ def test_delimiter_slash(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
+    with open(tree_path) as tree_file:
+        assert tree_file.read().strip() == "(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"
+
 def test_delimiter_0(tmp_path):
     # "delimiter": "0"
     args = {"matrix": get_path("data/matrix/basic.tsv"),
@@ -417,6 +429,9 @@ def test_delimiter_0(tmp_path):
 
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
+
+    with open(tree_path) as tree_file:
+        assert tree_file.read().strip() == "(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"
 
 def test_delimiter_1(tmp_path):
     # "delimiter": "1"
@@ -477,6 +492,9 @@ def test_delimiter_1(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
+    with open(tree_path) as tree_file:
+        assert tree_file.read().strip() == "(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"
+
 def test_delimiter_quote(tmp_path):
     # "delimiter": '"'
     args = {"matrix": get_path("data/matrix/basic.tsv"),
@@ -535,6 +553,9 @@ def test_delimiter_quote(tmp_path):
 
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
+
+    with open(tree_path) as tree_file:
+        assert tree_file.read().strip() == "(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"
 
 def test_matrix_missing(tmp_path):
     # Missing input file.
@@ -698,6 +719,9 @@ def test_many_thresholds(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
+    with open(tree_path) as tree_file:
+        assert tree_file.read().strip() == "((((b:17.000000,a:17.000000):4.0,c:21.000000):0.0,e:21.000000):7.0,d:28.000000);"
+
 def test_method_single(tmp_path):
     # method = "single"
     # thresholds = "2,1,0"
@@ -798,6 +822,9 @@ def test_method_single(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
+    with open(tree_path) as tree_file:
+        assert tree_file.read().strip() == "(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"
+
 def test_method_complete(tmp_path):
     # method = "complete"
     # thresholds = "10,8,5"
@@ -875,6 +902,9 @@ def test_method_complete(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
+    with open(tree_path) as tree_file:
+        assert tree_file.read().strip() == "((((B:1.000000,A:1.000000):4.0,C:5.000000):3.0,D:8.000000):2.0,E:10.000000);"
+
 def test_method_average(tmp_path):
     # method = "average"
     # thresholds = "12,8,2"
@@ -947,3 +977,6 @@ def test_method_average(tmp_path):
 
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
+
+    with open(tree_path) as tree_file:
+        assert tree_file.read().strip() == "((B:4.000000,A:4.000000):8.0,C:12.000000);"
