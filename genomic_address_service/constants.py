@@ -1,7 +1,10 @@
 from genomic_address_service.version import __version__
 
-EXTENSIONS = {'text': ['.txt','.tsv','.mat','.text'],
-    'parquet': ['parquet','.parquet','.pq']}
+TEXT = 'text'
+EXTENSIONS = {}
+EXTENSIONS.update(dict.fromkeys(['.txt', '.tsv', '.mat', '.text'], TEXT))
+# '.txt' -> TEXT, '.tsv' -> TEXT, etc.
+
 PD_HEADER = [
     'query_id',
     'ref_id',

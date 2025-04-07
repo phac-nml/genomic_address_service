@@ -1,8 +1,9 @@
 import copy
 import sys
+import os
 from statistics import mean
 import pandas as pd
-from genomic_address_service.constants import EXTENSIONS, PD_HEADER
+from genomic_address_service.constants import EXTENSIONS, TEXT
 from genomic_address_service.utils import is_file_ok
 from genomic_address_service.classes.reader import dist_reader
 
@@ -183,31 +184,29 @@ class assign:
         return 0
 
     def guess_file_type(self,f):
-        file_type = None
-        for t in EXTENSIONS:
-            for e in EXTENSIONS[t]:
-                if e in f:
-                    file_type = t
-                    break
-        return file_type
+        extension = os.path.splitext(f)[1]
+        valid_extensions = list(EXTENSIONS.keys())
 
-    def read_data(self,f):
+        if not extension in valid_extensions:
+            message = f'{f} does not have a valid extension {valid_extensions}'
+            raise Exception(message)
+
+        return EXTENSIONS[extension]
+
+    def read_data(self, f):
         df = pd.DataFrame()
         file_type = self.guess_file_type(f)
-        if file_type == 'text':
+
+        if file_type == TEXT:
             df = pd.read_csv(f, header=0, sep="\t", low_memory=False)
-        elif file_type == 'parquet':
-            df = pd.read_parquet(
-                f,
-                engine='auto',
-                columns=None,
-                storage_options=None,)
+        else:
+            message = f'{f} does not have a valid extension'
+            raise Exception(message)
 
         return (file_type, df)
 
     def assign(self, n_records=1000,delim="\t"):
         min_dist = min(self.thresholds)
-        reader_obj = None
         reader_obj = dist_reader(f=self.dist_file,min_dist=min_dist, max_dist=None, n_records=n_records,delim=delim)
         self.query_ids = set()
         rank_ids = list(self.nomenclature_cluster_tracker.keys())

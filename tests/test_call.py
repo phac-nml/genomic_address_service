@@ -31,7 +31,6 @@ def test_run_call(tmp_path):
     config['thresholds'] = "10,9,8,7,6,5,4,3,2,1,0"
     config['delimiter'] = "."
     config['force'] = False
-    config['outfmt'] = "text"
     config['address_col'] = "address"
     config['batch_size'] = 100
     config['sample_col'] = "id"
@@ -51,7 +50,6 @@ def test_basic(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "5,3,0"
@@ -124,7 +122,6 @@ def test_threshold_same(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "10,9,8"
@@ -197,7 +194,6 @@ def test_thresholds_0_10_0(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "0,10,0"
@@ -231,7 +227,6 @@ def test_thresholds_0_0(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "0,0"
@@ -265,7 +260,6 @@ def test_thresholds_1_2_3(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "1,2,3"
@@ -299,7 +293,6 @@ def test_thresholds_string(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "cat,dog"
@@ -333,7 +326,6 @@ def test_no_thresholds(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = ""
@@ -366,7 +358,6 @@ def test_delimiter_slash(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "5,3,0"
@@ -438,7 +429,6 @@ def test_delimiter_r(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "5,3,0"
@@ -511,7 +501,6 @@ def test_delimiter_mismatch_all(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "5,3,0"
@@ -546,7 +535,6 @@ def test_delimiter_mismatch_some(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "5,3,0"
@@ -583,7 +571,6 @@ def test_address_errors(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "5,3,0"
@@ -608,37 +595,6 @@ def test_address_errors(tmp_path):
 
     assert path.isfile(path.join(output_path, "results.text")) == False
 
-def test_output_format_invalid(tmp_path):
-    # Tests an invalid output format.
-    config = {}
-
-    clusters_path = get_path("data/clusters/basic.tsv")
-    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
-    output_path = path.join(tmp_path, "test_out")
-
-    config["dists"] = pairwise_distances_path
-    config["rclusters"] = clusters_path
-    config["outdir"] = output_path
-    config["outfmt"] = "INVALID"
-    config["force"] = False
-
-    config["thresholds"] = "5,3,0"
-    config["thresh_map"] = None
-
-    config["method"] = "single"
-
-    config["sample_col"] = "id"
-    config["address_col"] = "address"
-    config["delimiter"] = "."
-
-    config["batch_size"] = 100
-
-    with pytest.raises(Exception) as exception:
-        call(config)
-
-    assert exception.type == Exception
-    assert str(exception.value) == f'please specify a either text or parquet as the output format you specified: {config["outfmt"]}'
-
 def test_delimiter_too_long(tmp_path):
     # Tests a delimiter that's too long (multiple characters).
     config = {}
@@ -650,7 +606,6 @@ def test_delimiter_too_long(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "5,3,0"
@@ -681,7 +636,6 @@ def test_delimiter_tab(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "5,3,0"
@@ -712,7 +666,6 @@ def test_delimiter_newline(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "5,3,0"
@@ -742,7 +695,6 @@ def test_no_thresholds(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = None
@@ -772,7 +724,6 @@ def test_missing_cluster_file(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "5,3,0"
@@ -802,7 +753,6 @@ def test_missing_pairwise_file(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "5,3,0"
@@ -832,7 +782,6 @@ def test_missing_threshold_file(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = None
@@ -862,7 +811,6 @@ def test_linkage_invalid(tmp_path):
     config["dists"] = pairwise_distances_path
     config["rclusters"] = clusters_path
     config["outdir"] = output_path
-    config["outfmt"] = "text"
     config["force"] = False
 
     config["thresholds"] = "5,3,0"
@@ -881,3 +829,232 @@ def test_linkage_invalid(tmp_path):
 
     assert exception.type == Exception
     assert str(exception.value) == f'{config["method"]} is not one of the accepeted methods {CLUSTER_METHODS}'
+
+def test_extension_bad_cluster(tmp_path):
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.badext")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f"{clusters_path} does not have a valid extension ['.txt', '.tsv', '.mat', '.text']"
+
+def test_extension_bad_pairwise(tmp_path):
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.badext")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f"{pairwise_distances_path} does not have a valid extension ['.txt', '.tsv', '.mat', '.text']"
+
+def test_extensions(tmp_path):
+    # Quickly test that accepted extensions are accepted.
+    config = {}
+
+    clusters_path = get_path("data/clusters/basic.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["force"] = True
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    # '.txt'
+    config["dists"] = get_path("data/pairwise_distances/basic.txt")
+    config["rclusters"] = get_path("data/clusters/basic.txt")
+    call(config)
+
+    # Clusters
+    clusters_path = path.join(output_path, "results.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        assert ["id", "address"] in clusters
+        assert ["A", "1.1.1"] in clusters
+        assert ["B", "1.1.2"] in clusters
+        assert ["C", "1.1.3"] in clusters
+        assert ["D", "1.1.4"] in clusters
+        assert ["E", "1.1.2"] in clusters
+        assert ["F", "1.1.4"] in clusters
+
+    # '.tsv'
+    config["dists"] = get_path("data/pairwise_distances/basic.tsv")
+    config["rclusters"] = get_path("data/clusters/basic.tsv")
+    call(config)
+
+    # Clusters
+    clusters_path = path.join(output_path, "results.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        assert ["id", "address"] in clusters
+        assert ["A", "1.1.1"] in clusters
+        assert ["B", "1.1.2"] in clusters
+        assert ["C", "1.1.3"] in clusters
+        assert ["D", "1.1.4"] in clusters
+        assert ["E", "1.1.2"] in clusters
+        assert ["F", "1.1.4"] in clusters
+
+    # '.mat'
+    config["dists"] = get_path("data/pairwise_distances/basic.mat")
+    config["rclusters"] = get_path("data/clusters/basic.mat")
+    call(config)
+
+    # Clusters
+    clusters_path = path.join(output_path, "results.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        assert ["id", "address"] in clusters
+        assert ["A", "1.1.1"] in clusters
+        assert ["B", "1.1.2"] in clusters
+        assert ["C", "1.1.3"] in clusters
+        assert ["D", "1.1.4"] in clusters
+        assert ["E", "1.1.2"] in clusters
+        assert ["F", "1.1.4"] in clusters
+
+    # '.text'
+    config["dists"] = get_path("data/pairwise_distances/basic.text")
+    config["rclusters"] = get_path("data/clusters/basic.text")
+    call(config)
+
+    # Clusters
+    clusters_path = path.join(output_path, "results.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        assert ["id", "address"] in clusters
+        assert ["A", "1.1.1"] in clusters
+        assert ["B", "1.1.2"] in clusters
+        assert ["C", "1.1.3"] in clusters
+        assert ["D", "1.1.4"] in clusters
+        assert ["E", "1.1.2"] in clusters
+        assert ["F", "1.1.4"] in clusters
+
+# pairwise dists file that triggers this but isn't matrix:
+#   if len(header) == 3 and num_rows != 3:
+# gas call -t 5,3,0 -o test_call -r tests/data/clusters/small.tsv -d tests/data/pairwise_distances/small.tsv --force --delimiter "."
+
+def test_small_3_by_3(tmp_path):
+    # A small input that creates a 3x3 pairwise distances file.
+    # Previously, such input was being interpretted as square matrix,
+    # when it should not have been.
+    config = {}
+
+    clusters_path = get_path("data/clusters/small.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/small.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    call(config)
+
+    assert path.isdir(output_path)
+
+    # Clusters
+    clusters_path = path.join(output_path, "results.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        assert ["id", "address"] in clusters
+        assert ["A", "1.1.1"] in clusters
+        assert ["B", "1.1.2"] in clusters
+        assert ["C", "1.1.2"] in clusters
+
+    # Run JSON
+    run_path = path.join(output_path, "run.json")
+    assert path.isfile(run_path)
+    with open(run_path) as run_file:
+        run_json = json.load(run_file)
+
+        assert run_json["parameters"]["method"] == "single"
+        assert run_json["parameters"]["thresholds"] == "5,3,0"
+        assert run_json["parameters"]["delimiter"] == "."
+
+        assert len(run_json["threshold_map"]) == 3
+        assert run_json["threshold_map"]["0"] == 5.0
+        assert run_json["threshold_map"]["1"] == 3.0
+        assert run_json["threshold_map"]["2"] == 0.0
+
+    # Thresholds JSON
+    thresholds_path = path.join(output_path, "thresholds.json")
+    assert path.isfile(thresholds_path)
+    with open(thresholds_path) as thresholds_file:
+        thresholds_json = json.load(thresholds_file)
+
+        assert len(thresholds_json) == 3
+        assert thresholds_json["0"] == 5.0
+        assert thresholds_json["1"] == 3.0
+        assert thresholds_json["2"] == 0.0

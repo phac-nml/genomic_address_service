@@ -15,7 +15,7 @@ def parse_args():
     parser = ArgumentParser(
         description="Genomic Address Service: De novo hierarchical sequence clustering",
         formatter_class=CustomFormatter)
-    parser.add_argument('-i','--matrix', type=str, required=True,help='TSV formated distance matrix or parquet')
+    parser.add_argument('-i','--matrix', type=str, required=True,help='TSV-formated distance matrix')
     parser.add_argument('-o','--outdir', type=str, required=True, help='Output directory to put cluster results')
     parser.add_argument('-m','--method', type=str, required=False, help='cluster method [single, complete, average]',default='average')
     parser.add_argument('-t','--thresholds', type=str, required=True, help='thresholds delimited by ,')

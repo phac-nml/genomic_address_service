@@ -95,16 +95,6 @@ def test_dist_reader_functionality_pq(query_table_pq):
     d = dist_reader(str(query_table_pq), n_records=11, min_dist=1)
     assert list(d.read_data()) == [{'sampleQ': {'sample1': 1.0, 'sample2': 1.0, 'sample3': 2.0}, 'sampleN': {'sample1': 1.0, 'sample2': 1.0, 'sample3': 2.0}}]
 
-
-def test_guess_file_type(test_class, query_table_tsv):
-    assert test_class.guess_file_type(str(query_table_tsv)) == "text"
-
-def test_guess_dist_type(test_class, query_table_tsv):
-    assert test_class.guess_dist_type(test_class.fpath, 
-                                      test_class.guess_file_type(str(query_table_tsv)), 
-                                      test_class.delim) == "pd"
-
-
 def test_read_pd(test_class):
     """
     Part of this test has to recreate the steps required

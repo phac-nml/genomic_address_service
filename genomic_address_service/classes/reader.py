@@ -1,3 +1,4 @@
+import os
 from genomic_address_service.constants import EXTENSIONS
 from pyarrow.parquet import ParquetFile
 import pyarrow as pa
@@ -19,33 +20,15 @@ class dist_reader:
         if min_dist is None and max_dist is None:
             self.filter = False
 
-
     def guess_file_type(self,f):
-        file_type = None
-        for t in EXTENSIONS:
-            for e in EXTENSIONS[t]:
-                if e in f:
-                    file_type = t
-                    break
-        return file_type
+        extension = os.path.splitext(f)[1]
+        valid_extensions = list(EXTENSIONS.keys())
 
-    def guess_dist_type(self, fpath, ftype, delim="\t"):
-        header = []
-        num_rows = 0
-        if ftype == 'text':
-            header = get_file_header(fpath).split(delim)
-            num_rows = get_file_length(fpath)
-        elif ftype == 'parquet':
-            pf = ParquetFile(fpath)
-            first_rows = next(pf.iter_batches(batch_size = self.n_records))
-            df = pa.Table.from_batches([first_rows]).to_pandas()
-            header = list(df.columns)
-            num_rows = pf.num_row_groups
+        if not extension in valid_extensions:
+            message = f'{f} does not have a valid extension {valid_extensions}'
+            raise Exception(message)
 
-        if len(header) == 3 and num_rows != 3:
-            return 'pd'
-        else:
-            return 'matrix'
+        return EXTENSIONS[extension]
 
     def read_pd(self):
         for line in self.file_handle:
@@ -98,32 +81,13 @@ class dist_reader:
 
 
     def read_data(self):
-        ftype = self.guess_file_type(self.fpath)
-        dist_type = self.guess_dist_type(self.fpath, ftype, self.delim)
-        chunk = None
-        if ftype == 'text':
-            self.file_handle = open(self.fpath,'r')
-            self.header = next(self.file_handle).split(self.delim)
-        elif ftype == 'parquet':
-            self.file_handle = ParquetFile(self.fpath)
+        self.file_handle = open(self.fpath,'r')
+        self.header = next(self.file_handle).split(self.delim)
 
-        if ftype == 'text' and dist_type == 'pd':
-            for chunk in self.read_pd():
-                if chunk is not None:
-                    yield chunk
-            if chunk is None:
-                chunk = self.dists
-        elif ftype == 'text' and dist_type == 'matrix':
-            for chunk in self.read_matrix():
-                if chunk is not None:
-                    yield chunk
-            if chunk is None:
-                chunk = self.dists
-        
+        for chunk in self.read_pd():
+            if chunk is not None:
+                yield chunk
+        if chunk is None:
+            chunk = self.dists
+
         return chunk
-
-
-
-
-
-

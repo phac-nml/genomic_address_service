@@ -4,12 +4,11 @@ import json
 from datetime import datetime
 from argparse import (ArgumentParser, ArgumentDefaultsHelpFormatter, RawDescriptionHelpFormatter)
 from genomic_address_service.version import __version__
-from genomic_address_service.constants import CLUSTER_METHODS, build_call_run_data
+from genomic_address_service.constants import EXTENSIONS, CLUSTER_METHODS, build_call_run_data
 from genomic_address_service.utils import is_file_ok, write_threshold_map, write_cluster_assignments, \
 init_threshold_map
 from genomic_address_service.classes.assign import assign
 from genomic_address_service.mcluster import process_thresholds
-
 
 def parse_args():
     class CustomFormatter(ArgumentDefaultsHelpFormatter, RawDescriptionHelpFormatter):
@@ -18,8 +17,8 @@ def parse_args():
     parser = ArgumentParser(
         description="Genomic Address Service: Assignment of samples to existing groupings",
         formatter_class=CustomFormatter)
-    parser.add_argument('-d','--dists', type=str, required=True,help='Three column file [query_id,ref_id,dist] in TSV or parquet format')
-    parser.add_argument('-r', '--rclusters', type=str, required=True, help='Existing cluster file in TSV or parquet format')
+    parser.add_argument('-d','--dists', type=str, required=True,help='Three column file [query_id,ref_id,dist] in TSV format')
+    parser.add_argument('-r', '--rclusters', type=str, required=True, help='Existing cluster file in TSV format')
     parser.add_argument('-m', '--method', type=str, required=False, help='cluster method [single, complete, average]',
                         default='average')
     parser.add_argument('-j', '--thresh_map', type=str, required=False, help='Json file of colname:threshold',
@@ -30,7 +29,6 @@ def parse_args():
                         default='address')
     parser.add_argument('-t', '--thresholds', type=str, required=False, help='thresholds delimited by , columns will be treated in sequential order')
     parser.add_argument('-o','--outdir', type=str, required=True, help='Output directory to put cluster results')
-    parser.add_argument('-u', '--outfmt', type=str, required=False, help='Output format for assignments [text, parquet]',default='text')
     parser.add_argument('-l', '--delimiter', type=str, required=False, help='The delimiter used within addresses in the input cluster file, as well as the delimiter to use for addresses in the output.', default=".")
     parser.add_argument('-b', '--batch_size', type=int, required=False, help='Number of records to process at a time',default=100)
     parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
@@ -49,7 +47,6 @@ def call(config):
         thresholds = process_thresholds(config["thresholds"].split(','))
     delimiter = config['delimiter']
     force = config['force']
-    outfmt = config['outfmt']
     address_col = config['address_col']
     sample_col = config['sample_col']
     run_data = build_call_run_data()
@@ -57,10 +54,6 @@ def call(config):
 
     run_data['analysis_start_time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     run_data['parameters'] = config
-
-    if outfmt not in ['text','parquet']:
-        message = f'please specify a either text or parquet as the output format you specified: {outfmt}'
-        raise Exception(message)
 
     if len(delimiter) > 1 or delimiter == "\t" or delimiter == "\n":
         message = f'please specify a different delimiter {delimiter} ie. ,|.|\\||-'
@@ -70,11 +63,23 @@ def call(config):
         message = f'you must specify --thresholds or --threshold_map'
         raise Exception(message)
 
+    valid_extensions = list(EXTENSIONS.keys())
+
+    extension = os.path.splitext(dist_file)[1]
+    if not extension in valid_extensions:
+        message = f'{dist_file} does not have a valid extension {valid_extensions}'
+        raise Exception(message)
+
+    extension = os.path.splitext(membership_file)[1]
+    if not extension in valid_extensions:
+        message = f'{membership_file} does not have a valid extension {valid_extensions}'
+        raise Exception(message)
+
     if not is_file_ok(dist_file):
         message = f'{dist_file} does not exist or is empty'
         raise Exception(message)
 
-    if not is_file_ok(membership_file ):
+    if not is_file_ok(membership_file):
         message = f'{membership_file} does not exist or is empty'
         raise Exception(message)
 
@@ -114,9 +119,9 @@ def call(config):
 
     cluster_assignments = obj.memberships_dict
 
-    run_data['result_file'] = os.path.join(outdir, "results.{}".format(outfmt))
+    run_data['result_file'] = os.path.join(outdir, "results.text")
 
-    write_cluster_assignments(run_data['result_file'], cluster_assignments, threshold_map, outfmt, delimiter, sample_col, address_col)
+    write_cluster_assignments(run_data['result_file'], cluster_assignments, threshold_map, delimiter, sample_col, address_col)
 
     with open(os.path.join(outdir,"run.json"),'w') as fh:
         fh.write(json.dumps(run_data, indent=4))
