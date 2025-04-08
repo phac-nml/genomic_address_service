@@ -29,7 +29,7 @@ def parse_args():
                         default='address')
     parser.add_argument('-t', '--thresholds', type=str, required=False, help='thresholds delimited by , columns will be treated in sequential order')
     parser.add_argument('-o','--outdir', type=str, required=True, help='Output directory to put cluster results')
-    parser.add_argument('-l', '--delimiter', type=str, required=False, help='The delimiter used within addresses in the input cluster file, as well as the delimiter to use for addresses in the output.', default=".")
+    parser.add_argument('-l', '--delimiter', type=str, required=False, help='The delimiter used within addresses in the input cluster file, as well as the delimiter to use for addresses in the output. The delimiter must not be a tab or newline character.', default=".")
     parser.add_argument('-b', '--batch_size', type=int, required=False, help='Number of records to process at a time',default=100)
     parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
     parser.add_argument('-f', '--force', required=False, help='Overwrite existing directory',
