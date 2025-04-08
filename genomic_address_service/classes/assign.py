@@ -12,7 +12,7 @@ class assign:
     ERROR_TOO_SHORT = "genomic address too short"
     ERROR_NON_INTEGER = "address could not be converted to an integer"
 
-    avail_methods = ["average", "complete", "single"]
+    AVAILABLE_METHODS = ["average", "complete", "single"]
 
     def __init__(self,dist_file,membership_file,threshold_map,linkage_method,address_col, sample_col, batch_size, delimiter):
         self.dist_file = dist_file
@@ -41,9 +41,9 @@ class assign:
             self.ERROR_NON_INTEGER: []
         } # message -> list of IDs
 
-        if not linkage_method in self.avail_methods:
+        if not linkage_method in self.AVAILABLE_METHODS:
             self.status = False
-            self.error_msgs.append(f'Provided {linkage_method} is not one of the accepted {self.avail_methods}')
+            self.error_msgs.append(f'Provided {linkage_method} is not one of the accepted {self.AVAILABLE_METHODS}')
 
         if not is_file_ok(dist_file):
             self.error_msgs.append(f'Provided {dist_file} file does not exist or is empty')
