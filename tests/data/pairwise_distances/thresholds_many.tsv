@@ -1,0 +1,15 @@
+query_id	ref_id	dist
+f	a	0
+f	b	17
+f	c	21
+f	d	31
+f	e	23
+f	f	0
+f	g	23
+g	a	23
+g	b	21
+g	c	39
+g	d	43
+g	e	0
+g	f	23
+g	g	0
