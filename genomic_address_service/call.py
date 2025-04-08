@@ -136,7 +136,7 @@ def run():
 
     except Exception as exception:
         print("Exception: " + str(exception))
-        sys.exit()
+        sys.exit(1)
 
 # call main function
 if __name__ == '__main__':
