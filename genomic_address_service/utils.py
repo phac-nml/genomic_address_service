@@ -108,8 +108,7 @@ def has_valid_header_matrix(file_path):
 
 def has_valid_header_pairwise_distances(file_path):
     """
-    This file can contain a variable number of delimiters,
-    but the minimum should be 2 (3 tokens):
+    This file must contain 2 delimiters (3 tokens):
 
     query_id    ref_id    dist
     A    A    0
@@ -119,7 +118,7 @@ def has_valid_header_pairwise_distances(file_path):
     with open(file_path) as tsv_file:
         header = tsv_file.readline()
 
-        valid = len(header.split("\t")) >= MIN_TOKENS
+        valid = len(header.split("\t")) == MIN_TOKENS
         return valid
 
 def has_valid_header_cluster(file_path):
