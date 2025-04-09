@@ -1062,8 +1062,8 @@ def test_small_3_by_3(tmp_path):
 def test_method_single(tmp_path):
     config = {}
 
-    clusters_path = get_path("data/clusters/basic.tsv")
-    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    clusters_path = get_path("data/clusters/wikipedia-single.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/wikipedia-single.tsv")
     output_path = path.join(tmp_path, "test_out")
 
     config["dists"] = pairwise_distances_path
@@ -1071,7 +1071,7 @@ def test_method_single(tmp_path):
     config["outdir"] = output_path
     config["force"] = False
 
-    config["thresholds"] = "5,3,0"
+    config["thresholds"] = "45,40,35,30,25,20,15,10,5,0"
     config["thresh_map"] = None
 
     config["method"] = "single"
@@ -1092,16 +1092,15 @@ def test_method_single(tmp_path):
     with open(clusters_path) as clusters_file:
         clusters = csv.reader(clusters_file, delimiter="\t")
 
-        # The new E is the same as the existing B (1.1.2)
-        # The new F is the same as the existing D (1.1.4)
+        # The new f is the same as the existing d (1.1.1.1.2.4.5.5.5.5)
 
         assert ["id", "address"] in clusters
-        assert ["A", "1.1.1"] in clusters
-        assert ["B", "1.1.2"] in clusters
-        assert ["C", "1.1.3"] in clusters
-        assert ["D", "1.1.4"] in clusters
-        assert ["E", "1.1.2"] in clusters
-        assert ["F", "1.1.4"] in clusters
+        assert ["a", "1.1.1.1.1.1.1.1.1.1"] in clusters
+        assert ["b", "1.1.1.1.1.1.2.2.2.2"] in clusters
+        assert ["c", "1.1.1.1.1.2.3.3.3.3"] in clusters
+        assert ["d", "1.1.1.1.2.4.5.5.5.5"] in clusters
+        assert ["e", "1.1.1.1.1.3.4.4.4.4"] in clusters
+        assert ["f", "1.1.1.1.2.4.5.5.5.5"] in clusters
 
     # Run JSON
     run_path = path.join(output_path, "run.json")
@@ -1110,13 +1109,20 @@ def test_method_single(tmp_path):
         run_json = json.load(run_file)
 
         assert run_json["parameters"]["method"] == "single"
-        assert run_json["parameters"]["thresholds"] == "5,3,0"
+        assert run_json["parameters"]["thresholds"] == "45,40,35,30,25,20,15,10,5,0"
         assert run_json["parameters"]["delimiter"] == "."
 
-        assert len(run_json["threshold_map"]) == 3
-        assert run_json["threshold_map"]["0"] == 5.0
-        assert run_json["threshold_map"]["1"] == 3.0
-        assert run_json["threshold_map"]["2"] == 0.0
+        assert len(run_json["threshold_map"]) == 10
+        assert run_json["threshold_map"]["0"] == 45.0
+        assert run_json["threshold_map"]["1"] == 40.0
+        assert run_json["threshold_map"]["2"] == 35.0
+        assert run_json["threshold_map"]["3"] == 30.0
+        assert run_json["threshold_map"]["4"] == 25.0
+        assert run_json["threshold_map"]["5"] == 20.0
+        assert run_json["threshold_map"]["6"] == 15.0
+        assert run_json["threshold_map"]["7"] == 10.0
+        assert run_json["threshold_map"]["8"] == 5.0
+        assert run_json["threshold_map"]["9"] == 0.0
 
     # Thresholds JSON
     thresholds_path = path.join(output_path, "thresholds.json")
@@ -1124,16 +1130,23 @@ def test_method_single(tmp_path):
     with open(thresholds_path) as thresholds_file:
         thresholds_json = json.load(thresholds_file)
 
-        assert len(thresholds_json) == 3
-        assert thresholds_json["0"] == 5.0
-        assert thresholds_json["1"] == 3.0
-        assert thresholds_json["2"] == 0.0
+        assert len(thresholds_json) == 10
+        assert thresholds_json["0"] == 45.0
+        assert thresholds_json["1"] == 40.0
+        assert thresholds_json["2"] == 35.0
+        assert thresholds_json["3"] == 30.0
+        assert thresholds_json["4"] == 25.0
+        assert thresholds_json["5"] == 20.0
+        assert thresholds_json["6"] == 15.0
+        assert thresholds_json["7"] == 10.0
+        assert thresholds_json["8"] == 5.0
+        assert thresholds_json["9"] == 0.0
 
 def test_method_average(tmp_path):
     config = {}
 
-    clusters_path = get_path("data/clusters/basic.tsv")
-    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    clusters_path = get_path("data/clusters/wikipedia-average.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/wikipedia-average.tsv")
     output_path = path.join(tmp_path, "test_out")
 
     config["dists"] = pairwise_distances_path
@@ -1141,7 +1154,7 @@ def test_method_average(tmp_path):
     config["outdir"] = output_path
     config["force"] = False
 
-    config["thresholds"] = "5,3,0"
+    config["thresholds"] = "45,40,35,30,25,20,15,10,5,0"
     config["thresh_map"] = None
 
     config["method"] = "average"
@@ -1162,16 +1175,15 @@ def test_method_average(tmp_path):
     with open(clusters_path) as clusters_file:
         clusters = csv.reader(clusters_file, delimiter="\t")
 
-        # The new E is the same as the existing B (1.1.2)
-        # The new F is the same as the existing D (1.1.4)
+        # The new f is the same as the existing d (1.1.1.2.3.4.5.5.5.5)
 
         assert ["id", "address"] in clusters
-        assert ["A", "1.1.1"] in clusters
-        assert ["B", "1.1.2"] in clusters
-        assert ["C", "1.1.3"] in clusters
-        assert ["D", "1.1.4"] in clusters
-        assert ["E", "1.1.2"] in clusters
-        assert ["F", "1.1.4"] in clusters
+        assert ["a", "1.1.1.1.1.1.1.1.1.1"] in clusters
+        assert ["b", "1.1.1.1.1.1.2.2.2.2"] in clusters
+        assert ["c", "1.1.1.2.2.3.4.4.4.4"] in clusters
+        assert ["d", "1.1.1.2.3.4.5.5.5.5"] in clusters
+        assert ["e", "1.1.1.1.1.2.3.3.3.3"] in clusters
+        assert ["f", "1.1.1.2.3.4.5.5.5.5"] in clusters
 
     # Run JSON
     run_path = path.join(output_path, "run.json")
@@ -1180,13 +1192,20 @@ def test_method_average(tmp_path):
         run_json = json.load(run_file)
 
         assert run_json["parameters"]["method"] == "average"
-        assert run_json["parameters"]["thresholds"] == "5,3,0"
+        assert run_json["parameters"]["thresholds"] == "45,40,35,30,25,20,15,10,5,0"
         assert run_json["parameters"]["delimiter"] == "."
 
-        assert len(run_json["threshold_map"]) == 3
-        assert run_json["threshold_map"]["0"] == 5.0
-        assert run_json["threshold_map"]["1"] == 3.0
-        assert run_json["threshold_map"]["2"] == 0.0
+        assert len(run_json["threshold_map"]) == 10
+        assert run_json["threshold_map"]["0"] == 45.0
+        assert run_json["threshold_map"]["1"] == 40.0
+        assert run_json["threshold_map"]["2"] == 35.0
+        assert run_json["threshold_map"]["3"] == 30.0
+        assert run_json["threshold_map"]["4"] == 25.0
+        assert run_json["threshold_map"]["5"] == 20.0
+        assert run_json["threshold_map"]["6"] == 15.0
+        assert run_json["threshold_map"]["7"] == 10.0
+        assert run_json["threshold_map"]["8"] == 5.0
+        assert run_json["threshold_map"]["9"] == 0.0
 
     # Thresholds JSON
     thresholds_path = path.join(output_path, "thresholds.json")
@@ -1194,16 +1213,23 @@ def test_method_average(tmp_path):
     with open(thresholds_path) as thresholds_file:
         thresholds_json = json.load(thresholds_file)
 
-        assert len(thresholds_json) == 3
-        assert thresholds_json["0"] == 5.0
-        assert thresholds_json["1"] == 3.0
-        assert thresholds_json["2"] == 0.0
+        assert len(thresholds_json) == 10
+        assert thresholds_json["0"] == 45.0
+        assert thresholds_json["1"] == 40.0
+        assert thresholds_json["2"] == 35.0
+        assert thresholds_json["3"] == 30.0
+        assert thresholds_json["4"] == 25.0
+        assert thresholds_json["5"] == 20.0
+        assert thresholds_json["6"] == 15.0
+        assert thresholds_json["7"] == 10.0
+        assert thresholds_json["8"] == 5.0
+        assert thresholds_json["9"] == 0.0
 
 def test_method_complete(tmp_path):
     config = {}
 
-    clusters_path = get_path("data/clusters/basic.tsv")
-    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    clusters_path = get_path("data/clusters/wikipedia-complete.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/wikipedia-complete.tsv")
     output_path = path.join(tmp_path, "test_out")
 
     config["dists"] = pairwise_distances_path
@@ -1211,7 +1237,7 @@ def test_method_complete(tmp_path):
     config["outdir"] = output_path
     config["force"] = False
 
-    config["thresholds"] = "5,3,0"
+    config["thresholds"] = "45,40,35,30,25,20,15,10,5,0"
     config["thresh_map"] = None
 
     config["method"] = "complete"
@@ -1232,16 +1258,15 @@ def test_method_complete(tmp_path):
     with open(clusters_path) as clusters_file:
         clusters = csv.reader(clusters_file, delimiter="\t")
 
-        # The new E is the same as the existing B (1.1.2)
-        # The new F is the same as the existing D (1.1.4)
+        # The new f is the same as the existing d (1.1.1.2.3.4.5.5.5.5)
 
         assert ["id", "address"] in clusters
-        assert ["A", "1.1.1"] in clusters
-        assert ["B", "1.1.2"] in clusters
-        assert ["C", "1.1.3"] in clusters
-        assert ["D", "1.1.4"] in clusters
-        assert ["E", "1.1.2"] in clusters
-        assert ["F", "1.1.4"] in clusters
+        assert ["a", "1.1.1.1.1.1.1.1.1.1"] in clusters
+        assert ["b", "1.1.1.1.1.1.2.2.2.2"] in clusters
+        assert ["c", "1.2.2.2.2.3.4.4.4.4"] in clusters
+        assert ["d", "1.2.2.2.3.4.5.5.5.5"] in clusters
+        assert ["e", "1.1.1.1.1.2.3.3.3.3"] in clusters
+        assert ["f", "1.2.2.2.3.4.5.5.5.5"] in clusters
 
     # Run JSON
     run_path = path.join(output_path, "run.json")
@@ -1250,13 +1275,20 @@ def test_method_complete(tmp_path):
         run_json = json.load(run_file)
 
         assert run_json["parameters"]["method"] == "complete"
-        assert run_json["parameters"]["thresholds"] == "5,3,0"
+        assert run_json["parameters"]["thresholds"] == "45,40,35,30,25,20,15,10,5,0"
         assert run_json["parameters"]["delimiter"] == "."
 
-        assert len(run_json["threshold_map"]) == 3
-        assert run_json["threshold_map"]["0"] == 5.0
-        assert run_json["threshold_map"]["1"] == 3.0
-        assert run_json["threshold_map"]["2"] == 0.0
+        assert len(run_json["threshold_map"]) == 10
+        assert run_json["threshold_map"]["0"] == 45.0
+        assert run_json["threshold_map"]["1"] == 40.0
+        assert run_json["threshold_map"]["2"] == 35.0
+        assert run_json["threshold_map"]["3"] == 30.0
+        assert run_json["threshold_map"]["4"] == 25.0
+        assert run_json["threshold_map"]["5"] == 20.0
+        assert run_json["threshold_map"]["6"] == 15.0
+        assert run_json["threshold_map"]["7"] == 10.0
+        assert run_json["threshold_map"]["8"] == 5.0
+        assert run_json["threshold_map"]["9"] == 0.0
 
     # Thresholds JSON
     thresholds_path = path.join(output_path, "thresholds.json")
@@ -1264,7 +1296,14 @@ def test_method_complete(tmp_path):
     with open(thresholds_path) as thresholds_file:
         thresholds_json = json.load(thresholds_file)
 
-        assert len(thresholds_json) == 3
-        assert thresholds_json["0"] == 5.0
-        assert thresholds_json["1"] == 3.0
-        assert thresholds_json["2"] == 0.0
+        assert len(thresholds_json) == 10
+        assert thresholds_json["0"] == 45.0
+        assert thresholds_json["1"] == 40.0
+        assert thresholds_json["2"] == 35.0
+        assert thresholds_json["3"] == 30.0
+        assert thresholds_json["4"] == 25.0
+        assert thresholds_json["5"] == 20.0
+        assert thresholds_json["6"] == 15.0
+        assert thresholds_json["7"] == 10.0
+        assert thresholds_json["8"] == 5.0
+        assert thresholds_json["9"] == 0.0
