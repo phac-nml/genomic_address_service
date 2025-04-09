@@ -124,12 +124,12 @@ def has_valid_header_pairwise_distances(file_path):
 def has_valid_header_cluster(file_path):
     """
     This file can contain a variable number of delimiters,
-    but the minimum should be 2 (3 tokens):
+    but the minimum should be 1 (2 tokens):
 
-    id    address    level_1
-    A    1.1.1    1
+    id    address
+    A    1.1.1
     """
-    MIN_TOKENS = 3
+    MIN_TOKENS = 2
 
     with open(file_path) as tsv_file:
         header = tsv_file.readline()
