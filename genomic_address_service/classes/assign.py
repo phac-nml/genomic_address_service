@@ -188,10 +188,8 @@ class assign:
         valid_extensions = list(EXTENSIONS.keys())
 
         if not extension in valid_extensions:
-            message = f'{f} does not have a valid extension {valid_extensions}'
+            message = f'{f} does not have a valid extension ({extension}): {valid_extensions}'
             raise Exception(message)
-
-        return EXTENSIONS[extension]
 
     def read_data(self, f):
         self.check_file_type(f)

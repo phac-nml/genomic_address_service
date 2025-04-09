@@ -36,6 +36,10 @@ def mock_membership_file():
         yield tmp.name
         os.unlink(tmp.name)
 
+def get_path(location):
+    directory = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(directory, location)
+
 def test_initialization(mock_dist_file, mock_membership_file):
     threshold_map = {"level_0": 0.1, "level_1": 0.2}
     a = assign(dist_file=mock_dist_file, membership_file=mock_membership_file, threshold_map=threshold_map, linkage_method='single', sample_col='id', address_col='address_levels_notsplit', batch_size=100, delimiter=".")
@@ -48,3 +52,43 @@ def test_check_membership_columns(mock_dist_file, mock_membership_file):
     a = assign(dist_file=mock_dist_file, membership_file=mock_membership_file, threshold_map=threshold_map, linkage_method='single', sample_col='id', address_col='address_levels_notsplit', batch_size=100, delimiter=".")
     cols = ['level_0', 'level_1']
     assert a.check_membership_columns(cols), "Membership column check failed for valid columns"
+
+def test_check_file_type():
+    threshold_map = {"level_0": 5.0, "level_1": 3.0, "level_2": 0.0}
+    assignment = assign(dist_file=get_path("data/pairwise_distances/basic.tsv"),
+                        membership_file=get_path("data/clusters/basic.tsv"),
+                        threshold_map=threshold_map,
+                        linkage_method='single',
+                        sample_col='id',
+                        address_col='address',
+                        batch_size=100, delimiter=".")
+    
+    # Test check_file_type (tests file types of CLUSTER files):
+
+    # .txt
+    cluster_path = get_path("data/clusters/basic.txt")
+    assignment.check_file_type(cluster_path)
+    # no exception
+
+    # .tsv
+    cluster_path = get_path("data/clusters/basic.tsv")
+    assignment.check_file_type(cluster_path)
+    # no exception
+
+    # .mat
+    cluster_path = get_path("data/clusters/basic.mat")
+    assignment.check_file_type(cluster_path)
+    # no exception
+
+    # .text
+    cluster_path = get_path("data/clusters/basic.text")
+    assignment.check_file_type(cluster_path)
+    # no exception
+
+    # .csv
+    cluster_path = get_path("data/clusters/csv.csv")
+    with pytest.raises(Exception) as exception:
+        assignment.check_file_type(cluster_path)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f"{cluster_path} does not have a valid extension (.csv): ['.txt', '.tsv', '.mat', '.text']"
