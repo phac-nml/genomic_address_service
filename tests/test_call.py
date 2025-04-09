@@ -518,8 +518,17 @@ def test_delimiter_mismatch_all(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == ("something went wrong with cluster assignment. Check error messages:\n" +
-        "Error: delimiter was not found for samples ['A', 'B', 'C', 'D'].")
+
+    expected_message = "something went wrong with cluster assignment"
+    expected_message += f"\ndistance file: {config["dists"]}"
+    expected_message += f"\nmembership file: {config["rclusters"]}"
+    expected_message += "\nthreshold map: {0: 5.0, 1: 3.0, 2: 0.0}"
+    expected_message += f"\nlinkage method: {config["method"]}"
+    expected_message += f"\ndelimiter: {config["delimiter"]}"
+    expected_message += f"\n\nCheck error messages:\n"
+    expected_message += "Error: delimiter was not found for samples ['A', 'B', 'C', 'D']."
+
+    assert str(exception.value) == expected_message
 
     assert path.isfile(path.join(output_path, "results.text")) == False
 
@@ -552,8 +561,17 @@ def test_delimiter_mismatch_some(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == ("something went wrong with cluster assignment. Check error messages:\n" +
-        "Error: delimiter was not found for samples ['A', 'C'].")
+
+    expected_message = "something went wrong with cluster assignment"
+    expected_message += f"\ndistance file: {config["dists"]}"
+    expected_message += f"\nmembership file: {config["rclusters"]}"
+    expected_message += "\nthreshold map: {0: 5.0, 1: 3.0, 2: 0.0}"
+    expected_message += f"\nlinkage method: {config["method"]}"
+    expected_message += f"\ndelimiter: {config["delimiter"]}"
+    expected_message += f"\n\nCheck error messages:\n"
+    expected_message += "Error: delimiter was not found for samples ['A', 'C']."
+
+    assert str(exception.value) == expected_message
 
     assert path.isfile(path.join(output_path, "results.text")) == False
 
@@ -588,10 +606,19 @@ def test_address_errors(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == ("something went wrong with cluster assignment. Check error messages:" +
-        "\nError: delimiter was not found for samples ['A']."
-        "\nError: genomic address too short for samples ['B', 'C'] based on {0: 5.0, 1: 3.0, 2: 0.0}."
-        "\nError: address could not be converted to an integer for samples ['D'].")
+
+    expected_message = "something went wrong with cluster assignment"
+    expected_message += f"\ndistance file: {config["dists"]}"
+    expected_message += f"\nmembership file: {config["rclusters"]}"
+    expected_message += "\nthreshold map: {0: 5.0, 1: 3.0, 2: 0.0}"
+    expected_message += f"\nlinkage method: {config["method"]}"
+    expected_message += f"\ndelimiter: {config["delimiter"]}"
+    expected_message += f"\n\nCheck error messages:"
+    expected_message += "\nError: delimiter was not found for samples ['A']."
+    expected_message += "\nError: genomic address too short for samples ['B', 'C'] based on {0: 5.0, 1: 3.0, 2: 0.0}."
+    expected_message += "\nError: address could not be converted to an integer for samples ['D']."
+
+    assert str(exception.value) == expected_message
 
     assert path.isfile(path.join(output_path, "results.text")) == False
 
