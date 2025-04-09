@@ -1258,7 +1258,7 @@ def test_method_complete(tmp_path):
     with open(clusters_path) as clusters_file:
         clusters = csv.reader(clusters_file, delimiter="\t")
 
-        # The new f is the same as the existing d (1.1.1.2.3.4.5.5.5.5)
+        # The new f is the same as the existing d (1.2.2.2.3.4.5.5.5.5)
 
         assert ["id", "address"] in clusters
         assert ["a", "1.1.1.1.1.1.1.1.1.1"] in clusters
