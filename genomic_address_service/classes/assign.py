@@ -53,7 +53,7 @@ class assign:
             return
 
         if is_file_ok(membership_file):
-            (_, self.memberships_df) = self.read_data(membership_file)
+            self.memberships_df = self.read_data(membership_file)
         else:
             self.error_msgs.append(f'Provided {membership_file} file does not exist or is empty')
             self.status = False
@@ -183,7 +183,7 @@ class assign:
                 return i
         return 0
 
-    def guess_file_type(self,f):
+    def check_file_type(self,f):
         extension = os.path.splitext(f)[1]
         valid_extensions = list(EXTENSIONS.keys())
 
@@ -194,16 +194,10 @@ class assign:
         return EXTENSIONS[extension]
 
     def read_data(self, f):
-        df = pd.DataFrame()
-        file_type = self.guess_file_type(f)
+        self.check_file_type(f)
+        df = pd.read_csv(f, header=0, sep="\t", low_memory=False)
 
-        if file_type == TEXT:
-            df = pd.read_csv(f, header=0, sep="\t", low_memory=False)
-        else:
-            message = f'{f} does not have a valid extension'
-            raise Exception(message)
-
-        return (file_type, df)
+        return df
 
     def assign(self, n_records=1000,delim="\t"):
         min_dist = min(self.thresholds)
