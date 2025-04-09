@@ -65,13 +65,13 @@ This module performs assignment of new samples into an existing clustering which
 
 #Generate pairwise distance file
 ```
-  profile_dists -q ./example/call/query.profile.txt -r ./example/call/ref.profile.txt --distm hamming -o ./example/call/hamming
+  profile_dists -q ./example/call/query.profile.txt -r ./example/call/ref.profile.txt --outfmt pairwise --distm hamming -o ./example/call/hamming
 
 ```
 
 OR
 ```
-  profile_dists -q ./example/call/query.profile.txt -r ./example/call/ref.profile.txt --distm scaled -o ./example/call/scaled
+  profile_dists -q ./example/call/query.profile.txt -r ./example/call/ref.profile.txt --outfmt pairwise --distm scaled -o ./example/call/scaled
 
 ```
 
