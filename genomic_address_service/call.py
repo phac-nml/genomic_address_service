@@ -107,17 +107,20 @@ def call(config):
     run_data['threshold_map'] = threshold_map
     write_threshold_map(threshold_map, os.path.join(outdir, "thresholds.json"))
 
-    obj = assign(dist_file,membership_file,threshold_map,linkage_method,address_col,sample_col,batch_size, delimiter)
+    assignment = assign(dist_file,membership_file,threshold_map,linkage_method,address_col,sample_col,batch_size, delimiter)
 
-    if obj.status == False:
-        exception_message = f'something went wrong with cluster assignment. Check error messages:'
-
-        for error_message in obj.error_msgs:
-            exception_message += "\n" + str(error_message)
+    if assignment.status == False:
+        exception_message = "something went wrong with cluster assignment"
+        exception_message += f"\ndistance file: {dist_file}"
+        exception_message += f"\nmembership file: {membership_file}"
+        exception_message += f"\nthreshold map: {threshold_map}"
+        exception_message += f"\nlinkage method: {linkage_method}"
+        exception_message += f"\ndelimiter: {delimiter}"
+        exception_message += f"\n\nCheck error messages:\n{'\n'.join(assignment.error_msgs)}"
 
         raise Exception(exception_message)
 
-    cluster_assignments = obj.memberships_dict
+    cluster_assignments = assignment.memberships_dict
 
     run_data['result_file'] = os.path.join(outdir, "results.text")
 
