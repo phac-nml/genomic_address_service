@@ -615,7 +615,7 @@ def test_address_errors(tmp_path):
     expected_message += f"\ndelimiter: {config["delimiter"]}"
     expected_message += f"\n\nCheck error messages:"
     expected_message += "\nError: delimiter was not found for samples ['A']."
-    expected_message += "\nError: genomic address too short for samples ['B', 'C'] based on {0: 5.0, 1: 3.0, 2: 0.0}."
+    expected_message += "\nError: genomic address length is incorrect for samples ['B', 'C', 'E']; expected length (3) based on thresholds {0: 5.0, 1: 3.0, 2: 0.0}."
     expected_message += "\nError: address could not be converted to an integer for samples ['D']."
 
     assert str(exception.value) == expected_message

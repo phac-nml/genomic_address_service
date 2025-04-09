@@ -9,7 +9,7 @@ from genomic_address_service.classes.reader import dist_reader
 
 class assign:
     ERROR_MISSING_DELIMITER = "delimiter was not found"
-    ERROR_TOO_SHORT = "genomic address too short"
+    ERROR_LENGTH = "genomic address length is incorrect"
     ERROR_NON_INTEGER = "address could not be converted to an integer"
 
     AVAILABLE_METHODS = ["average", "complete", "single"]
@@ -37,7 +37,7 @@ class assign:
 
         self.error_samples = {
             self.ERROR_MISSING_DELIMITER: [],
-            self.ERROR_TOO_SHORT: [],
+            self.ERROR_LENGTH: [],
             self.ERROR_NON_INTEGER: []
         } # message -> list of IDs
 
@@ -86,9 +86,9 @@ class assign:
             self.status = False
             self.error_msgs.append(f'Error: {self.ERROR_MISSING_DELIMITER} for samples {self.error_samples[self.ERROR_MISSING_DELIMITER]}.')
 
-        if len(self.error_samples[self.ERROR_TOO_SHORT]) > 0:
+        if len(self.error_samples[self.ERROR_LENGTH]) > 0:
             self.status = False
-            self.error_msgs.append(f'Error: {self.ERROR_TOO_SHORT} for samples {self.error_samples[self.ERROR_TOO_SHORT]} based on {self.threshold_map}.')
+            self.error_msgs.append(f'Error: {self.ERROR_LENGTH} for samples {self.error_samples[self.ERROR_LENGTH]}; expected length ({len(self.thresholds)}) based on thresholds {self.threshold_map}.')
 
         if len(self.error_samples[self.ERROR_NON_INTEGER]) > 0:
             self.status = False
@@ -117,7 +117,7 @@ class assign:
                     self.error_samples[self.ERROR_MISSING_DELIMITER].append(sample_id)
                 # Length problem:
                 else:
-                    self.error_samples[self.ERROR_TOO_SHORT].append(sample_id)
+                    self.error_samples[self.ERROR_LENGTH].append(sample_id)
 
                 continue
             membership[sample_id] = {}
