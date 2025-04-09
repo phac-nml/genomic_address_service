@@ -1334,3 +1334,61 @@ def test_method_complete(tmp_path):
         assert thresholds_json["7"] == 10.0
         assert thresholds_json["8"] == 5.0
         assert thresholds_json["9"] == 0.0
+
+def test_invalid_header_cluster(tmp_path):
+    config = {}
+
+    clusters_path = get_path("data/clusters/csv.text")
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f'{clusters_path} does not appear to be a properly TSV-formatted file'
+
+def test_invalid_header_pairwise_distances(tmp_path):
+    config = {}
+
+    clusters_path = get_path("data/clusters/small.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/csv.text")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    with pytest.raises(Exception) as exception:
+        call(config)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f'{pairwise_distances_path} does not appear to be a properly TSV-formatted file'

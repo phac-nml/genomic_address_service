@@ -6,9 +6,8 @@ from argparse import (ArgumentParser, ArgumentDefaultsHelpFormatter, RawDescript
 from genomic_address_service.version import __version__
 from genomic_address_service.constants import EXTENSIONS, CLUSTER_METHODS, build_call_run_data
 from genomic_address_service.utils import is_file_ok, write_threshold_map, write_cluster_assignments, \
-init_threshold_map
+init_threshold_map, process_thresholds, has_valid_header_pairwise_distances, has_valid_header_cluster
 from genomic_address_service.classes.assign import assign
-from genomic_address_service.mcluster import process_thresholds
 
 def parse_args():
     class CustomFormatter(ArgumentDefaultsHelpFormatter, RawDescriptionHelpFormatter):
@@ -85,6 +84,14 @@ def call(config):
 
     if thresh_map_file is not None and not is_file_ok(thresh_map_file ):
         message = f'{thresh_map_file} does not exist or is empty'
+        raise Exception(message)
+
+    if not has_valid_header_cluster(membership_file):
+        message = f'{membership_file} does not appear to be a properly TSV-formatted file'
+        raise Exception(message)
+
+    if not has_valid_header_pairwise_distances(dist_file):
+        message = f'{dist_file} does not appear to be a properly TSV-formatted file'
         raise Exception(message)
 
     if not linkage_method in CLUSTER_METHODS:

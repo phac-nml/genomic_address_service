@@ -6,7 +6,7 @@ from argparse import (ArgumentParser, ArgumentDefaultsHelpFormatter, RawDescript
 from genomic_address_service.version import __version__
 from genomic_address_service.constants import CLUSTER_METHODS, build_mc_run_data
 from genomic_address_service.classes.multi_level_clustering import multi_level_clustering
-from genomic_address_service.utils import is_file_ok, format_threshold_map, write_threshold_map
+from genomic_address_service.utils import is_file_ok, format_threshold_map, write_threshold_map, process_thresholds, has_valid_header_matrix
 
 def parse_args():
     class CustomFormatter(ArgumentDefaultsHelpFormatter, RawDescriptionHelpFormatter):
@@ -37,21 +37,6 @@ def write_clusters(clusters,num_thresholds,file,delimiter="."):
             address = f'{delimiter}'.join([str(x) for x in clusters[id]])
             fh.write("{}\n".format("\t".join(str(x) for x in ([id, address ] + clusters[id]))))
 
-def process_thresholds(thresholds):
-
-    try:
-        processed = [float(x) for x in thresholds]
-    except ValueError:
-        message = f'thresholds {thresholds} must all be integers or floats'
-        raise Exception(message)
-
-    # Thresholds must be strictly decreasing:
-    if not all(processed[i] > processed[i+1] for i in range(len(processed)-1)):
-        message = f'thresholds {thresholds} must be in decreasing order'
-        raise Exception(message)
-    
-    return processed
-
 def mcluster(cmd_args):
     matrix = cmd_args["matrix"]
     outdir = cmd_args["outdir"]
@@ -68,15 +53,19 @@ def mcluster(cmd_args):
 
     if not is_file_ok(matrix):
         message = f'{matrix} does not exist or is empty'
-        raise Exception(message) 
+        raise Exception(message)
+
+    if not has_valid_header_matrix(matrix):
+        message = f'{matrix} does not appear to be a properly TSV-formatted file'
+        raise Exception(message)
 
     if not method in CLUSTER_METHODS:
         message = f'{method} is not one of the accepeted methods {CLUSTER_METHODS}'
-        raise Exception(message) 
+        raise Exception(message)
 
     if os.path.isdir(outdir) and not force:
         message = f'{outdir} exists, if you would like to overwrite, then specify --force'
-        raise Exception(message) 
+        raise Exception(message)
 
     if not os.path.isdir(outdir):
         os.makedirs(outdir, 0o755)

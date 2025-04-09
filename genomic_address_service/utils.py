@@ -75,3 +75,65 @@ def init_threshold_map(thresholds):
 
     return thresh_map
 
+def process_thresholds(thresholds):
+
+    try:
+        processed = [float(x) for x in thresholds]
+    except ValueError:
+        message = f'thresholds {thresholds} must all be integers or floats'
+        raise Exception(message)
+
+    # Thresholds must be strictly decreasing:
+    if not all(processed[i] > processed[i+1] for i in range(len(processed)-1)):
+        message = f'thresholds {thresholds} must be in decreasing order'
+        raise Exception(message)
+
+    return processed
+
+def has_valid_header_matrix(file_path):
+    """
+    This file can contain a variable number of delimiters,
+    but the minimum should be 1 (2 tokens):
+
+    dists   A
+    A   0
+    """
+    MIN_TOKENS = 2
+
+    with open(file_path) as tsv_file:
+        header = tsv_file.readline()
+
+        valid = len(header.split("\t")) >= MIN_TOKENS
+        return valid
+
+def has_valid_header_pairwise_distances(file_path):
+    """
+    This file can contain a variable number of delimiters,
+    but the minimum should be 2 (3 tokens):
+
+    query_id    ref_id    dist
+    A    A    0
+    """
+    MIN_TOKENS = 3
+
+    with open(file_path) as tsv_file:
+        header = tsv_file.readline()
+
+        valid = len(header.split("\t")) >= MIN_TOKENS
+        return valid
+
+def has_valid_header_cluster(file_path):
+    """
+    This file can contain a variable number of delimiters,
+    but the minimum should be 2 (3 tokens):
+
+    id    address    level_1
+    A    1.1.1    1
+    """
+    MIN_TOKENS = 3
+
+    with open(file_path) as tsv_file:
+        header = tsv_file.readline()
+
+        valid = len(header.split("\t")) >= MIN_TOKENS
+        return valid
