@@ -19,6 +19,8 @@
       - [mcluster specific args](#mcluster-specific-args)
       - [call specific args](#call-specific-args)
   * [Configuration and Settings](#configuration-and-settings)
+  * [Data Input/formats](#data-input-formats)
+    + [Square distance matrix](#square-distance-matrix)
   * [Output/Results](#output-results)
 - [Troubleshooting and FAQs](#troubleshooting-and-faqs)
 - [Benchmarking](#benchmarking)
@@ -153,6 +155,23 @@ There are a number of arguments that are specific for each command. They can be 
 Thresholds must be configured when using GAS. These threshold must be determined manually through testing and establishment of practical criteria for each pathogen of interest. 
 
 For instance, in PulseNet Canada they have determined the use of '10,5,0' to be the threshold of choice for their pathogen surveillance program. [Publication on going]
+
+## Data Input/formats
+
+### Square distance matrix
+
+GAS mcluster accepts square distance matrices of the following format:
+
+| id  | S1  | S2  | S3  | S4  | S5  | S6  |
+| --- | --- | --- | --- | --- | --- | --- |
+| S1  | 0   | 0   | 3   | 3   | 9   | 9   |
+| S2  | 0   | 0   | 3   | 3   | 9   | 9   |
+| S3  | 3   | 3   | 0   | 0   | 9   | 9   |
+| S4  | 3   | 3   | 0   | 0   | 9   | 9   |
+| S5  | 9   | 9   | 9   | 9   | 0   | 0   |
+| S6  | 9   | 9   | 9   | 9   | 0   | 0   |
+
+- Distance matrix units can be of float, or integer type with the constrain that the diagonal must be 0 and the first line must be a header with all of the samples
 
 ## Output/Results
 
