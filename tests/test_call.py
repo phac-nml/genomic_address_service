@@ -520,13 +520,13 @@ def test_delimiter_mismatch_all(tmp_path):
     assert exception.type == Exception
 
     expected_message = "something went wrong with cluster assignment"
-    expected_message += f"\ndistance file: {config["dists"]}"
-    expected_message += f"\nmembership file: {config["rclusters"]}"
+    expected_message += "\ndistance file: " + str(config["dists"])
+    expected_message += "\nmembership file: " + str(config["rclusters"])
     expected_message += "\nthreshold map: {0: 5.0, 1: 3.0, 2: 0.0}"
-    expected_message += f"\nlinkage method: {config["method"]}"
-    expected_message += f"\ndelimiter: {config["delimiter"]}"
-    expected_message += f"\n\nCheck error messages:\n"
-    expected_message += "Error: delimiter was not found for samples ['A', 'B', 'C', 'D']."
+    expected_message += "\nlinkage method: " + str(config["method"])
+    expected_message += "\ndelimiter: " + str(config["delimiter"])
+    expected_message += "\n\nCheck error messages:"
+    expected_message += "\nError: delimiter was not found for samples ['A', 'B', 'C', 'D']."
 
     assert str(exception.value) == expected_message
 
@@ -563,13 +563,13 @@ def test_delimiter_mismatch_some(tmp_path):
     assert exception.type == Exception
 
     expected_message = "something went wrong with cluster assignment"
-    expected_message += f"\ndistance file: {config["dists"]}"
-    expected_message += f"\nmembership file: {config["rclusters"]}"
+    expected_message += "\ndistance file: " + str(config["dists"])
+    expected_message += "\nmembership file: " + str(config["rclusters"])
     expected_message += "\nthreshold map: {0: 5.0, 1: 3.0, 2: 0.0}"
-    expected_message += f"\nlinkage method: {config["method"]}"
-    expected_message += f"\ndelimiter: {config["delimiter"]}"
-    expected_message += f"\n\nCheck error messages:\n"
-    expected_message += "Error: delimiter was not found for samples ['A', 'C']."
+    expected_message += "\nlinkage method: " + str(config["method"])
+    expected_message += "\ndelimiter: " + str(config["delimiter"])
+    expected_message += "\n\nCheck error messages:"
+    expected_message += "\nError: delimiter was not found for samples ['A', 'C']."
 
     assert str(exception.value) == expected_message
 
@@ -608,15 +608,16 @@ def test_address_errors(tmp_path):
     assert exception.type == Exception
 
     expected_message = "something went wrong with cluster assignment"
-    expected_message += f"\ndistance file: {config["dists"]}"
-    expected_message += f"\nmembership file: {config["rclusters"]}"
+    expected_message += "\ndistance file: " + str(config["dists"])
+    expected_message += "\nmembership file: " + str(config["rclusters"])
     expected_message += "\nthreshold map: {0: 5.0, 1: 3.0, 2: 0.0}"
-    expected_message += f"\nlinkage method: {config["method"]}"
-    expected_message += f"\ndelimiter: {config["delimiter"]}"
-    expected_message += f"\n\nCheck error messages:"
+    expected_message += "\nlinkage method: " + str(config["method"])
+    expected_message += "\ndelimiter: " + str(config["delimiter"])
+    expected_message += "\n\nCheck error messages:"
     expected_message += "\nError: delimiter was not found for samples ['A']."
     expected_message += "\nError: genomic address length is incorrect for samples ['B', 'C', 'E']; expected length (3) based on thresholds {0: 5.0, 1: 3.0, 2: 0.0}."
     expected_message += "\nError: address could not be converted to an integer for samples ['D']."
+
 
     assert str(exception.value) == expected_message
 

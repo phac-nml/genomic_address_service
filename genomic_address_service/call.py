@@ -118,12 +118,12 @@ def call(config):
 
     if assignment.status == False:
         exception_message = "something went wrong with cluster assignment"
-        exception_message += f"\ndistance file: {dist_file}"
-        exception_message += f"\nmembership file: {membership_file}"
-        exception_message += f"\nthreshold map: {threshold_map}"
-        exception_message += f"\nlinkage method: {linkage_method}"
-        exception_message += f"\ndelimiter: {delimiter}"
-        exception_message += f"\n\nCheck error messages:\n{'\n'.join(assignment.error_msgs)}"
+        exception_message += "\ndistance file: " + str(dist_file)
+        exception_message += "\nmembership file: " + str(membership_file)
+        exception_message += "\nthreshold map: " + str(threshold_map)
+        exception_message += "\nlinkage method: " + str(linkage_method)
+        exception_message += "\ndelimiter: " + str(delimiter)
+        exception_message += "\n\nCheck error messages:\n" + "\n".join(assignment.error_msgs)
 
         raise Exception(exception_message)
 
