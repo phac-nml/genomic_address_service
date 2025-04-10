@@ -3,6 +3,24 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.6] - 2025-04-09
+
+### Added
+- Numerous integration tests.
+- Specified thresholds must be strictly decreasing (`3,2,1` not `1,1,1` or `1,2,3`).
+- Errors are now handled by exceptions, rather than `sys.exit()`.
+- Error handling for delimiter mismatches.
+- File extension checking for GAS call.
+
+### Fixed
+- Some static class variables have been replaced with dynamic instance variables as appropriate. If GAS was called multiple times within the same Python instance, some information from the previous execution was lingering and conflicting with the next run.
+- Renamed many instances of `delimeter` to `delimiter`.
+- A bug where GAS call ignored the user-specified delimiter.
+- An occassional warning message about an invalid escape sequence in the GAS code.
+
+### Removed
+- Parquet and square distance matrix functionality, references, and support within GAS call. These implementations were not functioning correctly in previous versions.
+
 ## [0.1.5] - 2025-03-12
 
 ### `Fixed`

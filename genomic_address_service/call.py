@@ -6,9 +6,8 @@ from argparse import (ArgumentParser, ArgumentDefaultsHelpFormatter, RawDescript
 from genomic_address_service.version import __version__
 from genomic_address_service.constants import EXTENSIONS, CLUSTER_METHODS, build_call_run_data
 from genomic_address_service.utils import is_file_ok, write_threshold_map, write_cluster_assignments, \
-init_threshold_map
+init_threshold_map, process_thresholds, has_valid_header_pairwise_distances, has_valid_header_cluster
 from genomic_address_service.classes.assign import assign
-from genomic_address_service.mcluster import process_thresholds
 
 def parse_args():
     class CustomFormatter(ArgumentDefaultsHelpFormatter, RawDescriptionHelpFormatter):
@@ -29,7 +28,7 @@ def parse_args():
                         default='address')
     parser.add_argument('-t', '--thresholds', type=str, required=False, help='thresholds delimited by , columns will be treated in sequential order')
     parser.add_argument('-o','--outdir', type=str, required=True, help='Output directory to put cluster results')
-    parser.add_argument('-l', '--delimiter', type=str, required=False, help='The delimiter used within addresses in the input cluster file, as well as the delimiter to use for addresses in the output.', default=".")
+    parser.add_argument('-l', '--delimiter', type=str, required=False, help='The delimiter used within addresses in the input cluster file, as well as the delimiter to use for addresses in the output. The delimiter must not be a tab or newline character.', default=".")
     parser.add_argument('-b', '--batch_size', type=int, required=False, help='Number of records to process at a time',default=100)
     parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
     parser.add_argument('-f', '--force', required=False, help='Overwrite existing directory',
@@ -87,6 +86,14 @@ def call(config):
         message = f'{thresh_map_file} does not exist or is empty'
         raise Exception(message)
 
+    if not has_valid_header_cluster(membership_file):
+        message = f'{membership_file} does not appear to be a properly TSV-formatted file'
+        raise Exception(message)
+
+    if not has_valid_header_pairwise_distances(dist_file):
+        message = f'{dist_file} does not appear to be a properly TSV-formatted file'
+        raise Exception(message)
+
     if not linkage_method in CLUSTER_METHODS:
         message = f'{linkage_method} is not one of the accepeted methods {CLUSTER_METHODS}'
         raise Exception(message)
@@ -107,17 +114,20 @@ def call(config):
     run_data['threshold_map'] = threshold_map
     write_threshold_map(threshold_map, os.path.join(outdir, "thresholds.json"))
 
-    obj = assign(dist_file,membership_file,threshold_map,linkage_method,address_col,sample_col,batch_size, delimiter)
+    assignment = assign(dist_file,membership_file,threshold_map,linkage_method,address_col,sample_col,batch_size, delimiter)
 
-    if obj.status == False:
-        exception_message = f'something went wrong with cluster assignment. Check error messages:'
-
-        for error_message in obj.error_msgs:
-            exception_message += "\n" + str(error_message)
+    if assignment.status == False:
+        exception_message = "something went wrong with cluster assignment"
+        exception_message += "\ndistance file: " + str(dist_file)
+        exception_message += "\nmembership file: " + str(membership_file)
+        exception_message += "\nthreshold map: " + str(threshold_map)
+        exception_message += "\nlinkage method: " + str(linkage_method)
+        exception_message += "\ndelimiter: " + str(delimiter)
+        exception_message += "\n\nCheck error messages:\n" + "\n".join(assignment.error_msgs)
 
         raise Exception(exception_message)
 
-    cluster_assignments = obj.memberships_dict
+    cluster_assignments = assignment.memberships_dict
 
     run_data['result_file'] = os.path.join(outdir, "results.text")
 
@@ -136,7 +146,7 @@ def run():
 
     except Exception as exception:
         print("Exception: " + str(exception))
-        sys.exit()
+        sys.exit(1)
 
 # call main function
 if __name__ == '__main__':

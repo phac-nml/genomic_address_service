@@ -90,4 +90,5 @@ class dist_reader:
         if chunk is None:
             chunk = self.dists
 
+        self.file_handle.close()
         return chunk

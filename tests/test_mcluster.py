@@ -980,3 +980,20 @@ def test_method_average(tmp_path):
 
     with open(tree_path) as tree_file:
         assert tree_file.read().strip() == "((B:4.000000,A:4.000000):8.0,C:12.000000);"
+
+def test_invalid_header_pairwise_matrix(tmp_path):
+    matrix_path = get_path("data/matrix/csv.text")
+    args = {"matrix": matrix_path,
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "1",
+            "thresholds": "0",
+            "delimiter": ".",
+            "force": False}
+
+    with pytest.raises(Exception) as exception:
+        mcluster(args)
+
+    assert exception.type == Exception
+    assert str(exception.value) == f"{matrix_path} does not appear to be a properly TSV-formatted file"
+
+    assert path.isdir(args["outdir"]) == False

@@ -9,10 +9,10 @@ from genomic_address_service.classes.reader import dist_reader
 
 class assign:
     ERROR_MISSING_DELIMITER = "delimiter was not found"
-    ERROR_TOO_SHORT = "genomic address too short"
+    ERROR_LENGTH = "genomic address length is incorrect"
     ERROR_NON_INTEGER = "address could not be converted to an integer"
 
-    avail_methods = ["average", "complete", "single"]
+    AVAILABLE_METHODS = ["average", "complete", "single"]
 
     def __init__(self,dist_file,membership_file,threshold_map,linkage_method,address_col, sample_col, batch_size, delimiter):
         self.dist_file = dist_file
@@ -37,13 +37,13 @@ class assign:
 
         self.error_samples = {
             self.ERROR_MISSING_DELIMITER: [],
-            self.ERROR_TOO_SHORT: [],
+            self.ERROR_LENGTH: [],
             self.ERROR_NON_INTEGER: []
         } # message -> list of IDs
 
-        if not linkage_method in self.avail_methods:
+        if not linkage_method in self.AVAILABLE_METHODS:
             self.status = False
-            self.error_msgs.append(f'Provided {linkage_method} is not one of the accepted {self.avail_methods}')
+            self.error_msgs.append(f'Provided {linkage_method} is not one of the accepted {self.AVAILABLE_METHODS}')
 
         if not is_file_ok(dist_file):
             self.error_msgs.append(f'Provided {dist_file} file does not exist or is empty')
@@ -53,7 +53,7 @@ class assign:
             return
 
         if is_file_ok(membership_file):
-            (_, self.memberships_df) = self.read_data(membership_file)
+            self.memberships_df = self.read_data(membership_file)
         else:
             self.error_msgs.append(f'Provided {membership_file} file does not exist or is empty')
             self.status = False
@@ -86,9 +86,9 @@ class assign:
             self.status = False
             self.error_msgs.append(f'Error: {self.ERROR_MISSING_DELIMITER} for samples {self.error_samples[self.ERROR_MISSING_DELIMITER]}.')
 
-        if len(self.error_samples[self.ERROR_TOO_SHORT]) > 0:
+        if len(self.error_samples[self.ERROR_LENGTH]) > 0:
             self.status = False
-            self.error_msgs.append(f'Error: {self.ERROR_TOO_SHORT} for samples {self.error_samples[self.ERROR_TOO_SHORT]} based on {self.threshold_map}.')
+            self.error_msgs.append(f'Error: {self.ERROR_LENGTH} for samples {self.error_samples[self.ERROR_LENGTH]}; expected length ({len(self.thresholds)}) based on thresholds {self.threshold_map}.')
 
         if len(self.error_samples[self.ERROR_NON_INTEGER]) > 0:
             self.status = False
@@ -117,7 +117,7 @@ class assign:
                     self.error_samples[self.ERROR_MISSING_DELIMITER].append(sample_id)
                 # Length problem:
                 else:
-                    self.error_samples[self.ERROR_TOO_SHORT].append(sample_id)
+                    self.error_samples[self.ERROR_LENGTH].append(sample_id)
 
                 continue
             membership[sample_id] = {}
@@ -183,27 +183,19 @@ class assign:
                 return i
         return 0
 
-    def guess_file_type(self,f):
+    def check_file_type(self,f):
         extension = os.path.splitext(f)[1]
         valid_extensions = list(EXTENSIONS.keys())
 
         if not extension in valid_extensions:
-            message = f'{f} does not have a valid extension {valid_extensions}'
+            message = f'{f} does not have a valid extension ({extension}): {valid_extensions}'
             raise Exception(message)
-
-        return EXTENSIONS[extension]
 
     def read_data(self, f):
-        df = pd.DataFrame()
-        file_type = self.guess_file_type(f)
+        self.check_file_type(f)
+        df = pd.read_csv(f, header=0, sep="\t", low_memory=False)
 
-        if file_type == TEXT:
-            df = pd.read_csv(f, header=0, sep="\t", low_memory=False)
-        else:
-            message = f'{f} does not have a valid extension'
-            raise Exception(message)
-
-        return (file_type, df)
+        return df
 
     def assign(self, n_records=1000,delim="\t"):
         min_dist = min(self.thresholds)
