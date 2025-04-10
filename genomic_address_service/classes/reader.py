@@ -20,16 +20,6 @@ class dist_reader:
         if min_dist is None and max_dist is None:
             self.filter = False
 
-    def guess_file_type(self,f):
-        extension = os.path.splitext(f)[1]
-        valid_extensions = list(EXTENSIONS.keys())
-
-        if not extension in valid_extensions:
-            message = f'{f} does not have a valid extension {valid_extensions}'
-            raise Exception(message)
-
-        return EXTENSIONS[extension]
-
     def read_pd(self):
         for line in self.file_handle:
             self.row_number+=1
@@ -78,7 +68,6 @@ class dist_reader:
                 d = values[i]
                 self.dists[qid][rid] = d
         self.sort_distances()
-
 
     def read_data(self):
         self.file_handle = open(self.fpath,'r')

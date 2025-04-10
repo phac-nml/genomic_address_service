@@ -8,6 +8,7 @@ import textwrap
 from genomic_address_service.classes.reader import dist_reader
 import io
 import pandas as pd
+from os import path
 
 @pytest.fixture()
 def query_table_tsv(tmp_path):
@@ -62,6 +63,10 @@ def matrix_class():
 @pytest.fixture(scope="function")
 def test_class(query_table_tsv):
     return dist_reader(str(query_table_tsv), n_records=10, min_dist=1)
+
+def get_path(location):
+    directory = path.dirname(path.abspath(__file__))
+    return path.join(directory, location)
 
 def test_dist_reader_functionality(query_table_tsv):
     """
@@ -134,3 +139,89 @@ def test_read_matrix(matrix_class):
     assert matrix_class.header == ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
     assert matrix_class.dists == {}
     [_ for _ in matrix_class.read_matrix()]
+
+def test_reader_basic():
+
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    chunk_size = 5
+
+    distance_reader = dist_reader(pairwise_distances_path, n_records=chunk_size)
+    chunks = distance_reader.read_data()
+
+    chunk = next(chunks)
+    assert chunk == {
+        'E': {
+            'E': 0.0,
+            'B': 0.0,
+            'A': 1.0,
+            'C': 4.0,
+            'D': 5.0,
+            'F': 5.0},
+        'F': {
+            'F': 0.0,
+            'D': 0.0,
+            'A': 3.0,
+            'B': 5.0,
+            'E': 5.0,
+            'C': 6.0}
+        }
+
+def test_reader_chunk_size_same():
+    # number of items is 2: {E, F}
+    # chunk_size = 2
+
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    chunk_size = 2
+
+    distance_reader = dist_reader(pairwise_distances_path, n_records=chunk_size)
+    chunks = distance_reader.read_data()
+
+    chunk = next(chunks)
+    assert chunk == {
+        'E': {
+            'E': 0.0,
+            'B': 0.0,
+            'A': 1.0,
+            'C': 4.0,
+            'D': 5.0,
+            'F': 5.0},
+        'F': {
+            'F': 0.0,
+            'D': 0.0,
+            'A': 3.0,
+            'B': 5.0,
+            'E': 5.0,
+            'C': 6.0}
+        }
+
+def test_reader_chunk_size_smaller():
+    # number of items is 2: {E, F}
+    # chunk_size = 1
+
+    pairwise_distances_path = get_path("data/pairwise_distances/basic.tsv")
+    chunk_size = 1
+
+    distance_reader = dist_reader(pairwise_distances_path, n_records=chunk_size)
+    chunks = distance_reader.read_data()
+
+    chunk = next(chunks)
+    assert chunk == {
+        'E': {
+            'E': 0.0,
+            'B': 0.0,
+            'A': 1.0,
+            'C': 4.0,
+            'D': 5.0,
+            'F': 5.0}
+        }
+
+    chunk = next(chunks)
+    assert chunk == {
+        'F': {
+            'F': 0.0,
+            'D': 0.0,
+            'A': 3.0,
+            'B': 5.0,
+            'E': 5.0,
+            'C': 6.0}
+        }
