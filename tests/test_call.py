@@ -1423,7 +1423,7 @@ def test_batch_size_n1(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == f"batch size ({config["batch_size"]}) must be >=1"
+    assert str(exception.value) == f"batch size ({config['batch_size']}) must be >=1"
 
     assert path.isdir(output_path) == False
 
@@ -1456,7 +1456,7 @@ def test_batch_size_0(tmp_path):
         call(config)
 
     assert exception.type == Exception
-    assert str(exception.value) == f"batch size ({config["batch_size"]}) must be >=1"
+    assert str(exception.value) == f"batch size ({config['batch_size']}) must be >=1"
 
     assert path.isdir(output_path) == False
 
