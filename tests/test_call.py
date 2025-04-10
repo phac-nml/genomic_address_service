@@ -1675,3 +1675,81 @@ def test_batch_size_3(tmp_path):
         assert thresholds_json["0"] == 5.0
         assert thresholds_json["1"] == 3.0
         assert thresholds_json["2"] == 0.0
+
+def test_batch_double_digit(tmp_path):
+    # Tests when working with double digit addresses.
+    config = {}
+
+    clusters_path = get_path("data/clusters/double_digit.tsv")
+    pairwise_distances_path = get_path("data/pairwise_distances/double_digit.tsv")
+    output_path = path.join(tmp_path, "test_out")
+
+    config["dists"] = pairwise_distances_path
+    config["rclusters"] = clusters_path
+    config["outdir"] = output_path
+    config["force"] = False
+
+    config["thresholds"] = "5,3,0"
+    config["thresh_map"] = None
+
+    config["method"] = "single"
+
+    config["sample_col"] = "id"
+    config["address_col"] = "address"
+    config["delimiter"] = "."
+
+    config["batch_size"] = 100
+
+    call(config)
+
+    assert path.isdir(output_path)
+
+    # Clusters
+    clusters_path = path.join(output_path, "results.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        # The new N is completely different from everything.
+        # All are unique:
+        assert ["id", "address"] in clusters
+        assert ["A", "1.1.1"] in clusters
+        assert ["B", "2.2.2"] in clusters
+        assert ["C", "3.3.3"] in clusters
+        assert ["D", "4.4.4"] in clusters
+        assert ["E", "5.5.5"] in clusters
+        assert ["F", "6.6.6"] in clusters
+        assert ["G", "7.7.7"] in clusters
+        assert ["H", "8.8.8"] in clusters
+        assert ["I", "9.9.9"] in clusters
+        assert ["J", "10.10.10"] in clusters
+        assert ["K", "11.11.11"] in clusters
+        assert ["L", "12.12.12"] in clusters
+        assert ["M", "13.13.13"] in clusters
+        assert ["N", "14.14.14"] in clusters
+
+    # Run JSON
+    run_path = path.join(output_path, "run.json")
+    assert path.isfile(run_path)
+    with open(run_path) as run_file:
+        run_json = json.load(run_file)
+
+        assert run_json["parameters"]["method"] == "single"
+        assert run_json["parameters"]["thresholds"] == "5,3,0"
+        assert run_json["parameters"]["delimiter"] == "."
+
+        assert len(run_json["threshold_map"]) == 3
+        assert run_json["threshold_map"]["0"] == 5.0
+        assert run_json["threshold_map"]["1"] == 3.0
+        assert run_json["threshold_map"]["2"] == 0.0
+
+    # Thresholds JSON
+    thresholds_path = path.join(output_path, "thresholds.json")
+    assert path.isfile(thresholds_path)
+    with open(thresholds_path) as thresholds_file:
+        thresholds_json = json.load(thresholds_file)
+
+        assert len(thresholds_json) == 3
+        assert thresholds_json["0"] == 5.0
+        assert thresholds_json["1"] == 3.0
+        assert thresholds_json["2"] == 0.0

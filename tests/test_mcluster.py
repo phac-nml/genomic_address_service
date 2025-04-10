@@ -997,3 +997,68 @@ def test_invalid_header_pairwise_matrix(tmp_path):
     assert str(exception.value) == f"{matrix_path} does not appear to be a properly TSV-formatted file"
 
     assert path.isdir(args["outdir"]) == False
+
+def test_double_digit(tmp_path):
+    # An example that tests double digit distances in the input
+    # and double digit addresses.
+    args = {"matrix": get_path("data/matrix/double_digit.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "single",
+            "thresholds": "5,3,0",
+            "delimiter": ".",
+            "force": False}
+
+    mcluster(args)
+
+    assert path.isdir(args["outdir"])
+
+    clusters_path = path.join(args["outdir"], "clusters.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        # all are unique
+        assert ["id", "address", "level_1", "level_2", "level_3"] in clusters
+        assert ["A", "1.1.1", "1", "1", "1"] in clusters
+        assert ["B", "2.2.2", "2", "2", "2"] in clusters
+        assert ["C", "3.3.3", "3", "3", "3"] in clusters
+        assert ["D", "4.4.4", "4", "4", "4"] in clusters
+        assert ["E", "5.5.5", "5", "5", "5"] in clusters
+        assert ["F", "6.6.6", "6", "6", "6"] in clusters
+        assert ["G", "7.7.7", "7", "7", "7"] in clusters
+        assert ["H", "8.8.8", "8", "8", "8"] in clusters
+        assert ["I", "9.9.9", "9", "9", "9"] in clusters
+        assert ["J", "10.10.10", "10", "10", "10"] in clusters
+        assert ["K", "11.11.11", "11", "11", "11"] in clusters
+        assert ["L", "12.12.12", "12", "12", "12"] in clusters
+        assert ["M", "13.13.13", "13", "13", "13"] in clusters
+
+    run_path = path.join(args["outdir"], "run.json")
+    assert path.isfile(run_path)
+    with open(run_path) as run_file:
+        run_json = json.load(run_file)
+
+        assert run_json["parameters"]["method"] == "single"
+        assert run_json["parameters"]["thresholds"] == "5,3,0"
+        assert run_json["parameters"]["delimiter"] == "."
+
+        assert len(run_json["threshold_map"]) == 3
+        assert run_json["threshold_map"]["level_1"] == 5.0
+        assert run_json["threshold_map"]["level_2"] == 3.0
+        assert run_json["threshold_map"]["level_3"] == 0.0
+
+    thresholds_path = path.join(args["outdir"], "thresholds.json")
+    assert path.isfile(thresholds_path)
+    with open(thresholds_path) as thresholds_file:
+        thresholds_json = json.load(thresholds_file)
+
+        assert len(thresholds_json) == 3
+        assert thresholds_json["level_1"] == 5.0
+        assert thresholds_json["level_2"] == 3.0
+        assert thresholds_json["level_3"] == 0.0
+
+    tree_path = path.join(args["outdir"], "tree.nwk")
+    assert path.isfile(tree_path)
+
+    with open(tree_path) as tree_file:
+        assert tree_file.read().strip() == "((((((((((((B:25.000000,A:25.000000):0.0,C:25.000000):0.0,D:25.000000):0.0,E:25.000000):0.0,F:25.000000):0.0,G:25.000000):0.0,H:25.000000):0.0,I:25.000000):0.0,J:25.000000):0.0,K:25.000000):0.0,L:25.000000):0.0,M:25.000000);"
