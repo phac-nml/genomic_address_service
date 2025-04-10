@@ -382,7 +382,7 @@ def test_thresholds_many(tmp_path):
         clusters = csv.reader(clusters_file, delimiter="\t")
 
         # The new f is the same as the existing a (1.1.1.1.1.1.1.1.1.1.1.1.1.1)
-        # The new g is the same as the existing e (1.1.1.3.3.4.4.4.4.4.4.4.4.4)
+        # The new g is completelly different (3.3.3.5.5.6.6.6.6.6.6.6.6.6)
 
         assert ["id", "address"] in clusters
         assert ["a", "1.1.1.1.1.1.1.1.1.1.1.1.1.1"] in clusters
@@ -391,7 +391,7 @@ def test_thresholds_many(tmp_path):
         assert ["d", "2.2.2.4.4.5.5.5.5.5.5.5.5.5"] in clusters
         assert ["e", "1.1.1.3.3.4.4.4.4.4.4.4.4.4"] in clusters
         assert ["f", "1.1.1.1.1.1.1.1.1.1.1.1.1.1"] in clusters
-        assert ["g", "1.1.1.3.3.4.4.4.4.4.4.4.4.4"] in clusters
+        assert ["g", "3.3.3.5.5.6.6.6.6.6.6.6.6.6"] in clusters
 
     # Run JSON
     run_path = path.join(output_path, "run.json")
