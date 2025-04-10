@@ -1,24 +1,13 @@
-import os
-from genomic_address_service.constants import EXTENSIONS
-from pyarrow.parquet import ParquetFile
-import pyarrow as pa
-from genomic_address_service.utils import  get_file_length, get_file_header
-
 class dist_reader:
 
-    def __init__(self, f, min_dist=None, max_dist=None, n_records=1000,delim="\t") -> None:
+    def __init__(self, f, n_records=1000, delim="\t") -> None:
         self.record_ids = set()
         self.dists = {}
         self.file_handle = None
         self.row_number = 0
         self.fpath = f
         self.delim = delim
-        self.min_dist = min_dist
-        self.max_dist = max_dist
         self.n_records = n_records
-        self.filter = True
-        if min_dist is None and max_dist is None:
-            self.filter = False
 
     def read_pd(self):
         for line in self.file_handle:

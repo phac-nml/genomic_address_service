@@ -57,12 +57,12 @@ def query_table_pq(tmp_path):
 
 @pytest.fixture()
 def matrix_class():
-    return dist_reader("genomic_address_service/example/mcluster/hamming/results.text", n_records=10, min_dist=1)
+    return dist_reader("genomic_address_service/example/mcluster/hamming/results.text", n_records=10)
 
 
 @pytest.fixture(scope="function")
 def test_class(query_table_tsv):
-    return dist_reader(str(query_table_tsv), n_records=10, min_dist=1)
+    return dist_reader(str(query_table_tsv), n_records=10)
 
 def get_path(location):
     directory = path.dirname(path.abspath(__file__))
@@ -72,7 +72,7 @@ def test_dist_reader_functionality(query_table_tsv):
     """
     A base test to verify the intended functionality of the dist_reader class    
     """
-    d = dist_reader(str(query_table_tsv), n_records=11, min_dist=1)
+    d = dist_reader(str(query_table_tsv), n_records=11)
     assert list(d.read_data()) == [
         {
             'sampleQ': {
@@ -97,7 +97,7 @@ def test_dist_reader_functionality_pq(query_table_pq):
     """
     A base test to verify the intended functionality of the dist_reader class    
     """
-    d = dist_reader(str(query_table_pq), n_records=11, min_dist=1)
+    d = dist_reader(str(query_table_pq), n_records=11)
     assert list(d.read_data()) == [{'sampleQ': {'sample1': 1.0, 'sample2': 1.0, 'sample3': 2.0}, 'sampleN': {'sample1': 1.0, 'sample2': 1.0, 'sample3': 2.0}}]
 
 def test_read_pd(test_class):
