@@ -98,6 +98,10 @@ def call(config):
         message = f'{linkage_method} is not one of the accepeted methods {CLUSTER_METHODS}'
         raise Exception(message)
 
+    if batch_size < 1:
+        message = f'batch size ({batch_size}) must be >=1'
+        raise Exception(message)
+
     if os.path.isdir(outdir) and not force:
         message = f'{outdir} exists, if you would like to overwrite, then specify --force'
         raise Exception(message)
