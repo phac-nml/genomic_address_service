@@ -6,20 +6,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.6] - 2025-04-09
 
 ### Added
-- Numerous integration tests.
-- Specified thresholds must be strictly decreasing (`3,2,1` not `1,1,1` or `1,2,3`).
-- Errors are now handled by exceptions, rather than `sys.exit()`.
-- Error handling for delimiter mismatches.
-- File extension checking for GAS call.
+- Numerous integration tests. [PR #38](https://github.com/phac-nml/genomic_address_service/pull/38), [PR #39](https://github.com/phac-nml/genomic_address_service/pull/39), [PR #42](https://github.com/phac-nml/genomic_address_service/pull/42)
+- Specified thresholds must be strictly decreasing (`3,2,1` not `1,1,1` or `1,2,3`). [PR #38](https://github.com/phac-nml/genomic_address_service/pull/38)
+- Errors are now handled by exceptions, rather than `sys.exit()`. [PR #38](https://github.com/phac-nml/genomic_address_service/pull/38)
+- Error handling for delimiter mismatches. [PR #38](https://github.com/phac-nml/genomic_address_service/pull/38)
+- File extension checking for GAS call. [PR #38](https://github.com/phac-nml/genomic_address_service/pull/38)
+- Minimum batch size check for GAS call. [PR #42](https://github.com/phac-nml/genomic_address_service/pull/42)
 
 ### Fixed
-- Some static class variables have been replaced with dynamic instance variables as appropriate. If GAS was called multiple times within the same Python instance, some information from the previous execution was lingering and conflicting with the next run.
-- Renamed many instances of `delimeter` to `delimiter`.
-- A bug where GAS call ignored the user-specified delimiter.
-- An occassional warning message about an invalid escape sequence in the GAS code.
+- Some static class variables have been replaced with dynamic instance variables as appropriate. If GAS was called multiple times within the same Python instance, some information from the previous execution was lingering and conflicting with the next run. [PR #38](https://github.com/phac-nml/genomic_address_service/pull/38)
+- Renamed many instances of `delimeter` to `delimiter`. [PR #38](https://github.com/phac-nml/genomic_address_service/pull/38)
+- A bug where GAS call ignored the user-specified delimiter. [PR #38](https://github.com/phac-nml/genomic_address_service/pull/38)
+- An occassional warning message about an invalid escape sequence in the GAS code. [PR #38](https://github.com/phac-nml/genomic_address_service/pull/38)
 
 ### Removed
-- Parquet and square distance matrix functionality, references, and support within GAS call. These implementations were not functioning correctly in previous versions.
+- Parquet and square distance matrix functionality, references, and support within GAS call. These implementations were not functioning correctly in previous versions. [PR #38](https://github.com/phac-nml/genomic_address_service/pull/38)
+- Parameters for specifying the minimum and maximum distances in GAS call. This code was no longer being used. [PR #42](https://github.com/phac-nml/genomic_address_service/pull/42)
 
 ## [0.1.5] - 2025-03-12
 
