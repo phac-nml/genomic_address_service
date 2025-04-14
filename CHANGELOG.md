@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.6] - 2025-04-09
+## [0.2.0] - 2025-04-19
 
 ### Added
 - Numerous integration tests. [PR #38](https://github.com/phac-nml/genomic_address_service/pull/38), [PR #39](https://github.com/phac-nml/genomic_address_service/pull/39), [PR #42](https://github.com/phac-nml/genomic_address_service/pull/42)
@@ -70,3 +70,4 @@ Changed README format to standard DAAD README, added useage arguments.
 [0.1.3]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.1.3
 [0.1.4]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.1.4
 [0.1.5]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.1.5
+[0.2.0]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.2.0
