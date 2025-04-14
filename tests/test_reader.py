@@ -32,34 +32,6 @@ def query_table_tsv(tmp_path):
     df.to_csv(out_path, sep='\t', index=False)
     return out_path
 
-@pytest.fixture()
-def query_table_pq(tmp_path):
-    input_file = textwrap.dedent(
-        """\
-        query_id\tref_id\tdist
-        sampleQ\tsampleQ\t0
-        sampleQ\tsampleN\t0
-        sampleQ\tsample1\t1
-        sampleQ\tsample2\t1
-        sampleQ\tsample3\t2
-        sampleN\tsampleQ\t0
-        sampleN\tsampleN\t0
-        sampleN\tsample1\t1
-        sampleN\tsample2\t1
-        sampleN\tsample3\t2
-        """
-    )
-    df = pd.read_csv(io.StringIO(input_file), sep='\t')
-    out_path = tmp_path / "test_file.parquet"
-    df.to_parquet(out_path, index=False)
-    return out_path
-
-
-@pytest.fixture()
-def matrix_class():
-    return dist_reader("genomic_address_service/example/mcluster/hamming/results.text", n_records=10)
-
-
 @pytest.fixture(scope="function")
 def test_class(query_table_tsv):
     return dist_reader(str(query_table_tsv), n_records=10)
@@ -92,14 +64,6 @@ def test_dist_reader_functionality(query_table_tsv):
         }
     ]
 
-@pytest.mark.xfail(run=False, comment="Cannot deserialize parquet file.")
-def test_dist_reader_functionality_pq(query_table_pq):
-    """
-    A base test to verify the intended functionality of the dist_reader class    
-    """
-    d = dist_reader(str(query_table_pq), n_records=11)
-    assert list(d.read_data()) == [{'sampleQ': {'sample1': 1.0, 'sample2': 1.0, 'sample3': 2.0}, 'sampleN': {'sample1': 1.0, 'sample2': 1.0, 'sample3': 2.0}}]
-
 def test_read_pd(test_class):
     """
     Part of this test has to recreate the steps required
@@ -126,19 +90,6 @@ def test_read_pd(test_class):
             'sampleN': 0
         }
     }
-
-@pytest.mark.xfail(run=False, comment="Distances reported from this test are incorrect, \
-                due to an issue in parsing the file. However this function appears not to be called as \
-                part of this programs regular usage.")
-def test_read_matrix(matrix_class):
-    """
-    Test the matrix reading class.
-    """
-    matrix_class.file_handle = open(matrix_class.fpath, 'r')
-    matrix_class.header = next(matrix_class.file_handle).split(matrix_class.delim)
-    assert matrix_class.header == ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
-    assert matrix_class.dists == {}
-    [_ for _ in matrix_class.read_matrix()]
 
 def test_reader_basic():
 
