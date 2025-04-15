@@ -55,16 +55,16 @@ def test_write_threshold_map():
     os.unlink(tmpfile.name)
 
 def test_write_cluster_assignments():
-    memberships = {'1': 'A.B.C', '2': 'D.E.F'}
-    threshold_map = {'level_1': 'A', 'level_2': 'B', 'level_3': 'C'}
+    memberships = {'1': '1.2.3', '2': '2.5.6'}
+    threshold_map = {'level_1': '10.0', 'level_2': '5.0', 'level_3': '0.0'}
     with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.txt') as tmpfile:
         write_cluster_assignments(tmpfile.name, memberships, threshold_map)
 
         tmpfile.seek(0)
         df = pd.read_csv(tmpfile.name, sep="\t")
         assert 'id' in df.columns and 'address' in df.columns
-        assert df.iloc[0]['address'] == 'A.B.C'
-        assert df.iloc[1]['address'] == 'D.E.F'
+        assert df.iloc[0]['address'] == '1.2.3'
+        assert df.iloc[1]['address'] == '2.5.6'
 
     os.unlink(tmpfile.name)
 
