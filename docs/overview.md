@@ -147,7 +147,25 @@ profile_dists calculates pairwise distances between categorical vectors, which w
 
 ## mcluster
 
-GAS mcluster (multi-level clustering) generates flat cluster addresses (ex: `1.2.3`) from a distance matrix of distances between all samples. These cluster addresses are defined by multiple distance thresholds (ex: `5,3,0`) such that each distance threshold defines the maximum distance cluster members may be from each other and still be in the same cluster.
+GAS mcluster (multi-level clustering) generates multiple flat cluster addresses (ex: `1.2.3`) from a distance matrix of distances between all samples.
+
+### Cluster Addresses
+
+GAS cluster addresses are usually defined by multiple distance thresholds (ex: `5,3,0`) such that each distance threshold defines the maximum distance cluster members may be from each other and still be in the same cluster. In this way, each threshold corresponds to a different component of the cluster address:
+
+|                    | Component 1 | Component 2 | Component 3 |
+| ------------------ | ----------- | ----------- | ----------- |
+| Treshold           | 5           | 3           | 0           |
+| Sample A Address   | 1           | 1           | 1           |
+| Sample D Address   | 2           | 3           | 4           |
+
+These three thresholds (`5,3,0`) would generate addresses that have three components and look like Sample A: `1.1.1` and Sample B: `2.3.4`.
+
+In this example, the first threshold (`5`) defines the maximum distance for the first part of the cluster address (component `A`). Cluster assignments for this part of the address will be such that the maximum distance of samples within each cluster from each other is no more than `5`. So when Example 1 is assigned `1` and Example 2 is assigned `2`, we know that these samples are more than `5` distance from each other. Although these can be any kind of distance measurement or unit, 
+
+
+
+Although each part of the cluster address is defined by its corresponding threshold, every part of the address is a different flat clustering of the same hierarchical clustering (linkage) using different distance thresholds. This is explained in greater detail here.
 
 For example, if GAS mcluster is given the following distance matrix as input
 
