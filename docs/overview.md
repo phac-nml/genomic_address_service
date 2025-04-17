@@ -167,13 +167,85 @@ Although we can use different kinds of distance measurement and linkage clusteri
 
 ### Hierarchical Clustering
 
-Although each part of the cluster address is defined by its corresponding threshold, every part of the address is a different flat clustering of the same hierarchical clustering (linkage) using different distance thresholds. Hierarchical clustering operates on a distance matrix and works by finding and joining the two closest clusters, updating distances between clusters, and repeating these steps until everything is hierarchically clustered. The main difference between the linkage clustering methods used by mcluster is how distances are updated between clusters.
+Although each part of the cluster address is defined by its corresponding threshold, every part of the address is a different flat clustering of the same hierarchical clustering (linkage) using different distance thresholds.
+
+Hierarchical clustering operates on a distance matrix and works by finding and joining the two closest clusters, updating distances between clusters, and repeating these steps until everything is hierarchically clustered. The main difference between the linkage clustering methods used by mcluster is how distances are updated between clusters.
 
 ### Complete-Linkage Clustering
 
+The following is the distance matrix generated in the profile_dists section above. The distances here represent the Hamming distances between categorical vectors. In effect, this matrix shows the number of gene variant differences (i.e. alleles) between samples.
 
+```
+dists   A       B       C       D
+A       0       1       3       8
+B       1       0       4       7
+C       3       4       0       5
+D       8       7       5       0
+```
 
+As a quick review:
 
+- `d(A, B) = 1`: there is `1` gene that differs between `A` and `B`
+- `d(A, C) = 3`: there are `3` genes that differ between `A` and `C`
+
+Functionally, there is a step that converts this 2-dimensional distance matrix into an equivalent 1-dimensional vector that represents the top-right corner of the original distance matrix. This transformation isn't necessary to understand the rest of the linkage algorithm, but it's included for completeness:
+
+```
+[1, 3, 8, 4, 7, 5]
+```
+
+The first step in generating the linkage is identifying the closest two clusters in the input distance matrix. We initially consider each element of the matrix to be a cluster with one element (itself). We find that the smallest distance in the distance matrix is `d(A,B) = 1`. So we create a cluster that contains `A` and `B` and update the distances between this newly created cluster and every other cluster `(A,B)`.
+
+We need to calculate the new distances between cluster `(A,B)` and `(C)`, and `(A,B)` and `(D)`. Since we're using a complete-linkage clustering method, the distance is defined as the maximum distance between comprising clusters and the other clusters. For example:
+
+```
+d((A, B), C) = MAX(d(A,C), d(B,C))
+```
+
+In effect, the distance between the new cluster `(A,B)` and `(C)` is the greater of the distance between `(A)` and `(C)`, or `(B)` and `(C)`.
+
+```
+d((A, B), C) = MAX(d(A,C), d(B,C))
+d((A, B), C) = MAX(3, 4)
+d((A, B), C) = 4
+```
+
+We can similarly determine the distance between the new cluster `(A,B)` and `(D)`:
+
+```
+d((A,B), D) = MAX(d(A,D), d(B,D))
+d((A,B), D) = MAX(8, 7)
+d((A,B), D) = 8
+```
+
+We then update the distance matrix with the new distances:
+
+```
+dists   (A,B)   C       D
+(A,B)   0       4       8
+C       4       0       5
+D       8       5       0
+```
+
+We then repeat the algorithm until only a single cluster remains. We can see that the next smallest distance in the matrix is `d((A,B), C) = 4`, so we create a new cluster `((A,B), C)` and update the distance matrix:
+
+```
+d(((A,B),C), D) = MAX(d((A,B), D), d(C, D))
+d(((A,B),C), D) = MAX(8, 5)
+d(((A,B),C), D) = 8
+```
+
+```
+dists        ((A,B), C)   D
+((A,B), C)   0            8
+D            8            0
+```
+
+Lastly, the next (and only remaining) smallest distance is `d(((A,B), C), D) = 8`, so we cluster those and then we've completed a hierarchical clustering using a complete-linkage clustering method:
+
+```
+(((A,B),C), D)
+```
 
 ## gas mcluster
 
