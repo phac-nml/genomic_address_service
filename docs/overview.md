@@ -305,6 +305,50 @@ Once the hierarchical clustering (i.e. linkage) is generated, we can generate fl
 
 We repeat this process for each threshold, which will use a different distance, but the same hierarchical clustering for each different threshold. Each threshold will generate a label and we join the labels together with a delimiter (ex: `.`) to create a flat cluster address.
 
+For example, if our thresholds are `5,3,0`, we start with the first threshold (`5`) and traverse the linkage (above) from the root until we find a node where the distance is less than our threshold. The root is the last element in the linkage (index `6`). We see that the distance of index `6` is `8`, which is greater than our threshold (`5`), so we cannot group everything together into the same flat cluster. We then look at the two children of that node: index `3` and `5`. Index `3` contains only sample `D` and has a distance of `0` (within its own cluster), which is less than the threshold (`5`), so `D` will become its own cluster and we can stop traversing this path. Index `5` contains `A,B,C` and has a distance of `4`, which is less than the threshold (`5`), so `A,B,C` will become its own cluster and we can stop traversing this path. Since there are no more paths to traverse (everything has been flat clustered), we assign integer labels to the flat clusters. `A,B,C` are assigned cluster label `1` and `D` is assigned cluster label `2`. We now have the following flat cluster labels:
+
+```
+id      address   thresh=5   thresh=3   thresh=0
+A       1         1
+B       1         1
+C       1         1
+D       2         2
+```
+
+We repeat this process for the next threshold (`3`). Index `6` has a distance that is too large (`8`). As above, we then check the child nodes: index `3` and `5`. Index `3` is `D` and has a distance of `0`, so it becomes a flat cluster. Index `5` contains `A,B,C` and has a distance of `4`, which is too large, so we check its child nodes: index `2` and `4`. Index `2` contains `C` and has a distance of `0`, so it becomes a flat cluster. Index `4` contains `A,B` and has a distance of `2`, which is less than the threshold (`3`), so it becomes its own cluster. We have assigned a flat cluster group to all elements: `(A,B)`, `(C)`, and `(D)`. We then assign the flat cluster groups integer labels: `(A,B) -> 1`, `(C) -> 2`, and `(D) -> 3`. We now have the following flat cluster labels:
+
+```
+id      address   thresh=5   thresh=3   thresh=0
+A       1.1       1          1
+B       1.1       1          1
+C       1.2       1          2
+D       2.3       2          3
+```
+
+The same process is repeated for the final threshold (`0`). The above flat cluster process is performed as described, but functionally a threshold of `0` creates flat clusters where elements only cluster if they are identical:
+
+```
+id      address   thresh=5   thresh=3   thresh=0
+A       1.1       1          1          1
+B       1.1       1          1          2
+C       1.2       1          2          3
+D       2.3       2          3          4
+```
+
+This matches the output produced by `gas mcluster` when provided the same data:
+
+```
+gas mcluster -t 5,3,0 -i distance_matrix.tsv -o output --method complete
+```
+
+```
+id      address level_1 level_2 level_3
+A       1.1.1   1       1       1
+B       1.1.2   1       1       2
+C       1.2.3   1       2       3
+D       2.3.4   2       3       4
+```
+
 ## gas call
 
 Generates labels/clusters/codes/addresses from distances for some new samples, in the context of an existing clustering. It takes the cluster output from gas mcluster (or a previous gas call run), determines their labels/clusters/addresses in the context of the existing clustering, and adds them to the cluster output. It's like an update.
