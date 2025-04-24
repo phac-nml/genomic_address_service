@@ -198,7 +198,9 @@ Functionally, there is a step that converts this 2-dimensional distance matrix i
 
 The first step in generating the linkage is identifying the closest two clusters in the input distance matrix. We initially consider each element of the matrix to be a cluster with one element (itself). We find that the smallest distance in the distance matrix is `d(A,B) = 1`. So we create a cluster that contains `A` and `B` and update the distances between this newly created cluster and every other cluster.
 
-We need to calculate the new distances between cluster `(A,B)` and `(C)`, and `(A,B)` and `(D)`. Since we're using a complete-linkage clustering method, the distance is defined as the maximum distance between comprising clusters and the other clusters. For example:
+![](images/complete-linkage-A-B.png)
+
+We then need to calculate the new distances between cluster `(A,B)` and `(C)`, and `(A,B)` and `(D)`. Since we're using a complete-linkage clustering method, the distance is defined as the maximum distance between comprising clusters and the other clusters. For example:
 
 ```
 d((A,B), C) = MAX(d(A,C), d(B,C))
@@ -243,11 +245,11 @@ dists        ((A,B),C)    D
 D            8            0
 ```
 
+![](images/complete-linkage-A-B-C.png)
+
 Lastly, the next (and only remaining) smallest distance is `d(((A,B),C),D) = 8`, so we cluster those and then we've completed a hierarchical clustering using a complete-linkage clustering method:
 
-```
-(((A,B),C),D)
-```
+![](images/complete-linkage-full.png)
 
 ### Complete-Linkage Data Object
 
@@ -323,6 +325,8 @@ C       1         1
 D       2         2
 ```
 
+![](images/complete-linkage-threshold-5.png)
+
 We repeat this process for the next threshold (`3`):
 
 - Index `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`3`), so we check the child nodes: index `3` and `5`.
@@ -346,6 +350,8 @@ C       1.2       1          2
 D       2.3       2          3
 ```
 
+![](images/complete-linkage-threshold-3.png)
+
 The same process is repeated for the final threshold (`0`). The above flat cluster process is performed as described, but functionally a threshold of `0` creates flat clusters where elements only cluster together if they are identical (for our data this happens when all their gene variants / alleles match exactly):
 
 ```
@@ -355,6 +361,8 @@ B       1.1       1          1          2
 C       1.2       1          2          3
 D       2.3       2          3          4
 ```
+
+![](images/complete-linkage-threshold-0.png)
 
 This matches the output produced by `gas mcluster` when provided the same data:
 
