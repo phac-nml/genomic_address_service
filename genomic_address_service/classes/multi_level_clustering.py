@@ -33,7 +33,6 @@ class multi_level_clustering:
         return (labels, np.array(v))
 
     def assign_clusters(self):
-        print(self.linkage)
         for idx,dist in enumerate(self.thresholds):
             cid = 0
             clusters = scipy.cluster.hierarchy.fcluster(self.linkage, dist, criterion='distance')
