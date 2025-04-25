@@ -523,7 +523,7 @@ D       1.2.4   1       2       4
 
 Finally, average-linkage clustering is very similar to [single-linkage](#single-linkage-clustering) and [complete-linkage](#complete-linkage-clustering) clustering, except when calculating updated distances, instead of using the minimum (single) or maximum (complete), *average-linkage clustering* uses the *average* distance.
 
-Let `(X,Y)` be a newly merged hierarchical cluster constain clusters `X` and `Y`. The average-linkage distance between `(X,Y)` and another cluster `Z` is defined as follows:
+Let `(X,Y)` be a newly merged hierarchical cluster containing clusters `X` and `Y`. The average-linkage distance between `(X,Y)` and another cluster `Z` is defined as follows:
 
 ```
 d((X,Y),Z) = AVG(d(X,Z), d(Y,Z))
@@ -541,7 +541,7 @@ In addition to generating a pairwise distance matrix of distances between all sa
 
 profile_dists works with categorical vectors (gene variant vectors in our examples) and the distance between vectors is informed by the Hamming distance (for both Hamming and scaled distances): the more disagreements in the vectors, the greater the distance.
 
-We've previously [generated a square distance matrix using profile_dists](#profile_dists-generating-a-distance-matrix). We then [generated a hierarchical clustering and linkage](#complete-linkage-clustering) from those distances and [converted the data structures into flat clusters](#generating-an-address-from-the-complete-linkage-hierarchical-clustering) using gas mcluster. We'd like to add additional samples to our flat clusters (i.e. addresses) without having to repeat the entire process from scratch with the additional samples added into the input. [gas call](#call-clustering-new-samples) allows us to update an existing cluster. However, we need pairwise distances between new samples and existing samples in the cluster so that we know how where to place the new samples.
+We've previously [generated a square distance matrix](#profile_dists-generating-a-distance-matrix) using profile_dists. We then [generated a hierarchical clustering and linkage](#complete-linkage-clustering) from those distances and [converted hierarchical clusters into flat clusters](#generating-an-address-from-the-complete-linkage-hierarchical-clustering) using gas mcluster. We'd like to add additional samples to our flat clusters (i.e. addresses) without having to repeat the entire process from scratch with the additional samples added into the input. [gas call](#call-clustering-new-samples) allows us to update an existing cluster. However, we need pairwise distances between new samples and existing samples in the cluster so that we know how where to place the new samples.
 
 ### Generating Pairwise Distances
 
@@ -701,7 +701,7 @@ E       F       4
 E       D       8
 ```
 
-We ignore `d(E,E)=0` as that is the distance of the query sample to itself. The next smallest distance is between `E` and `A`: `d(E,A)=3`. We then find the smallest threshold that is no larger than the distance (`3`) between `E` and `A`:
+We ignore `d(E,E)=0` as that is the distance of the query sample to itself. The next smallest distance is between `E` and `A`: `d(E,A)=3`. We then find the smallest threshold from our thresholds (`5,3,0`) that is no larger than the distance (`3`) between `E` and `A`:
 
 |                    | Threshold 1 | Threshold 2 | Threshold 3 |
 | ------------------ | ----------- | ----------- | ----------- |
@@ -709,7 +709,7 @@ We ignore `d(E,E)=0` as that is the distance of the query sample to itself. The 
 | Sample E Address   | ?           | ?           | ?           |
 | Sample A Address   | 1           | 1           | 1           |
 
-The smallest threshold no larger than the distance (`3`) is `3`, which is the second of our three thresholds. This tells us the maximum possible amount of overlap between `A`'s address (the closest reference) and `E`'s address (the query). Since the address of sample `A` is `1.1.1`, and the second threshold (`3`) is the smallest threshold that's still within the distance (`3`) of `A` and `E`, we know `1.1` (corresponding to the first and second thresholds) is the maximum possible amount of the address overlap possible between the two samples:
+The smallest threshold no larger than the distance between `A` and `E` (`3`) is the second threshold: `3`. This tells us the maximum possible amount of overlap between `A`'s address (the closest reference) and `E`'s address (the query). Since the address of sample `A` is `1.1.1`, and the second threshold (`3`) is the smallest threshold that's still within the distance (`3`) of `A` and `E`, we know `1.1` (corresponding to the first and second thresholds) is the maximum possible amount of the address overlap possible between the two samples:
 
 |                    | Threshold 1 | Threshold 2 | Threshold 3 |
 | ------------------ | ----------- | ----------- | ----------- |
@@ -717,7 +717,7 @@ The smallest threshold no larger than the distance (`3`) is `3`, which is the se
 | Sample E Address   | 1           | 1           | ?           |
 | Sample A Address   | 1           | 1           | 1           |
 
-However, even though sample `E` could form a cluster with sample `A` for both threshold 1 (`5`) and threshold 2 (`3`), and be given an address of `1.1.?`, we must still find the maximum distance between the query sample `E` and every other sample with the same cluster address at that threshold level. Starting with the smallest threshold (threshold 2 - `3`), we find all samples that are assigned `1.1.?`:
+However, even though sample `E` could form a cluster with sample `A` for both threshold 1 (`5`) and threshold 2 (`3`), and be given an address of `1.1.?`, we must still find the maximum distance between the query sample `E` and every other sample within the same flat cluster (with the same flat cluster address) at that threshold level. Starting with the smallest threshold (threshold 2: `3`), we find all samples that are assigned `1.1.?`:
 
 ```
 id	address	level_1	level_2	level_3
@@ -735,7 +735,7 @@ E       A       3
 E       B       4
 ```
 
-We find that since the (complete-linkage) distance between the query `E` and the reference `B` (`4`) is greater than the the threshold for this level (threshold 2 - `3`), we cannot assign the query `E` to `1.1`, as it will be too distant from `B`. We then try moving up the address assignment and trying again (`1.1.?` -> `1.?.?`):
+We find that since the (complete-linkage) distance between the query `E` and the reference `B` (`4`) is greater than the the threshold for this level (threshold 2: `3`), we cannot assign the query `E` to `1.1`, as it will be too distant from `B`. We then try moving up the address assignment and trying again (`1.1.?` -> `1.?.?`):
 
 ```
 id	address	level_1	level_2	level_3
