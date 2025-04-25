@@ -13,7 +13,7 @@ This overview document builds on knowledge in each step, so it may be easier to 
 
 ## profile_dists: Generating a Distance Matrix
 
-[profile_dists](https://github.com/phac-nml/profile_dists) generates pairwise distances from categorical input vectors. Although profile_dists can calculate distances from any kind of categorical vectors, it is common to use vectors that represent gene variants.
+[profile_dists](https://github.com/phac-nml/profile_dists) generates pairwise distances from categorical input vectors. Although profile_dists can calculate distances from any kind of categorical vector, it is common to use vectors that represent gene variants.
 
 ### Context
 
@@ -157,7 +157,7 @@ In order to explain GAS mcluster, it is helpful to first explain the nature of c
 
 |                    | Component 1 | Component 2 | Component 3 |
 | ------------------ | ----------- | ----------- | ----------- |
-| Treshold           | 5           | 3           | 0           |
+| Threshold          | 5           | 3           | 0           |
 | Sample A Address   | 1           | 1           | 1           |
 | Sample D Address   | 2           | 3           | 4           |
 
@@ -271,7 +271,7 @@ The above linkage has the following structure:
 | Cluster 2 | 2               | 4               | 4        | 3                  |
 | Cluster 3 | 3               | 5               | 8        | 4                  |
 
-Each row represents a cluster in the hierarchical cluster. *Cluster Index 1* and *Cluster Index 2* refer to the index of the clusters that make up the cluster. For example, for Cluster 1, index `0` refers to cluster `A` and index `1` refers to cluster `B`, meaning the row represents the `(A,B)` cluster. This is explained in detail more below. *Distance* represents the distance of elements within clusters, which can have different meanings depending on the linkage method used. *Number of Elements* represents the number of the number of elements (input samples) within the cluster.
+Each row represents a cluster in the hierarchical cluster. *Cluster Index 1* and *Cluster Index 2* refer to the index of the clusters that make up the cluster. For example, for Cluster 1, index `0` refers to cluster `A` and index `1` refers to cluster `B`, meaning the row represents the `(A,B)` cluster. This is explained in detail more below. *Distance* represents the distance of elements within clusters, which can have different meanings depending on the linkage method used. *Number of Elements* represents the number of elements (input samples) within the cluster.
 
 There are a number of implied clusters that are not shown in the linkage, but are implicitly referenced by the linkage. These are clusters with only one element: the original inputs. The linkage can be expanded to improve clarity:
 
@@ -285,7 +285,7 @@ There are a number of implied clusters that are not shown in the linkage, but ar
  [3. 5. 8. 4.]]
 ```
 
-Where the first 4 rows have been added for illustrative purposes and represent clusters of size one comprised of the input samples. This illustrative linkage can then be understood as follows:
+Where the first 4 rows have been added for illustrative purposes and represent clusters of size one, each containing one the input samples. This illustrative linkage can then be understood as follows:
 
 | Index     | Cluster Index 1 | Cluster Index 2 | Distance | Number of Elements | Representation |
 | --------- | --------------- | --------------- | -------- | ------------------ | -------------- |
@@ -388,7 +388,7 @@ D       2.3.4   2       3       4
 
 The [above example](#complete-linkage-clustering) demonstrated creating a hierarchical clustering (linkage) using complete-linkage clustering. *Complete-linkage* clustering distances for merged hierarchical clusters are calculated as the *maximum* distance between each of the two comprising clusters in a merged cluster and another cluster:
 
-Let `(X,Y)` be a newly merged hierarchical cluster constain clusters `X` and `Y`. The complete-linkage distance between `(X,Y)` and another cluster `Z` is defined as follows:
+Let `(X,Y)` be a newly merged hierarchical cluster containing clusters `X` and `Y`. The complete-linkage distance between `(X,Y)` and another cluster `Z` is defined as follows:
 
 ```
 d((X,Y),Z) = MAX(d(X,Z), d(Y,Z))
@@ -473,7 +473,7 @@ This process exactly matches the process described in the [section for generatin
  [3. 5. 5. 4.]]
 ```
 
-Which may be interpretted as follows (including implicit clusters for clarity):
+Which may be interpreted as follows (including implicit clusters for clarity):
 
 | Index     | Cluster Index 1 | Cluster Index 2 | Distance | Number of Elements | Representation |
 | --------- | --------------- | --------------- | -------- | ------------------ | -------------- |
@@ -493,7 +493,7 @@ When considering the first threshold of `5`, we find that all samples are contai
 
 ![](images/single-linkage-threshold-5.png)
 
-When considering the second threshold of `3`, we find that the `(C,(A,B))` hierarchical cluster meets the threshold requirement to form a flat cluster, so they are all labeled the same (`1`). Likewise, the `(D)` hierarchical cluster has a distance of `0`, so it assigned to a flat cluster by itself with the `2` label.
+When considering the second threshold of `3`, we find that the `(C,(A,B))` hierarchical cluster meets the threshold requirement to form a flat cluster, so they are all labeled the same (`1`). Likewise, the `(D)` hierarchical cluster has a distance of `0`, so it is assigned to a flat cluster by itself with the `2` label.
 
 ![](images/single-linkage-threshold-3.png)
 
@@ -541,7 +541,7 @@ In addition to generating a pairwise distance matrix of distances between all sa
 
 profile_dists works with categorical vectors (gene variant vectors in our examples) and the distance between vectors is informed by the Hamming distance (for both Hamming and scaled distances): the more disagreements in the vectors, the greater the distance.
 
-We've previously [generated a square distance matrix](#profile_dists-generating-a-distance-matrix) using profile_dists. We then [generated a hierarchical clustering and linkage](#complete-linkage-clustering) from those distances and [converted hierarchical clusters into flat clusters](#generating-an-address-from-the-complete-linkage-hierarchical-clustering) using gas mcluster. We'd like to add additional samples to our flat clusters (i.e. addresses) without having to repeat the entire process from scratch with the additional samples added into the input. [gas call](#call-clustering-new-samples) allows us to update an existing cluster. However, we need pairwise distances between new samples and existing samples in the cluster so that we know how where to place the new samples.
+We've previously [generated a square distance matrix](#profile_dists-generating-a-distance-matrix) using profile_dists. We then [generated a hierarchical clustering and linkage](#complete-linkage-clustering) from those distances and [converted hierarchical clusters into flat clusters](#generating-an-address-from-the-complete-linkage-hierarchical-clustering) using gas mcluster. We'd like to add additional samples to our flat clusters (i.e. addresses) without having to repeat the entire process from scratch with the additional samples added into the input. [gas call](#call-clustering-new-samples) allows us to update an existing cluster. However, we need pairwise distances between new samples and existing samples in the cluster so that we know where to place the new samples.
 
 ### Generating Pairwise Distances
 
@@ -685,7 +685,7 @@ F       C       5
 F       D       6
 ```
 
-We are also required to know to the thresholds (`5,3,0`) that were used to generate the flat cluster addresses and the linkage method used to generate the flat cluster (complete-linkage).
+We are also required to know the thresholds (`5,3,0`) that were used to generate the flat cluster addresses and the linkage method used to generate the flat cluster (complete-linkage).
 
 ### Clustering New Samples
 
@@ -705,7 +705,7 @@ We ignore `d(E,E)=0` as that is the distance of the query sample to itself. The 
 
 |                    | Threshold 1 | Threshold 2 | Threshold 3 |
 | ------------------ | ----------- | ----------- | ----------- |
-| Tresholds          | 5           | 3           | 0           |
+| Thresholds         | 5           | 3           | 0           |
 | Sample E Address   | ?           | ?           | ?           |
 | Sample A Address   | 1           | 1           | 1           |
 
@@ -713,7 +713,7 @@ The smallest threshold no larger than the distance between `A` and `E` (`3`) is 
 
 |                    | Threshold 1 | Threshold 2 | Threshold 3 |
 | ------------------ | ----------- | ----------- | ----------- |
-| Tresholds          | 5           | 3           | 0           |
+| Thresholds         | 5           | 3           | 0           |
 | Sample E Address   | 1           | 1           | ?           |
 | Sample A Address   | 1           | 1           | 1           |
 
@@ -745,7 +745,7 @@ C	1.2.3	1	2	3
 D	2.3.4	2	3	4
 ```
 
-We find that samples `A`, `B`, and `C` are with flat cluster `1.?.?`. The distances between these references samples and the query is as follows:
+We find that samples `A`, `B`, and `C` are part of the flat cluster labelled `1.?.?`. The distances between these references samples and the query is as follows:
 
 ```
 query   ref     dist
@@ -758,7 +758,7 @@ Since all the (complete-linkage) distances between the query and references at a
 
 |                    | Threshold 1 | Threshold 2 | Threshold 3 |
 | ------------------ | ----------- | ----------- | ----------- |
-| Tresholds          | 5           | 3           | 0           |
+| Thresholds         | 5           | 3           | 0           |
 | Sample A Address   | 1           | 1           | 1           |
 | Sample B Address   | 1           | 1           | 2           |
 | Sample C Address   | 1           | 2           | 3           |
@@ -769,7 +769,7 @@ Finally, we assign the query (`E`) the next available address at each threshold 
 
 |                    | Threshold 1 | Threshold 2 | Threshold 3 |
 | ------------------ | ----------- | ----------- | ----------- |
-| Tresholds          | 5           | 3           | 0           |
+| Thresholds         | 5           | 3           | 0           |
 | Sample A Address   | 1           | 1           | 1           |
 | Sample B Address   | 1           | 1           | 2           |
 | Sample C Address   | 1           | 2           | 3           |
