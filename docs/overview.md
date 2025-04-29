@@ -74,7 +74,7 @@ profile_dists performs the operation of calculating the pairwise distances betwe
 profile_dists --query input.tsv --ref input.tsv --outdir output --distm hamming
 ```
 
-and we can view the full distance matrix constructed by profile_dists from these individual pairwise distance calculations:
+and we can view the full, symmetrical distance matrix constructed by profile_dists from these individual pairwise distance calculations:
 
 ```
 cat output/results.text
