@@ -5,7 +5,7 @@
 The Genomic Address Service (GAS) has two major components: **mcluster** and **call**. Additionally, the GAS workflow may be supported by **profile_dists**. Although the specifics can change, the GAS workflow commonly has the following steps:
 
 1. Clustering all samples together and establishing a set of genomic addresses:
-    - [**profile_dists**](#profile_dists-generating-a-distance-matrix) (initial samples)
+    - [**profile_dists**](#profile_dists-generating-a-distance-matrix-from-initial-samples) (initial samples)
     - [**mcluster**](#mcluster-generating-cluster-addresses)
 2. Assigning new samples to existing clusters or founding new clusters:
     - [**profile_dists**](#profile_dists-generating-pairwise-distances-for-new-samples) (new samples)
@@ -13,7 +13,7 @@ The Genomic Address Service (GAS) has two major components: **mcluster** and **c
 
 This overview document builds on knowledge in each step, so it may be easier to follow if the sections are read in order.
 
-## profile_dists: Generating a Distance Matrix
+## profile_dists: Generating a Distance Matrix from Initial Samples
 
 [profile_dists](https://github.com/phac-nml/profile_dists) generates pairwise distances from categorical input vectors. Although profile_dists can calculate distances from any kind of categorical vector, it is common to use vectors that represent gene variants.
 
@@ -167,7 +167,7 @@ These three thresholds (`5,3,0`) would generate addresses that have three compon
 
 In this example, the first threshold (`5`) defines the maximum distance for the first part of the cluster address ("Component 1"). Cluster assignments for this part of the address will be such that the maximum distance of samples within each cluster from each other is no more than `5` (when performing complete-linkage clustering). So when Sample `A` is assigned cluster label `1` for the first threshold component, we know that Sample `A` is within `5` (complete-linkage) distance from all other samples in cluster `1`. However, note that the distance between samples and clusters depends on the type of linkage clustering method used: *simple*, *average*, or *complete*. These linkage methods are explained in more detail later.
 
-Although we can use different kinds of distance measurement and linkage clustering methods, for this example, we continue to use the same data and distance measurements generated within the [profile_dists section above](#profile_dists-generating-a-distance-matrix).
+Although we can use different kinds of distance measurement and linkage clustering methods, for this example, we continue to use the same data and distance measurements generated within the [profile_dists section above](#profile_dists-generating-a-distance-matrix-from-initial-samples).
 
 ### Hierarchical Clustering
 
@@ -543,7 +543,7 @@ In addition to generating a pairwise distance matrix of distances between all sa
 
 profile_dists works with categorical vectors (gene variant vectors in our examples) and the distance between vectors is informed by the Hamming distance (for both Hamming and scaled distances): the more disagreements in the vectors, the greater the distance.
 
-We've previously [generated a square distance matrix](#profile_dists-generating-a-distance-matrix) using profile_dists. We then [generated a hierarchical clustering and linkage](#complete-linkage-clustering) from those distances and [converted hierarchical clusters into flat clusters](#generating-an-address-from-the-complete-linkage-hierarchical-clustering) using gas mcluster. We'd like to add additional samples to our flat clusters (i.e. addresses) without having to repeat the entire process from scratch with the additional samples added into the input. [gas call](#call-clustering-new-samples) allows us to update an existing cluster. However, we need pairwise distances between new samples and existing samples in the cluster so that we know where to place the new samples.
+We've previously [generated a square distance matrix](#profile_dists-generating-a-distance-matrix-from-initial-samples) using profile_dists. We then [generated a hierarchical clustering and linkage](#complete-linkage-clustering) from those distances and [converted hierarchical clusters into flat clusters](#generating-an-address-from-the-complete-linkage-hierarchical-clustering) using gas mcluster. We'd like to add additional samples to our flat clusters (i.e. addresses) without having to repeat the entire process from scratch with the additional samples added into the input. [gas call](#call-clustering-new-samples) allows us to update an existing cluster. However, we need pairwise distances between new samples and existing samples in the cluster so that we know where to place the new samples.
 
 ### Generating Pairwise Distances
 
