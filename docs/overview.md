@@ -151,7 +151,7 @@ D       100.0   87.5    62.5    0.0
 
 ## mcluster: Generating Cluster Addresses
 
-[GAS mcluster](https://github.com/phac-nml/genomic_address_service/) (multi-level clustering) generates multiple flat cluster addresses (ex: `1`, `2`, `3`) from a distance matrix of distances between all samples and combines them into a single flat cluster address separated by delimiters (ex: `1.2.3`).
+[GAS mcluster](https://github.com/phac-nml/genomic_address_service/) (multi-level clustering) generates multiple flat cluster addresses (ex: `1`, `2`, `3`) from a distance matrix of all samples and a set of thresholds, and combines them into a single flat cluster address separated by delimiters (ex: `1.2.3`).
 
 ### Cluster Addresses
 
