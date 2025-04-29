@@ -19,7 +19,7 @@ This overview document builds on knowledge in each step, so it may be easier to 
 
 ### Context
 
-Let's say there are eight genes of interest. Each of these genes may have different variants (i.e. alleles). In this example, "variant" refers to the whole gene and not specific single nucleotide variants within that gene. We can assign each gene variant its own categorical label (ex: `1`, `2`, `3`, etc.) and create a vector for each sample that shows which gene variants are present in the sample.
+Let's say there are eight genes of interest. Each of these genes may have different variants (i.e. alleles). In this example, "variant" refers to the whole gene and not specific single nucleotide variants within that gene. We can assign each gene variant its own categorical label (ex: `1`, `2`, `3`, etc.) and create a vector for each sample that shows which gene variants are present in the sample (i.e. equivalent to an allele profile in a MLST schema).
 
 For example:
 
