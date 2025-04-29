@@ -175,7 +175,9 @@ Although we can use different kinds of distance measurement and linkage clusteri
 
 Although each part of the cluster address is defined by its corresponding threshold, every part of the address is a different flat clustering of the same hierarchical clustering (linkage) using different distance thresholds.
 
-Hierarchical clustering operates on a distance matrix and works by finding and joining the two closest clusters, updating distances between clusters, and repeating these steps until everything is hierarchically clustered. The main difference between the linkage clustering methods used by mcluster is how distances are updated after merging clusters into a new hierarchical clustering.
+Hierarchical clustering operates on a distance matrix and works by finding and joining the two closest clusters, updating the distances between all clusters, and repeating these steps until everything is hierarchically clustered into a single cluster. Within each interation of the algorithm, only two clusters are merged into a new hierarchical cluster. No further clusters are merged until all distances between existing clusters and the new cluster are recalculated. Furthermore, depending on the implementation of the hierarchcial clustering algorithm, there is potential for non-deterministic solutions when two different pairs of clusters are the same distance apart. The algorithm can only choose one of the cluster pairs to merge into a new hierarchical cluster and this choice will affect the topology of the hierarchical clustering.
+
+The main difference between the linkage clustering methods used by mcluster is how distances are updated after merging clusters into a new hierarchical clustering.
 
 ### Complete-Linkage Clustering
 
