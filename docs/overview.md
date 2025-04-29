@@ -4,7 +4,7 @@
 
 The Genomic Address Service (GAS) has two major components: **mcluster** and **call**. Additionally, the GAS workflow may be supported by **profile_dists**. Although the specifics can change, the GAS workflow commonly has the following steps:
 
-1. Clustering all samples together and establishing a set of genomic addresses:
+1. Hierarchically clustering all initial samples together using a UPGMA algorithm and establishing a set of genomic addresses based on user-provided thresholds:
     - [**profile_dists**](#profile_dists-generating-a-distance-matrix-from-initial-samples) (initial samples)
     - [**mcluster**](#mcluster-generating-cluster-addresses)
 2. Assigning new samples to existing clusters or founding new clusters:
