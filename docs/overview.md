@@ -277,7 +277,7 @@ The above linkage has the following structure:
 | Cluster 2 | 2               | 4               | 4        | 3                  |
 | Cluster 3 | 3               | 5               | 8        | 4                  |
 
-Each row represents a cluster in the hierarchical cluster. *Cluster Index 1* and *Cluster Index 2* refer to the index of the clusters that make up the cluster. For example, for Cluster 1, index `0` refers to cluster `A` and index `1` refers to cluster `B`, meaning the row represents the `(A,B)` cluster. This is explained in detail more below. *Distance* represents the distance between *Cluster Index 1* and *Cluster Index 2*, which can have different meanings depending on the linkage method used. *Number of Elements* represents the number of elements (input samples) within the cluster.
+Each row represents a cluster in the hierarchical cluster. *Cluster Index 1* and *Cluster Index 2* refer to the index of the clusters that make up the cluster. For example, for Cluster 1, a cluster index of `0` refers to cluster `A` and a cluster index of `1` refers to cluster `B`, meaning the row represents the `(A,B)` cluster. This is explained in detail more below. *Distance* represents the distance between *Cluster Index 1* and *Cluster Index 2*, which can have different meanings depending on the linkage method used. *Number of Elements* represents the number of elements (input samples) within the cluster.
 
 There are a number of implied clusters that are not shown in the linkage, but are implicitly referenced by the linkage. These are clusters with only one element (singletons): the original inputs. The linkage can be expanded to improve clarity:
 
@@ -291,23 +291,23 @@ There are a number of implied clusters that are not shown in the linkage, but ar
  [3. 5. 8. 4.]]
 ```
 
-Where the first 4 rows have been added for illustrative purposes and represent clusters of size one, each containing one the input samples. This illustrative linkage can then be understood as follows:
+Where the first 4 rows have been added for illustrative purposes and represent clusters of size one, each containing one the input samples. This illustratively expanded linkage matrix can be interpretted as a linkage table as follows:
 
-| Index     | Cluster Index 1 | Cluster Index 2 | Distance | Number of Elements | Representation |
-| --------- | --------------- | --------------- | -------- | ------------------ | -------------- |
-| 0         | 0               | 0               | 0        | 1                  | (A)            |
-| 1         | 1               | 1               | 0        | 1                  | (B)            |
-| 2         | 2               | 2               | 0        | 1                  | (C)            |
-| 3         | 3               | 3               | 0        | 1                  | (D)            |
-| 4         | 0               | 1               | 1        | 2                  | (A,B)          |
-| 5         | 2               | 4               | 4        | 3                  | (C,(A,B))      |
-| 6         | 3               | 5               | 8        | 4                  | (D,(C,(A,B)))  |
+| Linkage Index | Cluster   | Cluster Index 1 | Cluster Index 2 | Distance | Number of Elements | Representation |
+| ------------- | --------- | --------------- | --------------- | -------- | ------------------ | -------------- |
+|               | 0         | 0               | 0               | 0        | 1                  | (A)            |
+|               | 1         | 1               | 1               | 0        | 1                  | (B)            |
+|               | 2         | 2               | 2               | 0        | 1                  | (C)            |
+|               | 3         | 3               | 3               | 0        | 1                  | (D)            |
+| 0             | 4         | 0               | 1               | 1        | 2                  | (A,B)          |
+| 1             | 5         | 2               | 4               | 4        | 3                  | (C,(A,B))      |
+| 2             | 6         | 3               | 5               | 8        | 4                  | (D,(C,(A,B)))  |
 
-- Index `0` represents a cluster containing clusters with indices `0` and `0`. It has a distance of `0` and contains `1` element. It represents the cluster: `(A)`.
-- Index `1` represents a cluster containing clusters with indices `1` and `1`. It has a distance of `0` and contains `1` element. It represents the cluster: `(B)`.
-- Index `4` represents a cluster containing clusters with indices `0` and `1`. It has a distance of `1` and contains `2` elements. It represents the cluster: `(A,B)`.
-- Index `5` represents a cluster containing clusters with indices `2` and `4`. It has a distance of `4` and contains `3` elements. It represents the cluster: `(C,(A,B))`.
-- Index `6` represents a cluster containing clusters with indices `3` and `5`. It has a distance of `8` and contains `4` elements. It represents the cluster: `(D,(C,(A,B)))`.
+- Cluster `0` represents a cluster containing clusters with cluster indices `0` and `0`. It has a distance of `0` and contains `1` element. It represents the cluster: `(A)`.
+- Cluster `1` represents a cluster containing clusters with cluster indices `1` and `1`. It has a distance of `0` and contains `1` element. It represents the cluster: `(B)`.
+- Cluster `4` represents a cluster containing clusters with cluster indices `0` and `1`. It has a distance of `1` and contains `2` elements. It represents the cluster: `(A,B)`.
+- Cluster `5` represents a cluster containing clusters with cluster indices `2` and `4`. It has a distance of `4` and contains `3` elements. It represents the cluster: `(C,(A,B))`.
+- Cluster `6` represents a cluster containing clusters with cluster indices `3` and `5`. It has a distance of `8` and contains `4` elements. It represents the cluster: `(D,(C,(A,B)))`.
 
 We can see that the hierarchical clustering generated by this linkage `(D,(C,(A,B)))` matches the clustering we generated manually in the previous section `(((A,B),C),D)`. The ordering is reversed, but the clustering and meaning is the same.
 
@@ -317,7 +317,7 @@ Once the hierarchical clustering (i.e. linkage) is generated, we can generate fl
 
 We repeat this process for each threshold, which will use a different distance each time, but use the same hierarchical clustering for each threshold. Each threshold will generate a label and we join the labels together with a delimiter (ex: `.`) to create a flat cluster address.
 
-For example, if our thresholds are `5,3,0`, we start with the first threshold (`5`) and traverse the linkage (the linkage table above) from the root until we find a node where the distance is no more than our threshold. The root is the last element in the linkage (index `6`).
+For example, if our thresholds are `5,3,0`, we start with the first threshold (`5`) and traverse the linkage matrix (represented as an expanded linkage table above) from the root until we find a node where the distance is no more than our threshold. The root is the last element in the linkage (index `6`).
 
 - Index `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`5`), so we cannot create one flat cluster with everything. We then look at the two children of this node: index `3` and `5`.
 - Index `3` contains `D` and has a distance of `0` (within its own cluster), which is less than the threshold (`5`), so `D` will become its own flat cluster and we stop traversing this path.
