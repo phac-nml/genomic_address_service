@@ -196,7 +196,7 @@ As a quick review:
 - `d(A,B) = 1`: there is `1` gene that differs between `A` and `B`
 - `d(A,C) = 3`: there are `3` genes that differ between `A` and `C`
 
-Functionally, there is a step that converts this 2-dimensional distance matrix into an equivalent 1-dimensional vector that represents the top-right corner of the original distance matrix. This transformation isn't necessary to understand the rest of the linkage algorithm, but it's included for completeness:
+Functionally, there is a step that converts this 2-dimensional distance matrix into an equivalent 1-dimensional vector that represents either the top-right or bottom-left corner of the original distance matrix. This transformation isn't necessary to understand the rest of the linkage algorithm, but it's included for completeness:
 
 ```
 [1, 3, 8, 4, 7, 5]
