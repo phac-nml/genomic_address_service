@@ -360,10 +360,10 @@ The same process is repeated for the final threshold (`0`). The above flat clust
 
 ```
 id      address   thresh=5   thresh=3   thresh=0
-A       1.1       1          1          1
-B       1.1       1          1          2
-C       1.2       1          2          3
-D       2.3       2          3          4
+A       1.1.1     1          1          1
+B       1.1.2     1          1          2
+C       1.2.3     1          2          3
+D       2.3.4     2          3          4
 ```
 
 ![](images/complete-linkage-threshold-0.png)
