@@ -5,17 +5,17 @@
 The Genomic Address Service (GAS) has two major components: **mcluster** and **call**. Additionally, the GAS workflow may be supported by **profile_dists**. Although the specifics can change, the GAS workflow commonly has the following steps:
 
 1. Hierarchically clustering all initial samples together using a UPGMA algorithm and establishing a set of genomic addresses based on user-provided thresholds:
-    - [**profile_dists**](#profile_dists-generating-a-distance-matrix-from-initial-samples) (initial samples)
+    - [**profile_dists**](#profile_dists-calculating-a-distance-matrix-from-initial-samples) (initial samples)
     - [**mcluster**](#mcluster-generating-cluster-addresses)
 2. Assigning new samples to existing clusters or founding new clusters:
-    - [**profile_dists**](#profile_dists-generating-pairwise-distances-for-new-samples) (new samples)
+    - [**profile_dists**](#profile_dists-calculating-pairwise-distances-for-new-samples) (new samples)
     - [**call**](#call-clustering-new-samples)
 
 This overview document builds on knowledge in each step, so it may be easier to follow if the sections are read in order.
 
-## profile_dists: Generating a Distance Matrix from Initial Samples
+## profile_dists: Calculating a Distance Matrix from Initial Samples
 
-[profile_dists](https://github.com/phac-nml/profile_dists) generates pairwise distances from categorical input vectors. Although profile_dists can calculate distances from any kind of categorical vector, it is common to use vectors that represent gene variants.
+[profile_dists](https://github.com/phac-nml/profile_dists) calculates pairwise distances from categorical input vectors. Although profile_dists can calculate distances from any kind of categorical vector, it is common to use vectors that represent gene variants.
 
 ### Context
 
@@ -167,7 +167,7 @@ These three thresholds (`5,3,0`) would generate addresses that have three compon
 
 In this example, the first threshold (`5`) defines the maximum distance for the first part of the cluster address ("Component 1"). Cluster assignments for this part of the address will be such that the maximum distance of samples within each cluster from each other is no more than `5` (when performing complete-linkage clustering). So when Sample `A` is assigned cluster label `1` for the first threshold component, we know that Sample `A` is within `5` (complete-linkage) distance from all other samples in cluster `1`. However, note that the distance between samples and clusters depends on the type of linkage clustering method used: *simple*, *average*, or *complete*. These linkage methods are explained in more detail later.
 
-Although we can use different kinds of distance measurement and linkage clustering methods, for this example, we continue to use the same data and distance measurements generated within the [profile_dists section above](#profile_dists-generating-a-distance-matrix-from-initial-samples).
+Although we can use different kinds of distance measurement and linkage clustering methods, for this example, we continue to use the same data and distance measurements calculated within the [profile_dists section above](#profile_dists-calculating-a-distance-matrix-from-initial-samples).
 
 ### Hierarchical Clustering
 
@@ -177,7 +177,7 @@ Hierarchical clustering operates on a distance matrix and works by finding and j
 
 ### Complete-Linkage Clustering
 
-The following is the distance matrix generated in the [profile_dists section above](#hamming-distances). The distances here represent the Hamming distances between categorical vectors. In effect, this matrix shows the number of gene variant differences (i.e. alleles) between samples.
+The following is the distance matrix calculated in the [profile_dists section above](#hamming-distances). The distances here represent the Hamming distances between categorical vectors. In effect, this matrix shows the number of gene variant differences (i.e. alleles) between samples.
 
 ```
 dists   A       B       C       D
@@ -535,7 +535,7 @@ d((X,Y),Z) = AVG(d(X,Z), d(Y,Z))
 
 The process for generating flat cluster addresses from an average-linkage hierarchical clustering is the same as for [single-](#generating-an-address-from-the-single-linkage-hierarchical-clustering) and [complete-linkage](#generating-an-address-from-the-complete-linkage-hierarchical-clustering) clustering. However, the topology and distances in the linkage may be different from the linkage methods, which may result in slightly different flat clusters and addresses.
 
-## profile_dists: Generating Pairwise Distances for New Samples
+## profile_dists: Calculating Pairwise Distances for New Samples
 
 In addition to generating a pairwise distance matrix of distances between all samples, profile_dists can be used to generate pairwise distances of new samples to already-clustered samples and organize these distances into a 3-column TSV-formatted file.
 
@@ -543,9 +543,9 @@ In addition to generating a pairwise distance matrix of distances between all sa
 
 profile_dists works with categorical vectors (gene variant vectors in our examples) and the distance between vectors is informed by the Hamming distance (for both Hamming and scaled distances): the more disagreements in the vectors, the greater the distance.
 
-We've previously [generated a square distance matrix](#profile_dists-generating-a-distance-matrix-from-initial-samples) using profile_dists. We then [generated a hierarchical clustering and linkage](#complete-linkage-clustering) from those distances and [converted hierarchical clusters into flat clusters](#generating-an-address-from-the-complete-linkage-hierarchical-clustering) using gas mcluster. We'd like to add additional samples to our flat clusters (i.e. addresses) without having to repeat the entire process from scratch with the additional samples added into the input. [gas call](#call-clustering-new-samples) allows us to update an existing cluster. However, we need pairwise distances between new samples and existing samples in the cluster so that we know where to place the new samples.
+We've previously [calculated a square distance matrix](#profile_dists-calculating-a-distance-matrix-from-initial-samples) using profile_dists. We then [generated a hierarchical clustering and linkage](#complete-linkage-clustering) from those distances and [converted hierarchical clusters into flat clusters](#generating-an-address-from-the-complete-linkage-hierarchical-clustering) using gas mcluster. We'd like to add additional samples to our flat clusters (i.e. addresses) without having to repeat the entire process from scratch with the additional samples added into the input. [gas call](#call-clustering-new-samples) allows us to update an existing cluster. However, we need pairwise distances between new samples and existing samples in the cluster so that we know where to place the new samples.
 
-### Generating Pairwise Distances
+### Calculating Pairwise Distances
 
 We've already generated flat cluster addresses for the following data:
 
@@ -557,7 +557,7 @@ C    1    2    2    2    1    1    3    2
 D    2    3    1    2    2    2    3    2
 ```
 
-profile_dists was used to generate the following (Hamming) distance matrix:
+profile_dists was used to calculate the following (Hamming) distance matrix:
 
 ```
 dists   A       B       C       D
@@ -627,7 +627,7 @@ profile_dists accomplishes the above with the following command:
 profile_dists -q query.tsv -r reference.tsv --outfmt pairwise --distm hamming -o output
 ```
 
-and generates the following 3-column pairwise distance output between the query and the reference:
+and calculates the following 3-column pairwise distance output between the query and the reference:
 
 ```
 query_id   ref_id  dist
@@ -669,7 +669,7 @@ C	1.2.3	1	2	3
 D	2.3.4	2	3	4
 ```
 
-and [pairwise distances](#profile_dists-generating-pairwise-distances-for-new-samples) between each new sample (`E` and `F`) and every other sample:
+and [pairwise distances](#profile_dists-calculating-pairwise-distances-for-new-samples) between each new sample (`E` and `F`) and every other sample:
 
 ```
 query   ref     dist
