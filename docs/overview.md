@@ -279,7 +279,7 @@ The above linkage has the following structure:
 
 Each row represents a cluster in the hierarchical cluster. *Cluster Index 1* and *Cluster Index 2* refer to the index of the clusters that make up the cluster. For example, for Cluster 1, index `0` refers to cluster `A` and index `1` refers to cluster `B`, meaning the row represents the `(A,B)` cluster. This is explained in detail more below. *Distance* represents the distance between *Cluster Index 1* and *Cluster Index 2*, which can have different meanings depending on the linkage method used. *Number of Elements* represents the number of elements (input samples) within the cluster.
 
-There are a number of implied clusters that are not shown in the linkage, but are implicitly referenced by the linkage. These are clusters with only one element: the original inputs. The linkage can be expanded to improve clarity:
+There are a number of implied clusters that are not shown in the linkage, but are implicitly referenced by the linkage. These are clusters with only one element (singletons): the original inputs. The linkage can be expanded to improve clarity:
 
 ```
 [[0. 0. 0. 1.]
