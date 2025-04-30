@@ -537,7 +537,7 @@ D       1.2.4   1       2       4
 
 ### Average-Linkage Clustering
 
-Finally, average-linkage clustering is very similar to [single-linkage](#single-linkage-clustering) and [complete-linkage](#complete-linkage-clustering) clustering, except when calculating updated distances, instead of using the minimum (single) or maximum (complete), *average-linkage clustering* uses the *average* distance.
+Finally, average-linkage clustering is very similar to [single-linkage](#single-linkage-clustering) and [complete-linkage](#complete-linkage-clustering) clustering, except when calculating updated distances, instead of using the minimum (single) or maximum (complete), *average-linkage clustering* uses the *average* distance. This is the default linkage method used in GAS and is functionally the UPGMA algorithm.
 
 Let `(X,Y)` be a newly merged hierarchical cluster containing clusters `X` and `Y`. The average-linkage distance between `(X,Y)` and another cluster `Z` is defined as follows:
 
