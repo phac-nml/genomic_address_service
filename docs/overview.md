@@ -477,7 +477,7 @@ Finally we cluster `((A,B),C)` with `(D)` since they are the only remaining opti
 
 ![](images/single-linkage-full.png)
 
-Notice that when [compared to complete-linkage clustering](#complete-linkage-clustering), although the topology for this small example is the same, the distances for each cluster are smaller.
+Notice that when [compared to complete-linkage clustering](#complete-linkage-clustering), although the topology for this small example is the same, the distances for each cluster are smaller because the single-linkage method updates distances using the minimum distance instead of the maximum distance between comprising clusters.
 
 ### Generating an Address from the Single-Linkage Hierarchical Clustering
 
