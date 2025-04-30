@@ -317,11 +317,22 @@ Once the hierarchical clustering (i.e. linkage) is generated, we can generate fl
 
 We repeat this process for each threshold, which will use a different distance each time, but use the same hierarchical clustering for each threshold. Each threshold will generate a label and we join the labels together with a delimiter (ex: `.`) to create a flat cluster address.
 
-For example, if our thresholds are `5,3,0`, we start with the first threshold (`5`) and traverse the linkage matrix (represented as an expanded linkage table above) from the root until we find a node where the distance is no more than our threshold. The root is the last element in the linkage (index `6`).
+| Linkage Index | Cluster   | Cluster Index 1 | Cluster Index 2 | Distance | Number of Elements | Representation |
+| ------------- | --------- | --------------- | --------------- | -------- | ------------------ | -------------- |
+|               | 0         | 0               | 0               | 0        | 1                  | (A)            |
+|               | 1         | 1               | 1               | 0        | 1                  | (B)            |
+|               | 2         | 2               | 2               | 0        | 1                  | (C)            |
+|               | 3         | 3               | 3               | 0        | 1                  | (D)            |
+| 0             | 4         | 0               | 1               | 1        | 2                  | (A,B)          |
+| 1             | 5         | 2               | 4               | 4        | 3                  | (C,(A,B))      |
+| 2             | 6         | 3               | 5               | 8        | 4                  | (D,(C,(A,B)))  |
 
-- Index `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`5`), so we cannot create one flat cluster with everything. We then look at the two children of this node: index `3` and `5`.
-- Index `3` contains `D` and has a distance of `0` (within its own cluster), which is less than the threshold (`5`), so `D` will become its own flat cluster and we stop traversing this path.
-- Index `5` contains `A,B,C` and has a distance of `4`, which is less than the threshold (`5`), so `A,B,C` will become a flat cluster and we stop traversing this path.
+
+For example, if our thresholds are `5,3,0`, we start with the first threshold (`5`) and traverse the linkage matrix (represented as an expanded linkage table above) from the root until we find a node where the distance is no more than our threshold. The root is the last element in the linkage (linkage index `2` and cluster `6`).
+
+- Cluster `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`5`), so we cannot create one flat cluster with everything. We then look at the two hierarchical clusters that comprise this cluster: clusters `3` and `5`.
+- Cluster `3` contains `D` and has a distance of `0` (a singleton cluster), which is less than the threshold (`5`), so `D` will become its own flat cluster and we stop traversing this path.
+- Cluster `5` contains `A,B,C` and has a distance of `4`, which is less than the threshold (`5`), so `A,B,C` will become a flat cluster and we stop traversing this path. We don't need to explicitly check cluster `4`, because cluster `4` is hierarchically clustered within cluster `5`, so if cluster `5` meets the threshold criteria, then cluster `4` will as well.
 
 ![](images/complete-linkage-threshold-5.png)
 
