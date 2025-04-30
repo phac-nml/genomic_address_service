@@ -325,7 +325,7 @@ For example, if our thresholds are `5,3,0`, we start with the first threshold (`
 
 ![](images/complete-linkage-threshold-5.png)
 
-Since there are no more paths to traverse (everything has been flat clustered), we assign integer labels to the flat clusters: `A,B,C` are assigned cluster label `1` and `D` is assigned cluster label `2`. We now have the following flat cluster labels:
+Since there are no more paths to traverse (all original input samples have been flat clustered), we assign integer labels to the flat clusters: `A,B,C` are assigned cluster label `1` and `D` is assigned cluster label `2`. We now have the following flat cluster labels:
 
 ```
 id      address   thresh=5   thresh=3   thresh=0
