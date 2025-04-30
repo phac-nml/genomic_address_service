@@ -271,13 +271,13 @@ GAS's mcluster uses SciPy's `scipy.cluster.hierarchy.linkage` function to genera
 
 The above linkage has the following structure:
 
-|           | Cluster Index 1 | Cluster Index 2 | Distance | Number of Elements |
-| --------- | --------------- | --------------- | -------- | ------------------ |
-| Cluster 1 | 0               | 1               | 1        | 2                  |
-| Cluster 2 | 2               | 4               | 4        | 3                  |
-| Cluster 3 | 3               | 5               | 8        | 4                  |
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements |
+| ------------- | --------- | --------------- | --------------- | -------- | ------------------ |
+| 0             | 4         | 0               | 1               | 1        | 2                  |
+| 1             | 5         | 2               | 4               | 4        | 3                  |
+| 2             | 6         | 3               | 5               | 8        | 4                  |
 
-Each row represents a cluster in the hierarchical cluster. *Cluster Index 1* and *Cluster Index 2* refer to the index of the clusters that make up the cluster. For example, for Cluster 1, a cluster index of `0` refers to cluster `A` and a cluster index of `1` refers to cluster `B`, meaning the row represents the `(A,B)` cluster. This is explained in detail more below. *Distance* represents the distance between *Cluster Index 1* and *Cluster Index 2*, which can have different meanings depending on the linkage method used. *Number of Elements* represents the number of elements (input samples) within the cluster.
+Each row represents a cluster in the hierarchical clustering. *Left Cluster* and *Right Cluster* refer to the cluster numbers of the clusters that make up the cluster. The cluster numbers in the linkage start at `4`, because they are offset by the number original samples (`4`). For example, for the first row in the table (Linkage Index `0` / Cluster `4`), a *Left Cluster* of `0` refers to cluster `A` and a *Right Cluster* of `1` refers to cluster `B`, meaning the row represents the `(A,B)` hierarchical cluster. This is explained in detail more below. *Distance* represents the distance between the *Left Cluster* and *Right Cluster*, which can have different meanings depending on the linkage method used. *Number of Elements* represents the number of elements (input samples) within the cluster.
 
 There are a number of implied clusters that are not shown in the linkage, but are implicitly referenced by the linkage. These are clusters with only one element (singletons): the original inputs. The linkage can be expanded to improve clarity:
 
@@ -293,21 +293,21 @@ There are a number of implied clusters that are not shown in the linkage, but ar
 
 Where the first 4 rows have been added for illustrative purposes and represent clusters of size one, each containing one the input samples. This illustratively expanded linkage matrix can be interpretted as a linkage table as follows:
 
-| Linkage Index | Cluster   | Cluster Index 1 | Cluster Index 2 | Distance | Number of Elements | Representation |
-| ------------- | --------- | --------------- | --------------- | -------- | ------------------ | -------------- |
-|               | 0         | 0               | 0               | 0        | 1                  | (A)            |
-|               | 1         | 1               | 1               | 0        | 1                  | (B)            |
-|               | 2         | 2               | 2               | 0        | 1                  | (C)            |
-|               | 3         | 3               | 3               | 0        | 1                  | (D)            |
-| 0             | 4         | 0               | 1               | 1        | 2                  | (A,B)          |
-| 1             | 5         | 2               | 4               | 4        | 3                  | (C,(A,B))      |
-| 2             | 6         | 3               | 5               | 8        | 4                  | (D,(C,(A,B)))  |
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
+| ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
+|               | 0         | 0            | 0             | 0        | 1                  | (A)            |
+|               | 1         | 1            | 1             | 0        | 1                  | (B)            |
+|               | 2         | 2            | 2             | 0        | 1                  | (C)            |
+|               | 3         | 3            | 3             | 0        | 1                  | (D)            |
+| 0             | 4         | 0            | 1             | 1        | 2                  | (A,B)          |
+| 1             | 5         | 2            | 4             | 4        | 3                  | (C,(A,B))      |
+| 2             | 6         | 3            | 5             | 8        | 4                  | (D,(C,(A,B)))  |
 
-- Cluster `0` represents a cluster containing clusters with cluster indices `0` and `0`. It has a distance of `0` and contains `1` element. It represents the cluster: `(A)`.
-- Cluster `1` represents a cluster containing clusters with cluster indices `1` and `1`. It has a distance of `0` and contains `1` element. It represents the cluster: `(B)`.
-- Cluster `4` represents a cluster containing clusters with cluster indices `0` and `1`. It has a distance of `1` and contains `2` elements. It represents the cluster: `(A,B)`.
-- Cluster `5` represents a cluster containing clusters with cluster indices `2` and `4`. It has a distance of `4` and contains `3` elements. It represents the cluster: `(C,(A,B))`.
-- Cluster `6` represents a cluster containing clusters with cluster indices `3` and `5`. It has a distance of `8` and contains `4` elements. It represents the cluster: `(D,(C,(A,B)))`.
+- Cluster `0` represents a singleton cluster containing the first original input sample. It has a distance of `0` and contains `1` element. It represents the cluster: `(A)`.
+- Cluster `1` represents a singleton cluster containing the second original input sample. It has a distance of `0` and contains `1` element. It represents the cluster: `(B)`.
+- Cluster `4` represents a hierarchical cluster with left cluster `0` and right cluster `1`. It has a distance of `1` and contains `2` elements. It represents the cluster: `(A,B)`.
+- Cluster `5` represents a hierarchical cluster with left cluster `2` and right cluster `4`. It has a distance of `4` and contains `3` elements. It represents the cluster: `(C,(A,B))`.
+- Cluster `6` represents a hierarchical cluster with left cluster `3` and right cluster `5`. It has a distance of `8` and contains `4` elements. It represents the cluster: `(D,(C,(A,B)))`.
 
 We can see that the hierarchical clustering generated by this linkage `(D,(C,(A,B)))` matches the clustering we generated manually in the previous section `(((A,B),C),D)`. The ordering is reversed, but the clustering and meaning is the same.
 
@@ -317,22 +317,21 @@ Once the hierarchical clustering (i.e. linkage) is generated, we can generate fl
 
 We repeat this process for each threshold, which will use a different distance each time, but use the same hierarchical clustering for each threshold. Each threshold will generate a label and we join the labels together with a delimiter (ex: `.`) to create a flat cluster address.
 
-| Linkage Index | Cluster   | Cluster Index 1 | Cluster Index 2 | Distance | Number of Elements | Representation |
-| ------------- | --------- | --------------- | --------------- | -------- | ------------------ | -------------- |
-|               | 0         | 0               | 0               | 0        | 1                  | (A)            |
-|               | 1         | 1               | 1               | 0        | 1                  | (B)            |
-|               | 2         | 2               | 2               | 0        | 1                  | (C)            |
-|               | 3         | 3               | 3               | 0        | 1                  | (D)            |
-| 0             | 4         | 0               | 1               | 1        | 2                  | (A,B)          |
-| 1             | 5         | 2               | 4               | 4        | 3                  | (C,(A,B))      |
-| 2             | 6         | 3               | 5               | 8        | 4                  | (D,(C,(A,B)))  |
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
+| ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
+|               | 0         | 0            | 0             | 0        | 1                  | (A)            |
+|               | 1         | 1            | 1             | 0        | 1                  | (B)            |
+|               | 2         | 2            | 2             | 0        | 1                  | (C)            |
+|               | 3         | 3            | 3             | 0        | 1                  | (D)            |
+| 0             | 4         | 0            | 1             | 1        | 2                  | (A,B)          |
+| 1             | 5         | 2            | 4             | 4        | 3                  | (C,(A,B))      |
+| 2             | 6         | 3            | 5             | 8        | 4                  | (D,(C,(A,B)))  |
 
+For example, if our thresholds are `5,3,0`, we start with the first threshold (`5`) and traverse the linkage matrix (represented as an expanded linkage table above) from the root until we find a node where the distance is no more than our threshold. The root is the last element in the linkage (Linkage Index `2` / Cluster `6`).
 
-For example, if our thresholds are `5,3,0`, we start with the first threshold (`5`) and traverse the linkage matrix (represented as an expanded linkage table above) from the root until we find a node where the distance is no more than our threshold. The root is the last element in the linkage (linkage index `2` and cluster `6`).
-
-- Cluster `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`5`), so we cannot create one flat cluster with everything. We then look at the two hierarchical clusters that comprise this cluster: clusters `3` and `5`.
+- Cluster `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`5`), so we cannot create one flat cluster with everything. We then look at the two hierarchical clusters that comprise this cluster: left cluster `3` and right cluster `5`.
 - Cluster `3` contains `D` and has a distance of `0` (a singleton cluster), which is less than the threshold (`5`), so `D` will become its own flat cluster and we stop traversing this path.
-- Cluster `5` contains `A,B,C` and has a distance of `4`, which is less than the threshold (`5`), so `A,B,C` will become a flat cluster and we stop traversing this path. We don't need to explicitly check cluster `4`, because cluster `4` is hierarchically clustered within cluster `5`, so if cluster `5` meets the threshold criteria, then cluster `4` will as well.
+- Cluster `5` contains `A,B,C` and has a distance of `4`, which is less than the threshold (`5`), so `A,B,C` will become a flat cluster and we stop traversing this path. We don't need to explicitly check left cluster `2` or right cluster `4`, because they are hierarchically clustered within cluster `5`, so if cluster `5` meets the threshold criteria, then left cluster `2` and right cluster `4` will as well (as well as any of their comprising clusters).
 
 ![](images/complete-linkage-threshold-5.png)
 
@@ -348,11 +347,11 @@ D       2         2
 
 We repeat this process for the next threshold (`3`):
 
-- Index `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`3`), so we check the child nodes: index `3` and `5`.
-- Index `3` is `D` and has a distance of `0`, so it becomes a flat cluster.
-- Index `5` contains `A,B,C` and has a distance of `4`, which is larger than our threshold (`3`), so we check its child nodes: index `2` and `4`.
-- Index `2` contains `C` and has a distance of `0`, so it becomes a flat cluster.
-- Index `4` contains `A,B` and has a distance of `2`, which is less than the threshold (`3`), so it becomes a flat cluster.
+- Cluster `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`3`), so we check the comprising clusters: left cluster `3` and right cluster `5`.
+- Cluster `3` is `D` and has a distance of `0`, so it becomes a flat cluster.
+- Cluster `5` contains `A,B,C` and has a distance of `4`, which is larger than our threshold (`3`), so we check the comprising clusters: left cluster `2` and right cluster `4`.
+- Cluster `2` contains `C` and has a distance of `0`, so it becomes a flat cluster.
+- Cluster `4` contains `A,B` and has a distance of `2`, which is less than the threshold (`3`), so it becomes a flat cluster.
 
 ![](images/complete-linkage-threshold-3.png)
 
@@ -492,21 +491,21 @@ This process exactly matches the process described in the [section for generatin
 
 Which may be interpreted as follows (including implicit clusters for clarity):
 
-| Linkage Index | Cluster   | Cluster Index 1 | Cluster Index 2 | Distance | Number of Elements | Representation |
-| ------------- | --------- | --------------- | --------------- | -------- | ------------------ | -------------- |
-|               | 0         | 0               | 0               | 0        | 1                  | (A)            |
-|               | 1         | 1               | 1               | 0        | 1                  | (B)            |
-|               | 2         | 2               | 2               | 0        | 1                  | (C)            |
-|               | 3         | 3               | 3               | 0        | 1                  | (D)            |
-| 0             | 4         | 0               | 1               | 1        | 2                  | (A,B)          |
-| 1             | 5         | 2               | 4               | 3        | 3                  | (C,(A,B))      |
-| 2             | 6         | 3               | 5               | 5        | 4                  | (D,(C,(A,B)))  |
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
+| ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
+|               | 0         | 0            | 0             | 0        | 1                  | (A)            |
+|               | 1         | 1            | 1             | 0        | 1                  | (B)            |
+|               | 2         | 2            | 2             | 0        | 1                  | (C)            |
+|               | 3         | 3            | 3             | 0        | 1                  | (D)            |
+| 0             | 4         | 0            | 1             | 1        | 2                  | (A,B)          |
+| 1             | 5         | 2            | 4             | 3        | 3                  | (C,(A,B))      |
+| 2             | 6         | 3            | 5             | 5        | 4                  | (D,(C,(A,B)))  |
 
 The above single-linkage may be represented as a dendrogram as follows:
 
 ![](images/single-linkage-full.png)
 
-When considering the first threshold of `5`, we find that all samples are contained within a hierarchical cluster with a distance no greater than `5` (index `6` in linkage table), so for this threshold, all samples will be assigned the same flat cluster with the same flat cluster label (`1`):
+When considering the first threshold of `5`, we find that all samples are contained within a hierarchical cluster with a distance no greater than `5` (cluster `6` in linkage table), so for this threshold, all samples will be assigned the same flat cluster with the same flat cluster label (`1`):
 
 ![](images/single-linkage-threshold-5.png)
 
