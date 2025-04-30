@@ -481,15 +481,15 @@ This process exactly matches the process described in the [section for generatin
 
 Which may be interpreted as follows (including implicit clusters for clarity):
 
-| Index     | Cluster Index 1 | Cluster Index 2 | Distance | Number of Elements | Representation |
-| --------- | --------------- | --------------- | -------- | ------------------ | -------------- |
-| 0         | 0               | 0               | 0        | 1                  | (A)            |
-| 1         | 1               | 1               | 0        | 1                  | (B)            |
-| 2         | 2               | 2               | 0        | 1                  | (C)            |
-| 3         | 3               | 3               | 0        | 1                  | (D)            |
-| 4         | 0               | 1               | 1        | 2                  | (A,B)          |
-| 5         | 2               | 4               | 3        | 3                  | (C,(A,B))      |
-| 6         | 3               | 5               | 5        | 4                  | (D,(C,(A,B)))  |
+| Linkage Index | Cluster   | Cluster Index 1 | Cluster Index 2 | Distance | Number of Elements | Representation |
+| ------------- | --------- | --------------- | --------------- | -------- | ------------------ | -------------- |
+|               | 0         | 0               | 0               | 0        | 1                  | (A)            |
+|               | 1         | 1               | 1               | 0        | 1                  | (B)            |
+|               | 2         | 2               | 2               | 0        | 1                  | (C)            |
+|               | 3         | 3               | 3               | 0        | 1                  | (D)            |
+| 0             | 4         | 0               | 1               | 1        | 2                  | (A,B)          |
+| 1             | 5         | 2               | 4               | 3        | 3                  | (C,(A,B))      |
+| 2             | 6         | 3               | 5               | 5        | 4                  | (D,(C,(A,B)))  |
 
 The above single-linkage may be represented as a dendrogram as follows:
 
