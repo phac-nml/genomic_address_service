@@ -13,11 +13,13 @@ The Genomic Address Service (GAS) has two major components: **mcluster** and **c
 
 This overview document builds on knowledge in each step, so it may be easier to follow if the sections are read in order.
 
-## profile_dists: Calculating a Distance Matrix from Initial Samples
+## Hierarchically Clustering Initial Samples
+
+### profile_dists: Calculating a Distance Matrix from Initial Samples
 
 [profile_dists](https://github.com/phac-nml/profile_dists) calculates pairwise distances from categorical input vectors. Although profile_dists can calculate distances from any kind of categorical vector, it is common to use vectors that represent gene variants.
 
-### Context
+#### Context
 
 Let's say there are eight genes of interest. Each of these genes may have different variants (i.e. alleles). In this example, "variant" refers to the whole gene and not specific single nucleotide variants within that gene. We can assign each gene variant its own categorical label (ex: `1`, `2`, `3`, etc.) and create a vector for each sample that shows which gene variants are present in the sample (i.e. equivalent to an allele profile in a MLST schema).
 
@@ -40,7 +42,7 @@ C    1    2    2    2    1    1    3    2
 D    2    3    1    2    2    2    3    2
 ```
 
-### Hamming Distances
+#### Hamming Distances
 
 We can take the above TSV-formatted categorical vector file as input and calculate the distance between each sample (vector) pair (i.e. pairwise distances). We first show an example using *Hamming distances*.
 
@@ -95,7 +97,7 @@ This distance matrix matches what we calculated above:
 - `d(A, D) = 8`: there are `8` genes that differ between `A` and `D`
 - `d(B, C) = 4`: there are `4` genes that differ between `B` and `C`
 
-### Scaled Distances
+#### Scaled Distances
 
 profile_dists also provides the option of calculating *scaled distances*. The distance calculation for scaled distances is the same as Hamming distances, except they are divided by the number of vector components and range from `0` to `100.0` (i.e. 0% different to 100% different).
 
@@ -145,15 +147,15 @@ C       37.5    50.0    0.0     62.5
 D       100.0   87.5    62.5    0.0
 ```
 
-### Summary
+#### Summary
 
 [profile_dists](https://github.com/phac-nml/profile_dists) calculates pairwise distances between categorical vectors, which will often represent the number of gene variants that are different between samples. These distances may be Hamming, which represents the number of vector components (often genes) that are different, or scaled, which represents the percentage of vector components (often genes) that are different.
 
-## mcluster: Generating Cluster Addresses
+### mcluster: Generating Cluster Addresses
 
 [GAS mcluster](https://github.com/phac-nml/genomic_address_service/) (multi-level clustering) generates multiple flat cluster addresses (ex: `1`, `2`, `3`) from a distance matrix of all samples and a set of thresholds, and combines them into a single flat cluster address separated by delimiters (ex: `1.2.3`).
 
-### Cluster Addresses
+#### Cluster Addresses
 
 In order to explain GAS mcluster, it is helpful to first explain the nature of cluster addresses. GAS addresses are usually defined by multiple distance thresholds (ex: `5,3,0`), such that each distance threshold defines the maximum distance cluster members may be from each other and still be in the same cluster. In this way, each threshold corresponds to a different component of the cluster address:
 
@@ -171,7 +173,7 @@ However, note that the distance between samples and clusters depends on the type
 
 Although we can use different kinds of distance measurement and linkage clustering methods, for this example, we continue to use the same data and distance measurements calculated within the [profile_dists section above](#profile_dists-calculating-a-distance-matrix-from-initial-samples).
 
-### Hierarchical Clustering
+#### Hierarchical Clustering
 
 Although each part of the cluster address is defined by its corresponding threshold, every part of the address is a different flat clustering of the same hierarchical clustering (linkage) using different distance thresholds.
 
@@ -179,7 +181,7 @@ Hierarchical clustering operates on a distance matrix and works by finding and j
 
 The main difference between the linkage clustering methods used by mcluster is how distances are updated after merging clusters into a new hierarchical clustering.
 
-### Complete-Linkage Clustering
+#### Complete-Linkage Clustering
 
 The following is the distance matrix calculated in the [profile_dists section above](#hamming-distances). The distances here represent the Hamming distances between categorical vectors. In effect, this matrix shows the number of gene variant differences (i.e. alleles) between samples.
 
@@ -259,7 +261,7 @@ Lastly, the next (and only remaining) smallest distance is `d(((A,B),C),D) = 8`,
 
 The height of the above dendrogram (the y-axis labelled "Distance") tells us the distance between comprising clusters of a hierarchical clustering. For example, the node of `(C,(A,B))` has a height of `4`, which tells us that the distance between clusters `(C)` and `(A,B)` is `4`. This can have different meanings depending on the linkage method used to generate the linkage. Since we used a complete-linkage method to generate the linkage for this dendrogram, this tells us that the maximum distance between any two elements of the `(C,(A,B))` cluster is `4`. Further, since our distances are derived from the Hamming distance between categorical vectors of gene variants, this specifically tells us that within the `(C,(A,B))` cluster, no two samples have more than `4` gene variant (i.e. allele) differences between them.
 
-### Complete-Linkage Data Object
+#### Complete-Linkage Data Object
 
 GAS's mcluster uses SciPy's `scipy.cluster.hierarchy.linkage` function to generate a linkage object, which represents the hierarchical clustering performed in the previous step.
 
@@ -311,7 +313,7 @@ Where the first 4 rows have been added for illustrative purposes and represent c
 
 We can see that the hierarchical clustering generated by this linkage `(D,(C,(A,B)))` matches the clustering we generated manually in the previous section `(((A,B),C),D)`. The ordering is reversed, but the clustering and meaning is the same.
 
-### Generating an Address from the Complete-Linkage Hierarchical Clustering
+#### Generating an Address from the Complete-Linkage Hierarchical Clustering
 
 Once the hierarchical clustering (i.e. linkage) is generated, we can generate flat clusters from the hierarchical clusters by choosing a distance threshold, traversing the hierarchical cluster from root to leaf until we find a cluster with a distance that meets our threshold, assigning everything within the found hierarchical cluster to the same flat cluster with the same flat cluster label, and repeating this process until everything in the hierarchical cluster has been flat clustered and assigned a label. This is functionally the same as horizontally cutting a dendrogram representation of the linkage at a specific threshold height and forming flat clusters from still-connected hierarchically clustered components (see dendrogram below).
 
@@ -400,7 +402,7 @@ C       1.2.3   1       2       3
 D       2.3.4   2       3       4
 ```
 
-### Single-Linkage Clustering
+#### Single-Linkage Clustering
 
 The [above example](#complete-linkage-clustering) demonstrated creating a hierarchical clustering (linkage) using complete-linkage clustering. *Complete-linkage* clustering distances for merged hierarchical clusters are calculated as the *maximum* distance between each of the two comprising clusters in a merged cluster and another cluster:
 
@@ -479,7 +481,7 @@ Finally we cluster `((A,B),C)` with `(D)` since they are the only remaining opti
 
 Notice that when [compared to complete-linkage clustering](#complete-linkage-clustering), although the topology for this small example is the same, the distances for each cluster are smaller because the single-linkage method updates distances using the minimum distance instead of the maximum distance between comprising clusters.
 
-### Generating an Address from the Single-Linkage Hierarchical Clustering
+#### Generating an Address from the Single-Linkage Hierarchical Clustering
 
 This process exactly matches the process described in the [section for generating an address from a complete-linkage hierarchical clustering](#generating-an-address-from-the-complete-linkage-hierarchical-clustering). The only difference is that the linkage topology and distances may be different. The following single-linkage is generated using `gas mcluster`:
 
@@ -535,7 +537,7 @@ C       1.1.3   1       1       3
 D       1.2.4   1       2       4
 ```
 
-### Average-Linkage Clustering
+#### Average-Linkage Clustering
 
 Finally, average-linkage clustering is very similar to [single-linkage](#single-linkage-clustering) and [complete-linkage](#complete-linkage-clustering) clustering, except when calculating updated distances, instead of using the minimum (single) or maximum (complete), *average-linkage clustering* uses the *average* distance. This is the default linkage method used in GAS and is functionally the UPGMA algorithm.
 
@@ -545,21 +547,23 @@ Let `(X,Y)` be a newly merged hierarchical cluster containing clusters `X` and `
 d((X,Y),Z) = AVG(d(X,Z), d(Y,Z))
 ```
 
-### Generating an Address from the Average-Linkage Hierarchical Clustering
+#### Generating an Address from the Average-Linkage Hierarchical Clustering
 
 The process for generating flat cluster addresses from an average-linkage hierarchical clustering is the same as for [single-](#generating-an-address-from-the-single-linkage-hierarchical-clustering) and [complete-linkage](#generating-an-address-from-the-complete-linkage-hierarchical-clustering) clustering. However, the topology and distances in the linkage may be different from the linkage methods, which may result in slightly different flat clusters and addresses.
 
-## profile_dists: Calculating Pairwise Distances for New Samples
+## Assigning New Samples to Existing Clusters
+
+### profile_dists: Calculating Pairwise Distances for New Samples
 
 In addition to generating a pairwise distance matrix of distances between all samples, profile_dists can be used to generate pairwise distances of new samples to already-clustered samples and organize these distances into a 3-column TSV-formatted file.
 
-### Context
+#### Context
 
 profile_dists works with categorical vectors (gene variant vectors in our examples) and the distance between vectors is informed by the Hamming distance (for both Hamming and scaled distances): the more disagreements in the vectors, the greater the distance.
 
 We've previously [calculated a square distance matrix](#profile_dists-calculating-a-distance-matrix-from-initial-samples) using profile_dists. We then [generated a hierarchical clustering and linkage](#complete-linkage-clustering) from those distances and [converted hierarchical clusters into flat clusters](#generating-an-address-from-the-complete-linkage-hierarchical-clustering) using gas mcluster. We'd like to add additional samples to our flat clusters (i.e. addresses) without having to repeat the entire process from scratch with the additional samples added into the input. [gas call](#call-clustering-new-samples) allows us to update an existing cluster. However, we need pairwise distances between new samples and existing samples in the cluster so that we know where to place the new samples.
 
-### Calculating Pairwise Distances
+#### Calculating Pairwise Distances
 
 We've already generated flat cluster addresses for the following data:
 
@@ -667,11 +671,11 @@ Given our example uses categorical vectors of gene variants, this table tells us
 
 These distances will next be used to assign flat cluster labels (i.e. addresses) to `E` and `F` using the same context as previously assigned samples `A`, `B`, `C`, and `D`.
 
-## call: Clustering New Samples
+### call: Clustering New Samples
 
 GAS call allows us to assign addresses to new samples within an existing flat clustering framework generated by GAS mcluster (or GAS call). GAS call preserves existing cluster addresses.
 
-### Prerequisites
+#### Prerequisites
 
 GAS call requires us to have [previously generated a flat clustering](#generating-an-address-from-the-complete-linkage-hierarchical-clustering):
 
@@ -703,7 +707,7 @@ F       D       6
 
 We are also required to know the thresholds (`5,3,0`) that were used to generate the flat cluster addresses and the linkage method used to generate the flat cluster (complete-linkage).
 
-### Clustering New Samples
+#### Clustering New Samples
 
 GAS call clusters new samples by considering each query sample (`E` and `F`) individually. First, the distance between a given query sample (`E`) and every reference sample is sorted from smallest to largest:
 
