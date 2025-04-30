@@ -416,7 +416,7 @@ In contrast, *single-linkage* clustering distances for merged hierarchical clust
 d((X,Y),Z) = MIN(d(X,Z), d(Y,Z))
 ```
 
-For example, using the same distance matrix as before:
+For example, when using the same initial distance matrix as [calculated before by profile_dists](#profile_dists-calculating-a-distance-matrix-from-initial-samples) as a starting point:
 
 ```
 dists   A       B       C       D
@@ -426,7 +426,7 @@ C       3       4       0       5
 D       8       7       5       0
 ```
 
-`A` and `B` will cluster together since they are the closest (`d(A,B)=1`).
+Samples `A` and `B` will cluster together since they are the closest (`d(A,B)=1`).
 
 ![](images/single-linkage-A-B.png)
 
