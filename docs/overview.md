@@ -201,6 +201,17 @@ As a quick review:
 Functionally, there is a step that converts this 2-dimensional distance matrix into an equivalent 1-dimensional vector that represents either the top-right or bottom-left corner of the original distance matrix. This transformation is done for speed and memory considerations. The transformation isn't necessary to understand the rest of the linkage algorithm, but it's included for completeness:
 
 ```
+dists   A       B       C       D
+A       0       1       3       8
+B               0       4       7
+C                       0       5
+D                               0
+
+Top-right of the matrix becomes a 1-D vector,
+storing only the necessary distance information.
+
+There is no need to store 0's on the main diagonal.
+
 [1, 3, 8, 4, 7, 5]
 ```
 
