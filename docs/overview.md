@@ -17,7 +17,7 @@ This overview document builds on knowledge in each step, so it may be easier to 
 
 ### profile_dists: Calculating a Distance Matrix from Initial Samples
 
-[profile_dists](https://github.com/phac-nml/profile_dists) calculates pairwise distances from categorical input vectors. Although profile_dists can calculate distances from any kind of categorical vector, it is common to use vectors that represent gene variants.
+[profile_dists](https://github.com/phac-nml/profile_dists) calculates pairwise distances from categorical input vectors. Although profile_dists can calculate distances from any kind of categorical vector, it is common to use vectors that represent gene variants (e.g. multi-locus sequence typing).
 
 #### Context
 
