@@ -723,19 +723,17 @@ E       D       8
 
 We ignore `d(E,E)=0` as that is the distance of the query sample to itself. The next smallest distance is between `E` and `A`: `d(E,A)=3`. We then find the smallest threshold from our thresholds (`5,3,0`) that is no larger than the distance (`3`) between `E` and `A`:
 
-|                    | Threshold 1 | Threshold 2 | Threshold 3 |
-| ------------------ | ----------- | ----------- | ----------- |
-| Thresholds         | 5           | 3           | 0           |
-| Sample E Address   | ?           | ?           | ?           |
-| Sample A Address   | 1           | 1           | 1           |
+|          | Threshold 1 (5) | Threshold 2 (3) | Threshold 3 (0) |
+| -------- | --------------- | --------------- | --------------- |
+| Sample E | ?               | ?               | ?               |
+| Sample A | 1               | 1               | 1               |
 
 The smallest threshold no larger than the distance between `A` and `E` (`3`) is the second threshold: `3`. This tells us the maximum possible amount of overlap between `A`'s address (the closest reference) and `E`'s address (the query). Since the address of sample `A` is `1.1.1`, and the second threshold (`3`) is the smallest threshold that's still within the distance (`3`) of `A` and `E`, we know `1.1` (corresponding to the first and second thresholds) is the maximum possible amount of the address overlap possible between the two samples:
 
-|                    | Threshold 1 | Threshold 2 | Threshold 3 |
-| ------------------ | ----------- | ----------- | ----------- |
-| Thresholds         | 5           | 3           | 0           |
-| Sample E Address   | 1           | 1           | ?           |
-| Sample A Address   | 1           | 1           | 1           |
+|          | Threshold 1 (5) | Threshold 2 (3) | Threshold 3 (0) |
+| -------- | --------------- | --------------- | --------------- |
+| Sample E | 1               | 1               | ?               |
+| Sample A | 1               | 1               | 1               |
 
 However, even though sample `E` could form a cluster with sample `A` for both threshold 1 (`5`) and threshold 2 (`3`), and be given an address of `1.1.?`, we must still find the maximum distance between the query sample `E` and every other sample within the same flat cluster (with the same flat cluster address) at that threshold level. Starting with the smallest threshold (threshold 2: `3`), we find all samples that are assigned `1.1.?`:
 
@@ -776,25 +774,23 @@ E       C       4
 
 Since all the (complete-linkage) distances between the query and references at address `1.?.?` are less than the threshold for that level (`5`), we can assign the query the `1.?.?` address:
 
-|                    | Threshold 1 | Threshold 2 | Threshold 3 |
-| ------------------ | ----------- | ----------- | ----------- |
-| Thresholds         | 5           | 3           | 0           |
-| Sample A Address   | 1           | 1           | 1           |
-| Sample B Address   | 1           | 1           | 2           |
-| Sample C Address   | 1           | 2           | 3           |
-| Sample D Address   | 2           | 3           | 4           |
-| Sample E Address   | 1           | ?           | ?           |
+|          | Threshold 1 (5) | Threshold 2 (3) | Threshold 3 (0) |
+| -------- | --------------- | --------------- | --------------- |
+| Sample A | 1               | 1               | 1               |
+| Sample B | 1               | 1               | 2               |
+| Sample C | 1               | 2               | 3               |
+| Sample D | 2               | 3               | 4               |
+| Sample E | 1               | ?               | ?               |
 
 Finally, we assign the query (`E`) the next available address at each threshold level. For the second threshold, we already have labels `1`, `2`, and `3`, so we assign the query the label `4` for that level. Similarly, for the third threshold, we already have `1`-`4`, so we assign the query `5` for that level:
 
-|                    | Threshold 1 | Threshold 2 | Threshold 3 |
-| ------------------ | ----------- | ----------- | ----------- |
-| Thresholds         | 5           | 3           | 0           |
-| Sample A Address   | 1           | 1           | 1           |
-| Sample B Address   | 1           | 1           | 2           |
-| Sample C Address   | 1           | 2           | 3           |
-| Sample D Address   | 2           | 3           | 4           |
-| Sample E Address   | 1           | 4           | 5           |
+|          | Threshold 1 (5) | Threshold 2 (3) | Threshold 3 (0) |
+| -------- | --------------- | --------------- | --------------- |
+| Sample A | 1               | 1               | 1               |
+| Sample B | 1               | 1               | 2               |
+| Sample C | 1               | 2               | 3               |
+| Sample D | 2               | 3               | 4               |
+| Sample E | 1               | 4               | 5               |
 
 A similar procedure is performed for all remaining queries. This entire process is performed by GAS call with a command similar to the following:
 
