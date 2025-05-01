@@ -274,7 +274,7 @@ The height of the above dendrogram (the y-axis labelled "Distance") tells us the
 
 #### Complete-Linkage Data Object
 
-GAS's mcluster uses SciPy's `scipy.cluster.hierarchy.linkage` function to generate a linkage object, which represents the hierarchical clustering performed in the previous step.
+GAS's mcluster uses SciPy's [scipy.cluster.hierarchy.linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html) function to generate a linkage object, which represents the hierarchical clustering performed in the previous step.
 
 ```
 [[0. 1. 1. 2.]
