@@ -747,7 +747,7 @@ C	1.2.3	1	2	3
 D	2.3.4	2	3	4
 ```
 
-Samples `A` and `B` are assigned `1.1.?`, so we check the distances between the query `E` and these samples:
+In this context, samples `A` and `B` are assigned `1.1.?`, so they will be checked, whereas `C` is assigned `1.2.?` and `D` is assigned `2.3.?`, so they will not be checked. We check the distances between query `E` and samples `A` and `B`:
 
 ```
 query   ref     dist
