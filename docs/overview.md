@@ -871,3 +871,15 @@ D       2.3.4
 E       1.4.5
 F       1.5.6
 ```
+
+## Interpretations
+
+### Dendrograms and Cophenetic Distances
+
+Dendrograms are trees that represent hierarchical relationships and may be generated directly from SciPy's linkage objects, which represent a hierarchical clustering of the original samples.
+
+
+![](images/complete-linkage-full.png)
+
+
+In our context, the height of the dendrogram represents the **distance between clusters** or the **cophenetic distance** calculated during the hierarchical clustering process. The cophenetic distance of two objects (samples or hierarchical clusters) is a measure of how similar those objects need to be in order to be grouped into the same cluster. This distance is the height of the dendrogram at which point two objects are hierarchically clustered together. For example, when interpreting the above dendrogram, we see that the cluster `(C,(A,B))` has a dendrogram height of `4`. This means that the cophenetic distance between clusters `(C)` and `(A,B)` is `4`. The specific interpretation of the distance varies depending on the linkage method used: average, single, or complete. Regardless, the greater the height of a hierarchical cluster in a dendrogram, the more dissimilarity there is between the clusters that comprise it.
