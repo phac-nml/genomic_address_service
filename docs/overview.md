@@ -705,7 +705,7 @@ F       C       5
 F       D       6
 ```
 
-We are also required to know the thresholds (`5,3,0`) that were used to generate the flat cluster addresses and the linkage method used to generate the flat cluster (complete-linkage).
+We are also required to know the original thresholds (`5,3,0`) that were used to [generate the flat cluster addresses](#generating-an-address-from-the-complete-linkage-hierarchical-clustering) and the linkage method used to [generate the hierarchical clusters](#complete-linkage-clustering) from which these flat clusters were derived (complete-linkage).
 
 #### Clustering New Samples
 
