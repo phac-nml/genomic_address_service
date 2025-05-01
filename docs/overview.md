@@ -299,6 +299,7 @@ There are a number of implied clusters that are not shown in the linkage, but ar
  [1. 1. 0. 1.]
  [2. 2. 0. 1.]
  [3. 3. 0. 1.]
+
  [0. 1. 1. 2.]
  [2. 4. 4. 3.]
  [3. 5. 8. 4.]]
