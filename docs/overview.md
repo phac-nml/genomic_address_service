@@ -124,8 +124,8 @@ D    2    3    1    2    2    2    3    2
 ```
 
 - `d(A,C) = 37.5`: `Hamming(A,C) = 3` -> `3/8 = 37.5%`
-- `d(A,D) = 100.0`: `Hamming(A,D) = 3` -> `8/8 = 100.0%`
-- `d(B,C) = 50.0`: `Hamming(B,C) = 3` -> `4/8 = 50.0%`
+- `d(A,D) = 100.0`: `Hamming(A,D) = 8` -> `8/8 = 100.0%`
+- `d(B,C) = 50.0`: `Hamming(B,C) = 4` -> `4/8 = 50.0%`
 
 profile_dists calculates these distances with a command similar to following:
 
@@ -177,7 +177,7 @@ Although we can use different kinds of distance measurement and linkage clusteri
 
 Although each part of the cluster address is defined by its corresponding threshold, every part of the address is a different flat clustering of the same hierarchical clustering (linkage) using different distance thresholds.
 
-Hierarchical clustering operates on a distance matrix and works by finding and joining the two closest clusters, updating the distances between all clusters, and repeating these steps until everything is hierarchically clustered into a single cluster. Within each interation of the algorithm, only two clusters are merged into a new hierarchical cluster. No further clusters are merged until all distances between existing clusters and the new cluster are recalculated. Furthermore, depending on the implementation of the hierarchcial clustering algorithm, there is potential for non-deterministic solutions when two different pairs of clusters are the same distance apart. The algorithm can only choose one of the cluster pairs to merge into a new hierarchical cluster and this choice will affect the topology of the hierarchical clustering.
+Hierarchical clustering operates on a distance matrix and works by finding and joining the two closest clusters, updating the distances between all clusters, and repeating these steps until everything is hierarchically clustered into a hierarchical single cluster. Within each interation of the algorithm, only two clusters are merged into a new hierarchical cluster. No further clusters are merged until all distances between existing clusters and the new cluster are recalculated. Furthermore, depending on the implementation of the hierarchcial clustering algorithm, there is potential for non-deterministic solutions when two different pairs of clusters are the same distance apart. The algorithm can only choose one of the cluster pairs to merge into a new hierarchical cluster and this choice will affect the topology of the hierarchical clustering.
 
 The main difference between the linkage clustering methods used by mcluster is how distances are updated after merging clusters into a new hierarchical clustering.
 
@@ -215,7 +215,7 @@ There is no need to store 0's on the main diagonal.
 [1, 3, 8, 4, 7, 5]
 ```
 
-The first step in generating the linkage is identifying the closest two clusters in the input distance matrix. We initially consider each element of the matrix to be a cluster with one element (itself). We find that the smallest distance in the distance matrix is `d(A,B) = 1`. So we create a cluster that contains `A` and `B` and update the distances between this newly created cluster and every other cluster.
+The first step in generating the linkage is identifying the closest two clusters in the input distance matrix. We initially consider each element of the matrix to be a cluster with one element (itself). We find that the smallest distance in the distance matrix is `d(A,B) = 1`. So we create a hierarchical cluster that contains `A` and `B` and update the distances between this newly created cluster and every other cluster.
 
 ![](images/complete-linkage-A-B.png)
 
@@ -266,7 +266,7 @@ D            8            0
 
 ![](images/complete-linkage-A-B-C.png)
 
-Lastly, the next (and only remaining) smallest distance is `d(((A,B),C),D) = 8`, so we cluster those and then we've completed a hierarchical clustering using a complete-linkage clustering method:
+Lastly, the next (and only remaining) smallest distance is `d(((A,B),C),D) = 8`, so we hierarchically cluster those and then we've completed a hierarchical clustering using a complete-linkage clustering method:
 
 ![](images/complete-linkage-full.png)
 
@@ -319,9 +319,9 @@ Where the first 4 rows have been added for illustrative purposes and represent c
 
 - Cluster `0` represents a singleton cluster containing the first original input sample. It has a distance of `0` and contains `1` element. It represents the cluster: `(A)`.
 - Cluster `1` represents a singleton cluster containing the second original input sample. It has a distance of `0` and contains `1` element. It represents the cluster: `(B)`.
-- Cluster `4` represents a hierarchical cluster with left cluster `0` and right cluster `1`. It has a distance of `1` and contains `2` elements. It represents the cluster: `(A,B)`.
-- Cluster `5` represents a hierarchical cluster with left cluster `2` and right cluster `4`. It has a distance of `4` and contains `3` elements. It represents the cluster: `(C,(A,B))`.
-- Cluster `6` represents a hierarchical cluster with left cluster `3` and right cluster `5`. It has a distance of `8` and contains `4` elements. It represents the cluster: `(D,(C,(A,B)))`.
+- Cluster `4` represents a hierarchical cluster with Left Cluster `0` and Right Cluster `1`. It has a distance of `1` and contains `2` elements. It represents the cluster: `(A,B)`.
+- Cluster `5` represents a hierarchical cluster with Left Cluster `2` and Right Cluster `4`. It has a distance of `4` and contains `3` elements. It represents the cluster: `(C,(A,B))`.
+- Cluster `6` represents a hierarchical cluster with Left Cluster `3` and Right Cluster `5`. It has a distance of `8` and contains `4` elements. It represents the cluster: `(D,(C,(A,B)))`.
 
 We can see that the hierarchical clustering generated by this linkage `(D,(C,(A,B)))` matches the clustering we generated manually in the previous section `(((A,B),C),D)`. The ordering is reversed, but the clustering and meaning is the same.
 
@@ -347,7 +347,7 @@ For example, if our thresholds are `5,3,0`, we start with the first threshold (`
 | ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
 | 2             | 6         | 3            | 5             | 8        | 4                  | (D,(C,(A,B)))  |
 
-Cluster `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`5`), so we cannot create one flat cluster with everything. We then look at the two hierarchical clusters that comprise this cluster: left cluster `3` and right cluster `5`.
+Cluster `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`5`), so we cannot create one flat cluster with everything. We then look at the two hierarchical clusters that comprise this cluster: Left Cluster `3` and Right Cluster `5`.
 
 | Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
 | ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
@@ -359,7 +359,7 @@ Cluster `3` contains `D` and has a distance of `0` (a singleton cluster), which 
 | ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
 | 1             | 5         | 2            | 4             | 4        | 3                  | (C,(A,B))      |
 
-Cluster `5` contains `A,B,C` and has a distance of `4`, which is less than the threshold (`5`), so `A,B,C` will become a flat cluster and we stop traversing this path. We don't need to explicitly check left cluster `2` or right cluster `4`, because they are hierarchically clustered within cluster `5`, so if cluster `5` meets the threshold criteria, then left cluster `2` and right cluster `4` will as well (as well as any of their comprising clusters).
+Cluster `5` contains `A,B,C` and has a distance of `4`, which is less than the threshold (`5`), so `A,B,C` will become a flat cluster and we stop traversing this path. We don't need to explicitly check Left Cluster `2` or Right Cluster `4`, because they are hierarchically clustered within cluster `5`, so if cluster `5` meets the threshold criteria, then Left Cluster `2` and Right Cluster `4` will as well (as well as any of their comprising clusters).
 
 ![](images/complete-linkage-threshold-5.png)
 
@@ -379,7 +379,7 @@ We repeat this process for the next threshold (`3`):
 | ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
 | 2             | 6         | 3            | 5             | 8        | 4                  | (D,(C,(A,B)))  |
 
-Cluster `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`3`), so we check the comprising clusters: left cluster `3` and right cluster `5`.
+Cluster `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`3`), so we check the comprising clusters: Left Cluster `3` and Right Cluster `5`.
 
 | Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
 | ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
@@ -391,7 +391,7 @@ Cluster `3` is `D` and has a distance of `0`, so it becomes a flat cluster.
 | ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
 | 1             | 5         | 2            | 4             | 4        | 3                  | (C,(A,B))      |
 
-Cluster `5` contains `A,B,C` and has a distance of `4`, which is larger than our threshold (`3`), so we check the comprising clusters: left cluster `2` and right cluster `4`.
+Cluster `5` contains `A,B,C` and has a distance of `4`, which is larger than our threshold (`3`), so we check the comprising clusters: Left Cluster `2` and Right Cluster `4`.
 
 | Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
 | ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
@@ -422,7 +422,7 @@ C       1.2       1          2
 D       2.3       2          3
 ```
 
-The same process is repeated for the final threshold (`0`). The above flat cluster process is performed as described, but functionally a threshold of `0` creates flat clusters where elements only cluster together if they are identical (for our data this happens when all their gene variants / alleles match exactly):
+The same process is repeated for the final threshold (`0`). The above flat clustering process is performed as described, but functionally a threshold of `0` creates flat clusters where elements only cluster together if they are identical (for our data this happens when all their gene variants / alleles match exactly):
 
 ```
 id      address   thresh=5   thresh=3   thresh=0
@@ -571,7 +571,7 @@ When considering the first threshold of `5`, we find that all samples are contai
 | 1             | 5         | 2            | 4             | 3        | 3                  | (C,(A,B))      |
 | 2             | 6         | 3            | 5             | 5        | 4                  | (D,(C,(A,B)))  |
 
-When considering the second threshold of `3`, we find that the cluster corresponding to the root of the tree (cluster `6`) has a distance (`5`) that is larger than the threshold (`3`), so we check its comprising left and right clusters: cluster `3` and cluster `5`. The right hierarchical cluster `(C,(A,B))` (cluster `5`) meets the threshold requirement to form a flat cluster, so its members are all labeled the same (`1`). Similarly, the left hierarchical cluster `(D)` (cluster `3`) has a distance of `0` (a singleton cluster), so it is assigned to a flat cluster by itself with the `2` label.
+When considering the second threshold of `3`, we find that the cluster corresponding to the root of the tree (cluster `6`) has a distance (`5`) that is larger than the threshold (`3`), so we check its comprising Left and Right Clusters: cluster `3` and cluster `5`. The right hierarchical cluster `(C,(A,B))` (cluster `5`) meets the threshold requirement to form a flat cluster, so its members are all labeled the same (`1`). Similarly, the left hierarchical cluster `(D)` (cluster `3`) has a distance of `0` (a singleton cluster), so it is assigned to a flat cluster by itself with the `2` label.
 
 ![](images/single-linkage-threshold-3.png)
 
