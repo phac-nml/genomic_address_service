@@ -343,9 +343,23 @@ We repeat this process for each threshold, which will use a different distance e
 
 For example, if our thresholds are `5,3,0`, we start with the first threshold (`5`) and traverse the linkage matrix (represented as an expanded linkage table above) from the root until we find a node where the distance is no more than our threshold. The root is the last element in the linkage (Linkage Index `2` / Cluster `6`).
 
-- Cluster `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`5`), so we cannot create one flat cluster with everything. We then look at the two hierarchical clusters that comprise this cluster: left cluster `3` and right cluster `5`.
-- Cluster `3` contains `D` and has a distance of `0` (a singleton cluster), which is less than the threshold (`5`), so `D` will become its own flat cluster and we stop traversing this path.
-- Cluster `5` contains `A,B,C` and has a distance of `4`, which is less than the threshold (`5`), so `A,B,C` will become a flat cluster and we stop traversing this path. We don't need to explicitly check left cluster `2` or right cluster `4`, because they are hierarchically clustered within cluster `5`, so if cluster `5` meets the threshold criteria, then left cluster `2` and right cluster `4` will as well (as well as any of their comprising clusters).
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
+| ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
+| 2             | 6         | 3            | 5             | 8        | 4                  | (D,(C,(A,B)))  |
+
+Cluster `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`5`), so we cannot create one flat cluster with everything. We then look at the two hierarchical clusters that comprise this cluster: left cluster `3` and right cluster `5`.
+
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
+| ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
+|               | 3         | 3            | 3             | 0        | 1                  | (D)            |
+
+Cluster `3` contains `D` and has a distance of `0` (a singleton cluster), which is less than the threshold (`5`), so `D` will become its own flat cluster and we stop traversing this path.
+
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
+| ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
+| 1             | 5         | 2            | 4             | 4        | 3                  | (C,(A,B))      |
+
+Cluster `5` contains `A,B,C` and has a distance of `4`, which is less than the threshold (`5`), so `A,B,C` will become a flat cluster and we stop traversing this path. We don't need to explicitly check left cluster `2` or right cluster `4`, because they are hierarchically clustered within cluster `5`, so if cluster `5` meets the threshold criteria, then left cluster `2` and right cluster `4` will as well (as well as any of their comprising clusters).
 
 ![](images/complete-linkage-threshold-5.png)
 
@@ -361,11 +375,35 @@ D       2         2
 
 We repeat this process for the next threshold (`3`):
 
-- Cluster `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`3`), so we check the comprising clusters: left cluster `3` and right cluster `5`.
-- Cluster `3` is `D` and has a distance of `0`, so it becomes a flat cluster.
-- Cluster `5` contains `A,B,C` and has a distance of `4`, which is larger than our threshold (`3`), so we check the comprising clusters: left cluster `2` and right cluster `4`.
-- Cluster `2` contains `C` and has a distance of `0`, so it becomes a flat cluster.
-- Cluster `4` contains `A,B` and has a distance of `2`, which is less than the threshold (`3`), so it becomes a flat cluster.
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
+| ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
+| 2             | 6         | 3            | 5             | 8        | 4                  | (D,(C,(A,B)))  |
+
+Cluster `6` contains `A,B,C,D` and has a distance of `8`, which is greater than our threshold (`3`), so we check the comprising clusters: left cluster `3` and right cluster `5`.
+
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
+| ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
+|               | 3         | 3            | 3             | 0        | 1                  | (D)            |
+
+Cluster `3` is `D` and has a distance of `0`, so it becomes a flat cluster.
+
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
+| ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
+| 1             | 5         | 2            | 4             | 4        | 3                  | (C,(A,B))      |
+
+Cluster `5` contains `A,B,C` and has a distance of `4`, which is larger than our threshold (`3`), so we check the comprising clusters: left cluster `2` and right cluster `4`.
+
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
+| ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
+|               | 2         | 2            | 2             | 0        | 1                  | (C)            |
+
+Cluster `2` contains `C` and has a distance of `0`, so it becomes a flat cluster.
+
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
+| ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
+| 0             | 4         | 0            | 1             | 1        | 2                  | (A,B)          |
+
+Cluster `4` contains `A,B` and has a distance of `2`, which is less than the threshold (`3`), so it becomes a flat cluster.
 
 ![](images/complete-linkage-threshold-3.png)
 
@@ -519,11 +557,21 @@ The above single-linkage may be represented as a dendrogram as follows:
 
 ![](images/single-linkage-full.png)
 
-When considering the first threshold of `5`, we find that all samples are contained within a hierarchical cluster with a distance no greater than `5` (cluster `6` in linkage table), so for this threshold, all samples will be assigned the same flat cluster with the same flat cluster label (`1`):
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
+| ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
+| 2             | 6         | 3            | 5             | 5        | 4                  | (D,(C,(A,B)))  |
+
+When considering the first threshold of `5`, we find that all samples are contained within a hierarchical cluster with a distance no greater than `5` (the root of the tree, cluster `6` in linkage table), so for this threshold, all samples will be assigned the same flat cluster with the same flat cluster label (`1`):
 
 ![](images/single-linkage-threshold-5.png)
 
-When considering the second threshold of `3`, we find that the `(C,(A,B))` hierarchical cluster meets the threshold requirement to form a flat cluster, so they are all labeled the same (`1`). Likewise, the `(D)` hierarchical cluster has a distance of `0`, so it is assigned to a flat cluster by itself with the `2` label.
+| Linkage Index | Cluster   | Left Cluster | Right Cluster | Distance | Number of Elements | Representation |
+| ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
+|               | 3         | 3            | 3             | 0        | 1                  | (D)            |
+| 1             | 5         | 2            | 4             | 3        | 3                  | (C,(A,B))      |
+| 2             | 6         | 3            | 5             | 5        | 4                  | (D,(C,(A,B)))  |
+
+When considering the second threshold of `3`, we find that the cluster corresponding to the root of the tree (cluster `6`) has a distance (`5`) that is larger than the threshold (`3`), so we check its comprising left and right clusters: cluster `3` and cluster `5`. The right hierarchical cluster `(C,(A,B))` (cluster `5`) meets the threshold requirement to form a flat cluster, so its members are all labeled the same (`1`). Similarly, the left hierarchical cluster `(D)` (cluster `3`) has a distance of `0` (a singleton cluster), so it is assigned to a flat cluster by itself with the `2` label.
 
 ![](images/single-linkage-threshold-3.png)
 
