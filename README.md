@@ -29,6 +29,7 @@
   * [Output/Results](#output-results)
 - [Troubleshooting and FAQs](#troubleshooting-and-faqs)
 - [Benchmarking](#benchmarking)
+- [Further Reading](#further-reading)
 - [Legal and Compliance Information](#legal-and-compliance-information)
 - [Updates and Release Notes](#updates-and-release-notes)
 
@@ -200,6 +201,10 @@ ModuleNotFoundError: No module named 'scipy'
 # Benchmarking
 
 Coming soon.
+
+# Further Reading
+
+A detailed walkthrough of the algorithms used in the GAS workflow and how to interpret the results is available [here](docs/overview.md).
 
 # Legal and Compliance Information
 
