@@ -561,7 +561,7 @@ The above single-linkage may be represented as a dendrogram as follows:
 | ------------- | --------- | ------------ | ------------- | -------- | ------------------ | -------------- |
 | 2             | 6         | 3            | 5             | 5        | 4                  | (D,(C,(A,B)))  |
 
-When considering the first threshold of `5`, we find that all samples are contained within a hierarchical cluster with a distance no greater than `5` (the root of the tree, cluster `6` in linkage table), so for this threshold, all samples will be assigned the same flat cluster with the same flat cluster label (`1`):
+When considering the first threshold of `5`, we find that all samples are contained within a hierarchical cluster with a distance no greater than `5` (the root of the diagram, cluster `6` in linkage table), so for this threshold, all samples will be assigned the same flat cluster with the same flat cluster label (`1`):
 
 ![](images/single-linkage-threshold-5.png)
 
@@ -571,7 +571,7 @@ When considering the first threshold of `5`, we find that all samples are contai
 | 1             | 5         | 2            | 4             | 3        | 3                  | (C,(A,B))      |
 | 2             | 6         | 3            | 5             | 5        | 4                  | (D,(C,(A,B)))  |
 
-When considering the second threshold of `3`, we find that the cluster corresponding to the root of the tree (cluster `6`) has a distance (`5`) that is larger than the threshold (`3`), so we check its comprising Left and Right Clusters: cluster `3` and cluster `5`. The right hierarchical cluster `(C,(A,B))` (cluster `5`) meets the threshold requirement to form a flat cluster, so its members are all labeled the same (`1`). Similarly, the left hierarchical cluster `(D)` (cluster `3`) has a distance of `0` (a singleton cluster), so it is assigned to a flat cluster by itself with the `2` label.
+When considering the second threshold of `3`, we find that the cluster corresponding to the root of the diagram (cluster `6`) has a distance (`5`) that is larger than the threshold (`3`), so we check its comprising Left and Right Clusters: cluster `3` and cluster `5`. The right hierarchical cluster `(C,(A,B))` (cluster `5`) meets the threshold requirement to form a flat cluster, so its members are all labeled the same (`1`). Similarly, the left hierarchical cluster `(D)` (cluster `3`) has a distance of `0` (a singleton cluster), so it is assigned to a flat cluster by itself with the `2` label.
 
 ![](images/single-linkage-threshold-3.png)
 
@@ -876,7 +876,7 @@ F       1.5.6
 
 ### Dendrograms and Cophenetic Distances
 
-Dendrograms are trees that represent hierarchical relationships and may be generated directly from SciPy's linkage objects, which represent a hierarchical clustering of the original samples.
+Dendrograms are tree-like driagrams that represent hierarchical relationships and may be generated directly from SciPy's linkage objects, which represent a hierarchical clustering of the original samples.
 
 
 ![](images/complete-linkage-full.png)
