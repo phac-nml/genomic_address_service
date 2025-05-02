@@ -5,10 +5,10 @@
 [![License: Apache-2.0](https://img.shields.io/github/license/phac-nml/genomic_address_service)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Python package](https://github.com/phac-nml/genomic_address_service/actions/workflows/ci.yml/badge.svg)](https://github.com/phac-nml/genomic_address_service/actions/workflows/ci.yml)
 
-<img src="https://github.com/phac-nml/genomic_address_service/blob/main/logo.png?raw=true" width = "150" height="189">
+[language-badge]: https://img.shields.io/badge/python-3.10_|_3.11_|_3.12_-blue
+[language-link]:  http://www.python.org/
 
-[language-badge]:       https://img.shields.io/badge/python-3.10_|_3.11_|_3.12_-blue
-[language-link]:        http://www.python.org/
+<img src="https://github.com/phac-nml/genomic_address_service/blob/main/logo.png?raw=true" width = "150" height="189">
 
 # Genomic Address Service
 
