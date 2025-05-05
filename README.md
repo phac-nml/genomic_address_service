@@ -1,7 +1,12 @@
+[![Python Versions][language-badge]][language-link]
 [![PyPI](https://img.shields.io/badge/Install%20with-PyPI-blue)](https://pypi.org/project/genomic_address_service/#description)
 [![Bioconda](https://img.shields.io/badge/Install%20with-bioconda-green)](https://anaconda.org/bioconda/genomic_address_service)
 [![Conda](https://img.shields.io/conda/dn/bioconda/profile_dists?color=green)](https://anaconda.org/bioconda/genomic_address_service)
 [![License: Apache-2.0](https://img.shields.io/github/license/phac-nml/genomic_address_service)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Python package](https://github.com/phac-nml/genomic_address_service/actions/workflows/ci.yml/badge.svg)](https://github.com/phac-nml/genomic_address_service/actions/workflows/ci.yml)
+
+[language-badge]: https://img.shields.io/badge/python-3.10_|_3.11_|_3.12_-blue
+[language-link]:  http://www.python.org/
 
 <img src="https://github.com/phac-nml/genomic_address_service/blob/main/logo.png?raw=true" width = "150" height="189">
 
@@ -21,10 +26,10 @@
   * [Configuration and Settings](#configuration-and-settings)
   * [Data Input/formats](#data-input-formats)
     + [Square distance matrix](#square-distance-matrix)
-    + [Apache parquet](#apache-parquet)
   * [Output/Results](#output-results)
 - [Troubleshooting and FAQs](#troubleshooting-and-faqs)
 - [Benchmarking](#benchmarking)
+- [Further Reading](#further-reading)
 - [Legal and Compliance Information](#legal-and-compliance-information)
 - [Updates and Release Notes](#updates-and-release-notes)
 
@@ -37,7 +42,7 @@ Surveillance and outbreak analysis of pathogens has been operationalized by mult
 
 A number of different software/pipelines have been published to address the issues mentioned above. Firstly, Enterobase implements [HeirCC](https://github.com/zheminzhou/pHierCC) as an algorithm approach to assign new cgMLST profiles into existing multi-level cluster nomenclature from a minimum spanning tree, using single linkage in real time, along with some tools for evaluating the clusters when run in de novo mode. [SnapperDB](https://github.com/ukhsa-collaboration/snapperdb) used by the UKHSA utilizes single linkage clustering based on SNPs to produce a multi-level cluster nomenclature for outbreak and surveillance activities. [ReportTree](https://github.com/insapathogenomics/ReporTreer) will perform de novo clustering based on [SciPy](https://scipy.org/) linkage methods from a sequence alignment, VCF, allele profile, or distance matrix and so provides significant flexibility in inputs compared to the other two methods. Like Enterobase, ReportTree also provides tools for evaluating regions of cluster stability and can maintain cluster nomenclature between runs with the caveat that ReportTree can split and merge previous cluster assignments, a significant issue for Public Health where it is desirable to maintain existing cluster designations. HeirCC can be run as a standalone piece of software and applied to new cgMLST schemes and organisms readily as well as incorporated into other bioinformatic pipelines. Conversely, SnapperDB is a relatively complex pipeline where establishing databases for new organisms is rather complex resulting in an inability to incorporate this tool into other workflows.  While HeirCC provides customization and flexibility in terms of thresholds and schemes, it is limited to single-linkage clustering which is known to have issues with stability and be prone to producing "scraggly" clusters due to chaining. ReportTree provides customization and reporting functionality which can be of use to public health labs, however the potential for changing cluster assignments poses issues for distributed Public Health surveillance and outbreak activities due to the potential for becoming out of synch with each other. 
 
-Within our public health partners, there is a need for a clustering service which can perform de novo clustering based on average, complete, and single linkage that can then be partitioned into clusters based on multiple thresholds. Additionally, there is a need to assign new samples into an existing clustering to provide stable nomenclature for communication between different partners and stakeholders. To address needs of users within our team we have designed an integrated solution for calculating distance matrices and querying genetically similar samples, within a defined threshold, to support outbreak and surveillance activities. We provide the flexibility to have standard text based outputs and have included [parquet](https://parquet.apache.org/) format for highthrough put needs. It is implemented in pure python and currently is only available in a single threaded version but later refinements may include the support for multiprocessing. To facilitate integration of the tool into larger workflows it will also be implemented as a nextflow workflow.
+Within our public health partners, there is a need for a clustering service which can perform de novo clustering based on average, complete, and single linkage that can then be partitioned into clusters based on multiple thresholds. Additionally, there is a need to assign new samples into an existing clustering to provide stable nomenclature for communication between different partners and stakeholders. To address needs of users within our team we have designed an integrated solution for calculating distance matrices and querying genetically similar samples, within a defined threshold, to support outbreak and surveillance activities. It is implemented in pure python and currently is only available in a single threaded version but later refinements may include the support for multiprocessing. To facilitate integration of the tool into larger workflows it will also be implemented as a nextflow workflow.
 
 ## mcluster
 This module performs de novo clustering on a square distance matrix and a set of user defined thresholds to produce a set of flat clustering
@@ -141,17 +146,15 @@ There are a number of arguments that are specific for each command. They can be 
 
 #### mcluster specific args
 
-- `-i`, `--matrix` - TSV formatted distance matrix or parquet
+- `-i`, `--matrix` - TSV formatted distance matrix
 - `-d`, `--delimiter` - delimiter desired for nomenclature code [default="."]
 
 #### call specific args
 
-- `-d`, `--dists` - a 3 column file [query_id, ref_id, dist] in TSV or parquet format
-- `-r`, `--rclusters` - existing cluster file in TSV or parquet format
+- `-d`, `--dists` - a 3 column file [query_id, ref_id, dist] in TSV format
+- `-r`, `--rclusters` - existing cluster file in TSV format
 - `-j`, `--thresh_map` - Json file of [colname:threshold]
-- `-u`, `--outfmt` - output format for assignments [text (default), parquet]
 - `-l`, `--delimiter` - delimiter desired for nomenclature code [default="."]
-
 
 ## Configuration and Settings
 
@@ -163,6 +166,8 @@ For instance, in PulseNet Canada they have determined the use of '10,5,0' to be 
 
 ### Square distance matrix
 
+GAS mcluster accepts square distance matrices of the following format:
+
 | id  | S1  | S2  | S3  | S4  | S5  | S6  |
 | --- | --- | --- | --- | --- | --- | --- |
 | S1  | 0   | 0   | 3   | 3   | 9   | 9   |
@@ -173,10 +178,6 @@ For instance, in PulseNet Canada they have determined the use of '10,5,0' to be 
 | S6  | 9   | 9   | 9   | 9   | 0   | 0   |
 
 - Distance matrix units can be of float, or integer type with the constrain that the diagonal must be 0 and the first line must be a header with all of the samples
-
-### Apache parquet
-
-- More information on the open-source column-oriented data format can be found [here](https://parquet.apache.org/).
 
 ## Output/Results
 
@@ -200,6 +201,10 @@ ModuleNotFoundError: No module named 'scipy'
 # Benchmarking
 
 Coming soon.
+
+# Further Reading
+
+A detailed walkthrough of the algorithms used in the GAS workflow and how to interpret the results is available [here](docs/overview.md).
 
 # Legal and Compliance Information
 

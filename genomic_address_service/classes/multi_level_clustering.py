@@ -1,14 +1,7 @@
 import numpy as np
 import scipy
 
-
 class multi_level_clustering:
-    cluster_memberships = {}
-    thresholds = []
-    labels = []
-    linkage = None
-    newick = None
-
 
     def __init__(self,dist_mat_file,thresholds,method):
         self.labels, matrix = self.read_distance_matrix(dist_mat_file)
@@ -19,6 +12,8 @@ class multi_level_clustering:
         self.linkage_to_newick()
 
     def init_membership(self):
+        self.cluster_memberships = {}
+
         for label in self.labels:
             self.cluster_memberships[label] = []
 
@@ -64,7 +59,3 @@ class multi_level_clustering:
 
     def get_memberships(self):
         return self.cluster_memberships
-
-
-
-
