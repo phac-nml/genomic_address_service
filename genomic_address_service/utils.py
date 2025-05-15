@@ -9,7 +9,6 @@ import fastparquet as fp
 import tables
 from numba import jit
 from numba.typed import List
-import pyarrow.parquet as pq
 import re
 import json
 

@@ -1,7 +1,6 @@
 import os
 from numba import jit
 from numba.typed import List
-import pyarrow.parquet as pq
 
 class neighbours:
     file_path = None
