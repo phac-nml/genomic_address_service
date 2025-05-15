@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Removed
-- pyarrow support and Python dependency. [PR #48](https://github.com/phac-nml/genomic_address_service/pull/48)
+- pyarrow support and dependency. [PR #48](https://github.com/phac-nml/genomic_address_service/pull/48)
 
 ## [0.2.0] - 2025-05-05
 
