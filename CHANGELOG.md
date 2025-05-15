@@ -3,6 +3,11 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+- Updated many versions in `setup.py`. [PR #15](https://github.com/phac-nml/genomic_address_service/pull/45)
+
 ## [0.2.0] - 2025-05-05
 
 ### Added
