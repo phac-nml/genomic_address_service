@@ -5,6 +5,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+- Updated many versions in `setup.py`. [PR #45](https://github.com/phac-nml/genomic_address_service/pull/45)
+
 ### Removed
 - fastparquet support and Python dependency. [PR #47](https://github.com/phac-nml/genomic_address_service/pull/47)
 - pyarrow support and dependency. [PR #48](https://github.com/phac-nml/genomic_address_service/pull/48)

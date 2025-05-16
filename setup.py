@@ -49,14 +49,14 @@ setup(
     },
 
     install_requires=[
-        'numba==0.59.1',
-        'numpy==1.26.4',
-        'tables==3.9.1',
+        'numba>=0.59.1,<=0.61.2',
+        'numpy>=1.26.4,<2.0.0',
+        'tables>=3.9.1',
         'six>=1.16.0',
-        'pandas==2.0.2 ',
-        'pytest==8.3.3',
-        'scipy==1.14.1',
-        'psutil==6.1.0'
+        'pandas>=2.0.2,<2.2.0',
+        'pytest>=8.3.3',
+        'scipy>=1.14.1',
+        'psutil>=6.1.0'
     ],
 
     entry_points={
