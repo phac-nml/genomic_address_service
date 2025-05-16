@@ -5,7 +5,6 @@ import time
 import psutil
 import pandas as pd
 import numpy as np
-import fastparquet as fp
 import tables
 from numba import jit
 from numba.typed import List
