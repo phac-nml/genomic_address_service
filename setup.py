@@ -49,7 +49,6 @@ setup(
     },
 
     install_requires=[
-        'pyarrow>=14.0.0',
         'numba==0.59.1',
         'numpy==1.26.4',
         'tables==3.9.1',
