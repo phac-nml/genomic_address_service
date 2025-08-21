@@ -33,6 +33,7 @@ class multi_level_clustering:
     """
 
 
+class multi_level_clustering:
     def __init__(self,dist_mat_file,thresholds,method):
         """
         Initialize the clustering object.
@@ -68,6 +69,8 @@ class multi_level_clustering:
         For each label in `self.labels`, create an empty list to store
         its cluster IDs across thresholds.
         """
+        self.cluster_memberships = {}
+
         for label in self.labels:
             self.cluster_memberships[label] = []
 
@@ -119,7 +122,7 @@ class multi_level_clustering:
                         raise ValueError(
                             f"Non-numeric value on line {i + 2} (after header): {parts[start:]}"
                         ) from e
-            
+        self.validate_distance_matrix(self,len(labels), len(values))   
         return (labels, np.array(values))
 
     def validate_distance_matrix(self,num_labels, num_values):
@@ -134,6 +137,7 @@ class multi_level_clustering:
     def assign_clusters(self):
         """
         Assign cluster memberships for each threshold distance.
+
 
         For each threshold in ``self.thresholds``, this method applies 
         hierarchical clustering (using SciPy's ``fcluster``) to the stored 
@@ -215,3 +219,4 @@ class multi_level_clustering:
             across thresholds.
         """
         return self.cluster_memberships 
+
