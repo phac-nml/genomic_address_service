@@ -47,9 +47,15 @@ class multi_level_clustering:
             Linkage method to use (e.g., 'single', 'complete', 'average', 'ward').
         """
 
-        self.cluster_memberships = {}
-        self.labels, matrix = self.read_distance_matrix(dist_mat_file)
+        #init class attributes
         self.thresholds = thresholds
+        self.labels = []
+        self.linkage = None
+        self.newick = None
+        self.cluster_memberships = {}
+
+        #perform clustering
+        self.labels, matrix = self.read_distance_matrix(dist_mat_file)  
         self.linkage = scipy.cluster.hierarchy.linkage(matrix, method=method, metric='precomputed')
         self.init_membership()
         self.assign_clusters()
