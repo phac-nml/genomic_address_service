@@ -120,10 +120,10 @@ class multi_level_clustering:
                         raise ValueError(
                             f"Non-numeric value on line {i + 2} (after header): {parts[start:]}"
                         ) from e
-        self.validate_distance_matrix(self,len(labels), len(values))   
+        self.validate_distance_matrix(len(labels), len(values))   
         return (labels, np.array(values))
 
-    def validate_distance_matrix(self,num_labels, num_values):
+    def validate_distance_matrix(self, num_labels, num_values):
         n = num_labels
         expected = n * (n - 1) // 2
         if num_values != expected:
