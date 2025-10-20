@@ -56,7 +56,7 @@ setup(
         'pandas>=2.0.2,<2.2.0',
         'pytest>=8.3.3',
         'scipy>=1.14.1',
-        'psutil>=6.1.0'
+        'psutil>=6.1.0',
         'fastparquet>=2023.4.0', #Will drop support of fastparquet in future versions
         'scikit-bio>=0.4.2'
     ],
