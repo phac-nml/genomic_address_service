@@ -58,6 +58,7 @@ def test_basic(tmp_path):
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "0"
         assert run_json["parameters"]["delimiter"] == "."
+        assert run_json["parameters"]["tree_distances"] == 'cophenetic'
 
         assert len(run_json["threshold_map"]) == 1
         assert run_json["threshold_map"]["level_1"] == 0.0
@@ -140,6 +141,7 @@ def test_wikipedia(tmp_path):
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "25,18,0"
         assert run_json["parameters"]["delimiter"] == "."
+        assert run_json["parameters"]["tree_distances"] == 'cophenetic'
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["level_1"] == 25.0
@@ -217,6 +219,7 @@ def test_threshold_same(tmp_path):
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "20,19,18"
         assert run_json["parameters"]["delimiter"] == "."
+        assert run_json["parameters"]["tree_distances"] == 'cophenetic'
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["level_1"] == 20.0
@@ -383,6 +386,7 @@ def test_delimiter_slash(tmp_path):
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "1,0"
         assert run_json["parameters"]["delimiter"] == "/"
+        assert run_json["parameters"]["tree_distances"] == 'cophenetic'
 
         assert len(run_json["threshold_map"]) == 2
         assert run_json["threshold_map"]["level_1"] == 1.0
@@ -453,6 +457,7 @@ def test_delimiter_0(tmp_path):
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "1,0"
         assert run_json["parameters"]["delimiter"] == "0"
+        assert run_json["parameters"]["tree_distances"] == 'cophenetic'
 
         assert len(run_json["threshold_map"]) == 2
         assert run_json["threshold_map"]["level_1"] == 1.0
@@ -523,6 +528,7 @@ def test_delimiter_1(tmp_path):
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "1,0"
         assert run_json["parameters"]["delimiter"] == "1"
+        assert run_json["parameters"]["tree_distances"] == 'cophenetic'
 
         assert len(run_json["threshold_map"]) == 2
         assert run_json["threshold_map"]["level_1"] == 1.0
@@ -593,6 +599,7 @@ def test_delimiter_quote(tmp_path):
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "1,0"
         assert run_json["parameters"]["delimiter"] == '"'
+        assert run_json["parameters"]["tree_distances"] == 'cophenetic'
 
         assert len(run_json["threshold_map"]) == 2
         assert run_json["threshold_map"]["level_1"] == 1.0
@@ -747,6 +754,7 @@ def test_many_thresholds(tmp_path):
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "26,24,22,20,18,16,14,12,10,8,6,4,2,0"
         assert run_json["parameters"]["delimiter"] == "."
+        assert run_json["parameters"]["tree_distances"] == 'cophenetic'
 
         assert len(run_json["threshold_map"]) == 14
         assert run_json["threshold_map"]["level_1"] == 26.0
@@ -880,6 +888,7 @@ def test_method_single(tmp_path):
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "2,1,0"
         assert run_json["parameters"]["delimiter"] == "."
+        assert run_json["parameters"]["tree_distances"] == 'cophenetic'
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["level_1"] == 2.0
@@ -968,6 +977,7 @@ def test_method_complete(tmp_path):
         assert run_json["parameters"]["method"] == "complete"
         assert run_json["parameters"]["thresholds"] == "10,8,5"
         assert run_json["parameters"]["delimiter"] == "."
+        assert run_json["parameters"]["tree_distances"] == 'cophenetic'
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["level_1"] == 10.0
@@ -1052,6 +1062,7 @@ def test_method_average(tmp_path):
         assert run_json["parameters"]["method"] == "complete"
         assert run_json["parameters"]["thresholds"] == "12,8,2"
         assert run_json["parameters"]["delimiter"] == "."
+        assert run_json["parameters"]["tree_distances"] == 'cophenetic'
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["level_1"] == 12.0
@@ -1143,6 +1154,7 @@ def test_double_digit(tmp_path):
         assert run_json["parameters"]["method"] == "single"
         assert run_json["parameters"]["thresholds"] == "5,3,0"
         assert run_json["parameters"]["delimiter"] == "."
+        assert run_json["parameters"]["tree_distances"] == 'cophenetic'
 
         assert len(run_json["threshold_map"]) == 3
         assert run_json["threshold_map"]["level_1"] == 5.0
