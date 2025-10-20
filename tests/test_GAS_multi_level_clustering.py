@@ -30,7 +30,7 @@ def test_initialization(sample_distance_matrix):
 def test_assign_clusters(sample_distance_matrix):
     thresholds = [0.15]
     mlc = multi_level_clustering(dist_mat_file=sample_distance_matrix, thresholds=thresholds, method="single")
-    mlc.assign_clusters()
+    mlc._assign_clusters()
     # This assertion may need to be adjusted based on expected cluster assignments
     # I gussed 2?
     assert all(len(clusters) == 2 for clusters in mlc.cluster_memberships.values())

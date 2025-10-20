@@ -59,11 +59,11 @@ class multi_level_clustering:
         #perform clustering
         self.labels, matrix = self.read_distance_matrix(dist_mat_file)  
         self.linkage = scipy.cluster.hierarchy.linkage(matrix, method=method, metric='precomputed')
-        self.init_membership()
-        self.assign_clusters()
-        self.linkage_to_newick()
+        self._init_membership()
+        self._assign_clusters()
+        self._linkage_to_newick()
 
-    def init_membership(self):
+    def _init_membership(self):
         """
         Initialize the cluster membership dictionary.
 
@@ -135,7 +135,7 @@ class multi_level_clustering:
                 "Check file formatting and delimiter."
             )
 
-    def assign_clusters(self):
+    def _assign_clusters(self):
         """
         Assign cluster memberships for each threshold distance.
 
@@ -172,7 +172,7 @@ class multi_level_clustering:
             for label, cluster_id in zip(self.labels, clusters):
                 self.cluster_memberships[label].append(str(cluster_id))
 
-    def linkage_to_newick(self, distance='cophenetic'):
+    def _linkage_to_newick(self, distance='cophenetic'):
         """
         Convert a SciPy linkage matrix into a Newick-formatted tree string.
 
@@ -206,7 +206,7 @@ class multi_level_clustering:
         if distance == 'patristic':
             lmat = self.linkage
         elif distance == 'cophenetic':
-            lmat = copy.deepcopy(self.linkage)
+            lmat = self.linkage
             for i in range(lmat.shape[0]):
                 lmat[i, 2] *= 2
         else:
