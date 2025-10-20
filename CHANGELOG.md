@@ -3,6 +3,14 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-10-20
+
+### Added
+- Added parameter `--tree-distances` to `gas mcluster`, which enables selection of either *patristic* distances (patristic distance between pairs of leaves correspond to distance matrix), or *cophenetic* distances (the cophenetic distance between pairs of leaves correspond to distance matrix). For an ultrametric tree (which is genreated by GAS), selecting *cophenetic* has the effect of doubling the patristic distance between leaves. [PR #52](https://github.com/phac-nml/genomic_address_service/pull/52)
+
+### Changed
+- Changed method for exporting Newick-formatted trees to make use of [scikit-bio](https://scikit.bio). [PR #52](https://github.com/phac-nml/genomic_address_service/pull/52)
+
 ## [0.2.1] - 2025-05-21
 
 ### Fixed
@@ -81,3 +89,4 @@ Changed README format to standard DAAD README, added useage arguments.
 [0.1.5]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.1.5
 [0.2.0]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.2.0
 [0.2.1]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.2.1
+[0.3.0]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.3.0
