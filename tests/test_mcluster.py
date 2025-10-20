@@ -80,7 +80,7 @@ def test_basic(tmp_path):
     assert expected_tree.compare_cophenet(actual_tree) == 0
     assert expected_tree.compare_subsets(actual_tree) == 0
 
-    assert str(actual_tree) == "(((E:0.0,F:0.0):3.0,((C:0.0,D:0.0):2.0,(A:1.0,B:1.0):1.0):1.0):3.0,((G:0.0,H:0.0):3.0,(I:1.0,J:1.0):2.0):3.0);\n"
+    assert str(actual_tree).strip() == "(((E:0.0,F:0.0):3.0,((C:0.0,D:0.0):2.0,(A:1.0,B:1.0):1.0):1.0):3.0,((G:0.0,H:0.0):3.0,(I:1.0,J:1.0):2.0):3.0);"
 
 def test_wikipedia(tmp_path):
     # Ensures mcluster generates the same output as this
@@ -156,9 +156,16 @@ def test_wikipedia(tmp_path):
 
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
+    
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    expected_tree = skbio.io.registry.read(StringIO("((((b:17.000000,a:17.000000):4.0,c:21.000000):0.0,e:21.000000):7.0,d:28.000000);"),
+                                           format='newick', into=TreeNode)
+    assert sorted([t.name for t in expected_tree.tips()]) == sorted([t.name for t in actual_tree.tips()])
+    assert expected_tree.compare_rfd(actual_tree) == 0
+    assert expected_tree.compare_cophenet(actual_tree) == 0
+    assert expected_tree.compare_subsets(actual_tree) == 0
 
-    with open(tree_path) as tree_file:
-        assert tree_file.read().strip() == "((((b:17.000000,a:17.000000):4.0,c:21.000000):0.0,e:21.000000):7.0,d:28.000000);"
+    assert str(actual_tree).strip() == "(d:28.0,(e:21.0,(c:21.0,(a:17.0,b:17.0):4.0):0.0):7.0);"
 
 def test_threshold_same(tmp_path):
     # Tests behaviour that similar thresholds create similar clusters.
@@ -226,8 +233,15 @@ def test_threshold_same(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-    with open(tree_path) as tree_file:
-        assert tree_file.read().strip() == "((((b:17.000000,a:17.000000):4.0,c:21.000000):0.0,e:21.000000):7.0,d:28.000000);"
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    expected_tree = skbio.io.registry.read(StringIO("((((b:17.000000,a:17.000000):4.0,c:21.000000):0.0,e:21.000000):7.0,d:28.000000);"),
+                                           format='newick', into=TreeNode)
+    assert sorted([t.name for t in expected_tree.tips()]) == sorted([t.name for t in actual_tree.tips()])
+    assert expected_tree.compare_rfd(actual_tree) == 0
+    assert expected_tree.compare_cophenet(actual_tree) == 0
+    assert expected_tree.compare_subsets(actual_tree) == 0
+
+    assert str(actual_tree).strip() == "(d:28.0,(e:21.0,(c:21.0,(a:17.0,b:17.0):4.0):0.0):7.0);"
 
 def test_thresholds_0_10_0_10(tmp_path):
     # "thresholds": "0,10,0,10"
@@ -378,8 +392,15 @@ def test_delimiter_slash(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-    with open(tree_path) as tree_file:
-        assert tree_file.read().strip() == "(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    expected_tree = skbio.io.registry.read(StringIO("(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"),
+                                           format='newick', into=TreeNode)
+    assert sorted([t.name for t in expected_tree.tips()]) == sorted([t.name for t in actual_tree.tips()])
+    assert expected_tree.compare_rfd(actual_tree) == 0
+    assert expected_tree.compare_cophenet(actual_tree) == 0
+    assert expected_tree.compare_subsets(actual_tree) == 0
+
+    assert str(actual_tree).strip() == "(((E:0.0,F:0.0):3.0,((C:0.0,D:0.0):2.0,(A:1.0,B:1.0):1.0):1.0):3.0,((G:0.0,H:0.0):3.0,(I:1.0,J:1.0):2.0):3.0);"
 
 def test_delimiter_0(tmp_path):
     # "delimiter": "0"
@@ -440,8 +461,15 @@ def test_delimiter_0(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-    with open(tree_path) as tree_file:
-        assert tree_file.read().strip() == "(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    expected_tree = skbio.io.registry.read(StringIO("(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"),
+                                           format='newick', into=TreeNode)
+    assert sorted([t.name for t in expected_tree.tips()]) == sorted([t.name for t in actual_tree.tips()])
+    assert expected_tree.compare_rfd(actual_tree) == 0
+    assert expected_tree.compare_cophenet(actual_tree) == 0
+    assert expected_tree.compare_subsets(actual_tree) == 0
+
+    assert str(actual_tree).strip() == "(((E:0.0,F:0.0):3.0,((C:0.0,D:0.0):2.0,(A:1.0,B:1.0):1.0):1.0):3.0,((G:0.0,H:0.0):3.0,(I:1.0,J:1.0):2.0):3.0);"
 
 def test_delimiter_1(tmp_path):
     # "delimiter": "1"
@@ -502,8 +530,15 @@ def test_delimiter_1(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-    with open(tree_path) as tree_file:
-        assert tree_file.read().strip() == "(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    expected_tree = skbio.io.registry.read(StringIO("(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"),
+                                           format='newick', into=TreeNode)
+    assert sorted([t.name for t in expected_tree.tips()]) == sorted([t.name for t in actual_tree.tips()])
+    assert expected_tree.compare_rfd(actual_tree) == 0
+    assert expected_tree.compare_cophenet(actual_tree) == 0
+    assert expected_tree.compare_subsets(actual_tree) == 0
+
+    assert str(actual_tree).strip() == "(((E:0.0,F:0.0):3.0,((C:0.0,D:0.0):2.0,(A:1.0,B:1.0):1.0):1.0):3.0,((G:0.0,H:0.0):3.0,(I:1.0,J:1.0):2.0):3.0);"
 
 def test_delimiter_quote(tmp_path):
     # "delimiter": '"'
@@ -564,8 +599,15 @@ def test_delimiter_quote(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-    with open(tree_path) as tree_file:
-        assert tree_file.read().strip() == "(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    expected_tree = skbio.io.registry.read(StringIO("(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"),
+                                           format='newick', into=TreeNode)
+    assert sorted([t.name for t in expected_tree.tips()]) == sorted([t.name for t in actual_tree.tips()])
+    assert expected_tree.compare_rfd(actual_tree) == 0
+    assert expected_tree.compare_cophenet(actual_tree) == 0
+    assert expected_tree.compare_subsets(actual_tree) == 0
+
+    assert str(actual_tree).strip() == "(((E:0.0,F:0.0):3.0,((C:0.0,D:0.0):2.0,(A:1.0,B:1.0):1.0):1.0):3.0,((G:0.0,H:0.0):3.0,(I:1.0,J:1.0):2.0):3.0);"
 
 def test_matrix_missing(tmp_path):
     # Missing input file.
@@ -729,8 +771,15 @@ def test_many_thresholds(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-    with open(tree_path) as tree_file:
-        assert tree_file.read().strip() == "((((b:17.000000,a:17.000000):4.0,c:21.000000):0.0,e:21.000000):7.0,d:28.000000);"
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    expected_tree = skbio.io.registry.read(StringIO("((((b:17.000000,a:17.000000):4.0,c:21.000000):0.0,e:21.000000):7.0,d:28.000000);"),
+                                           format='newick', into=TreeNode)
+    assert sorted([t.name for t in expected_tree.tips()]) == sorted([t.name for t in actual_tree.tips()])
+    assert expected_tree.compare_rfd(actual_tree) == 0
+    assert expected_tree.compare_cophenet(actual_tree) == 0
+    assert expected_tree.compare_subsets(actual_tree) == 0
+
+    assert str(actual_tree).strip() == "(d:28.0,(e:21.0,(c:21.0,(a:17.0,b:17.0):4.0):0.0):7.0);"
 
 def test_method_single(tmp_path):
     # method = "single"
@@ -832,8 +881,15 @@ def test_method_single(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-    with open(tree_path) as tree_file:
-        assert tree_file.read().strip() == "(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    expected_tree = skbio.io.registry.read(StringIO("(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"),
+                                           format='newick', into=TreeNode)
+    assert sorted([t.name for t in expected_tree.tips()]) == sorted([t.name for t in actual_tree.tips()])
+    assert expected_tree.compare_rfd(actual_tree) == 0
+    assert expected_tree.compare_cophenet(actual_tree) == 0
+    assert expected_tree.compare_subsets(actual_tree) == 0
+
+    assert str(actual_tree).strip() == "(((E:0.0,F:0.0):3.0,((C:0.0,D:0.0):2.0,(A:1.0,B:1.0):1.0):1.0):3.0,((G:0.0,H:0.0):3.0,(I:1.0,J:1.0):2.0):3.0);"
 
 def test_method_complete(tmp_path):
     # method = "complete"
@@ -912,8 +968,15 @@ def test_method_complete(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-    with open(tree_path) as tree_file:
-        assert tree_file.read().strip() == "((((B:1.000000,A:1.000000):4.0,C:5.000000):3.0,D:8.000000):2.0,E:10.000000);"
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    expected_tree = skbio.io.registry.read(StringIO("((((B:1.000000,A:1.000000):4.0,C:5.000000):3.0,D:8.000000):2.0,E:10.000000);"),
+                                           format='newick', into=TreeNode)
+    assert sorted([t.name for t in expected_tree.tips()]) == sorted([t.name for t in actual_tree.tips()])
+    assert expected_tree.compare_rfd(actual_tree) == 0
+    assert expected_tree.compare_cophenet(actual_tree) == 0
+    assert expected_tree.compare_subsets(actual_tree) == 0
+
+    assert str(actual_tree).strip() == "(E:10.0,(D:8.0,(C:5.0,(A:1.0,B:1.0):4.0):3.0):2.0);"
 
 def test_method_average(tmp_path):
     # method = "average"
@@ -988,8 +1051,15 @@ def test_method_average(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-    with open(tree_path) as tree_file:
-        assert tree_file.read().strip() == "((B:4.000000,A:4.000000):8.0,C:12.000000);"
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    expected_tree = skbio.io.registry.read(StringIO("((B:4.000000,A:4.000000):8.0,C:12.000000);"),
+                                           format='newick', into=TreeNode)
+    assert sorted([t.name for t in expected_tree.tips()]) == sorted([t.name for t in actual_tree.tips()])
+    assert expected_tree.compare_rfd(actual_tree) == 0
+    assert expected_tree.compare_cophenet(actual_tree) == 0
+    assert expected_tree.compare_subsets(actual_tree) == 0
+
+    assert str(actual_tree).strip() == "(C:12.0,(A:4.0,B:4.0):8.0);"
 
 def test_invalid_header_pairwise_matrix(tmp_path):
     matrix_path = get_path("data/matrix/csv.text")
@@ -1070,5 +1140,12 @@ def test_double_digit(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-    with open(tree_path) as tree_file:
-        assert tree_file.read().strip() == "((((((((((((B:25.000000,A:25.000000):0.0,C:25.000000):0.0,D:25.000000):0.0,E:25.000000):0.0,F:25.000000):0.0,G:25.000000):0.0,H:25.000000):0.0,I:25.000000):0.0,J:25.000000):0.0,K:25.000000):0.0,L:25.000000):0.0,M:25.000000);"
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    expected_tree = skbio.io.registry.read(StringIO("((((((((((((B:25.000000,A:25.000000):0.0,C:25.000000):0.0,D:25.000000):0.0,E:25.000000):0.0,F:25.000000):0.0,G:25.000000):0.0,H:25.000000):0.0,I:25.000000):0.0,J:25.000000):0.0,K:25.000000):0.0,L:25.000000):0.0,M:25.000000);"),
+                                           format='newick', into=TreeNode)
+    assert sorted([t.name for t in expected_tree.tips()]) == sorted([t.name for t in actual_tree.tips()])
+    assert expected_tree.compare_rfd(actual_tree) == 0
+    assert expected_tree.compare_cophenet(actual_tree) == 0
+    assert expected_tree.compare_subsets(actual_tree) == 0
+
+    assert str(actual_tree).strip() == "(M:25.0,(L:25.0,(K:25.0,(J:25.0,(I:25.0,(H:25.0,(G:25.0,(F:25.0,(E:25.0,(D:25.0,(C:25.0,(A:25.0,B:25.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0);"
