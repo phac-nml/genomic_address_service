@@ -23,7 +23,7 @@ def parse_args():
     parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
     parser.add_argument('-f', '--force', required=False, help='Overwrite existing directory',
                         action='store_true')
-    parser.add_argument('--tree-distances', type=str, required=False, default='cophenetic', dest='tree_distances', choices=multi_level_clustering.VALID_TREE_DISTANCES,
+    parser.add_argument('--tree-distances', type=str, required=False, default='patristic', dest='tree_distances', choices=multi_level_clustering.VALID_TREE_DISTANCES,
                         help='Defines how distances in the tree (Newick file) correspond to distances in the original distance matrix used to construct the tree.')
 
     return parser.parse_args()

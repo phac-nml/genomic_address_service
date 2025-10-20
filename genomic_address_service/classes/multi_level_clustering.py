@@ -35,7 +35,7 @@ class multi_level_clustering:
     """
     VALID_TREE_DISTANCES = ['patristic', 'cophenetic']
 
-    def __init__(self, dist_mat_file, thresholds, method, tree_distances='cophenetic'):
+    def __init__(self, dist_mat_file, thresholds, method, tree_distances='patristic'):
         """
         Initialize the clustering object.
 
@@ -47,7 +47,7 @@ class multi_level_clustering:
             Distance thresholds at which to assign clusters.
         method : str
             Linkage method to use (e.g., 'single', 'complete', 'average', 'ward').
-        tree_distances : string, optional (default=cophenetic)
+        tree_distances : string, optional (default=patristic)
             Defines how distances in the tree (Newick file) correspond to distances in the original
             distance matrix used to construct the tree.
             If 'patristic', the patristic distance between leaves of the tree correspond to the distance matrix.
@@ -179,7 +179,7 @@ class multi_level_clustering:
             for label, cluster_id in zip(self.labels, clusters):
                 self.cluster_memberships[label].append(str(cluster_id))
 
-    def _linkage_to_newick(self, tree_distances='cophenetic'):
+    def _linkage_to_newick(self, tree_distances):
         """
         Convert a SciPy linkage matrix into a Newick-formatted tree string.
 
@@ -189,7 +189,7 @@ class multi_level_clustering:
 
         Parameters
         ----------
-        tree_distances : string, optional (default=cophenetic)
+        tree_distances : string, one of 'patristic' or 'cophenetic'
             Defines how distances in the tree (Newick file) correspond to distances in the original
             distance matrix used to construct the tree.
             If 'patristic', the patristic distance between leaves of the tree correspond to the distance matrix.
@@ -217,7 +217,7 @@ class multi_level_clustering:
             for i in range(lmat.shape[0]):
                 lmat[i, 2] *= 2
         else:
-            raise Exception(f'Invalid distance value [{tree_distances}]. Must be one of {self.VALID_TREE_DISTANCES}')
+            raise Exception(f'Invalid tree_distances value [{tree_distances}]. Must be one of {self.VALID_TREE_DISTANCES}')
         
         skb_tree = skbio.tree.TreeNode.from_linkage_matrix(lmat, id_list=self.labels)
         self.newick = str(skb_tree).strip().replace("'", "")
