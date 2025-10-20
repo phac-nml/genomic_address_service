@@ -2,8 +2,11 @@ import pytest
 import pathlib
 import csv
 import json
-
+import skbio
+from skbio.tree import TreeNode
 from os import path
+from io import StringIO
+
 from genomic_address_service.mcluster import mcluster
 
 def get_path(location):
@@ -69,8 +72,13 @@ def test_basic(tmp_path):
     tree_path = path.join(args["outdir"], "tree.nwk")
     assert path.isfile(tree_path)
 
-    with open(tree_path) as tree_file:
-        assert tree_file.read().strip() == "(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    expected_tree = skbio.io.registry.read(StringIO("(((J:1.000000,I:1.000000):2.0,(H:0.000000,G:0.000000):3.0):3.0,(((B:1.000000,A:1.000000):1.0,(D:0.000000,C:0.000000):2.0):1.0,(F:0.000000,E:0.000000):3.0):3.0);"),
+                                           format='newick', into=TreeNode)
+    assert sorted([t.name for t in expected_tree.tips()]) == sorted([t.name for t in actual_tree.tips()])
+    assert expected_tree.compare_rfd(actual_tree) == 0
+    assert expected_tree.compare_cophenet(actual_tree) == 0
+    assert expected_tree.compare_subsets(actual_tree) == 0
 
 def test_wikipedia(tmp_path):
     # Ensures mcluster generates the same output as this
