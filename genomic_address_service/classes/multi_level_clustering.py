@@ -32,8 +32,6 @@ class multi_level_clustering:
     - Newick export relies on scikit-bio's `TreeNode`.
     """
 
-
-class multi_level_clustering:
     def __init__(self,dist_mat_file,thresholds,method):
         """
         Initialize the clustering object.
