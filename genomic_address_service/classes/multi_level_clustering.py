@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 import scipy
 import skbio.tree
@@ -169,7 +171,7 @@ class multi_level_clustering:
             for label, cluster_id in zip(self.labels, clusters):
                 self.cluster_memberships[label].append(str(cluster_id))
 
-    def linkage_to_newick(self,cophenetic=True):
+    def linkage_to_newick(self, cophenetic=True):
         """
         Convert a SciPy linkage matrix into a Newick-formatted tree string.
 
@@ -198,6 +200,7 @@ class multi_level_clustering:
         """
         lmat = self.linkage
         if cophenetic:
+            lmat = copy.deepcopy(lmat)
             for i in range(lmat.shape[0]):
                 lmat[i, 2] *= 2
         
