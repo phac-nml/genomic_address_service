@@ -33,9 +33,9 @@ class multi_level_clustering:
     - The linkage matrix is built using SciPy's `scipy.cluster.hierarchy.linkage`.
     - Newick export relies on scikit-bio's `TreeNode`.
     """
-    VALID_DISTANCES = ['patristic', 'cophenetic']
+    VALID_TREE_DISTANCES = ['patristic', 'cophenetic']
 
-    def __init__(self,dist_mat_file,thresholds,method):
+    def __init__(self, dist_mat_file, thresholds, method, tree_distances='cophenetic'):
         """
         Initialize the clustering object.
 
@@ -47,6 +47,13 @@ class multi_level_clustering:
             Distance thresholds at which to assign clusters.
         method : str
             Linkage method to use (e.g., 'single', 'complete', 'average', 'ward').
+        tree_distances : string, optional (default=cophenetic)
+            Defines how distances in the tree (Newick file) correspond to distances in the original
+            distance matrix used to construct the tree.
+            If 'patristic', the patristic distance between leaves of the tree correspond to the distance matrix.
+            If 'cophenetic', the cophenetic distance between leaves (height in tree where leaves first
+            share a common ancestor) correspond to distances in the original distance matrix. For ultrametic trees
+            this corresponds to twice the patristic distance.
         """
 
         #init class attributes
@@ -61,7 +68,7 @@ class multi_level_clustering:
         self.linkage = scipy.cluster.hierarchy.linkage(matrix, method=method, metric='precomputed')
         self._init_membership()
         self._assign_clusters()
-        self._linkage_to_newick()
+        self._linkage_to_newick(tree_distances=tree_distances)
 
     def _init_membership(self):
         """
@@ -172,7 +179,7 @@ class multi_level_clustering:
             for label, cluster_id in zip(self.labels, clusters):
                 self.cluster_memberships[label].append(str(cluster_id))
 
-    def _linkage_to_newick(self, distance='cophenetic'):
+    def _linkage_to_newick(self, tree_distances='cophenetic'):
         """
         Convert a SciPy linkage matrix into a Newick-formatted tree string.
 
@@ -182,8 +189,8 @@ class multi_level_clustering:
 
         Parameters
         ----------
-        distance : string, optional (default=cophenetic)
-            Defines how distances in the Newick file correspond to distances in the original
+        tree_distances : string, optional (default=cophenetic)
+            Defines how distances in the tree (Newick file) correspond to distances in the original
             distance matrix used to construct the tree.
             If 'patristic', the patristic distance between leaves of the tree correspond to the distance matrix.
             If 'cophenetic', the cophenetic distance between leaves (height in tree where leaves first
@@ -203,14 +210,14 @@ class multi_level_clustering:
         - Single quotes in the Newick string are removed for consistency.
         """
         lmat = None
-        if distance == 'patristic':
+        if tree_distances == 'patristic':
             lmat = self.linkage
-        elif distance == 'cophenetic':
+        elif tree_distances == 'cophenetic':
             lmat = self.linkage
             for i in range(lmat.shape[0]):
                 lmat[i, 2] *= 2
         else:
-            raise Exception(f'Invalid distance value [{distance}]. Must be one of {self.VALID_DISTANCES}')
+            raise Exception(f'Invalid distance value [{tree_distances}]. Must be one of {self.VALID_TREE_DISTANCES}')
         
         skb_tree = skbio.tree.TreeNode.from_linkage_matrix(lmat, id_list=self.labels)
         self.newick = str(skb_tree).strip().replace("'", "")

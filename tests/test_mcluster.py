@@ -22,7 +22,8 @@ def test_basic(tmp_path):
             "method": "single",
             "thresholds": "0",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     mcluster(args)
 
@@ -95,7 +96,8 @@ def test_wikipedia(tmp_path):
             "method": "single",
             "thresholds": "25,18,0",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     # t=25
     # a,b,c,e
@@ -174,7 +176,8 @@ def test_threshold_same(tmp_path):
             "method": "single",
             "thresholds": "20,19,18",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     """
     The linkage will look like this:
@@ -251,7 +254,8 @@ def test_thresholds_0_10_0_10(tmp_path):
             "method": "single",
             "thresholds": "0,10,0,10",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     with pytest.raises(Exception) as exception:
         mcluster(args)
@@ -269,7 +273,8 @@ def test_thresholds_0_0(tmp_path):
             "method": "single",
             "thresholds": "0,0",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     with pytest.raises(Exception) as exception:
         mcluster(args)
@@ -287,7 +292,8 @@ def test_thresholds_1_2_3(tmp_path):
             "method": "single",
             "thresholds": "1,2,3",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     with pytest.raises(Exception) as exception:
         mcluster(args)
@@ -323,7 +329,8 @@ def test_no_thresholds(tmp_path):
             "method": "single",
             "thresholds": "",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     with pytest.raises(Exception) as exception:
         mcluster(args)
@@ -340,7 +347,8 @@ def test_delimiter_slash(tmp_path):
             "method": "single",
             "thresholds": "1,0",
             "delimiter": "/",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     mcluster(args)
 
@@ -409,7 +417,8 @@ def test_delimiter_0(tmp_path):
             "method": "single",
             "thresholds": "1,0",
             "delimiter": "0",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     mcluster(args)
 
@@ -478,7 +487,8 @@ def test_delimiter_1(tmp_path):
             "method": "single",
             "thresholds": "1,0",
             "delimiter": "1",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     mcluster(args)
 
@@ -547,7 +557,8 @@ def test_delimiter_quote(tmp_path):
             "method": "single",
             "thresholds": "1,0",
             "delimiter": '"',
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     mcluster(args)
 
@@ -616,7 +627,8 @@ def test_matrix_missing(tmp_path):
             "method": "single",
             "thresholds": "0",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     with pytest.raises(Exception) as exception:
         mcluster(args)
@@ -633,7 +645,8 @@ def test_matrix_empty(tmp_path):
             "method": "single",
             "thresholds": "0",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     with pytest.raises(Exception) as exception:
         mcluster(args)
@@ -650,7 +663,8 @@ def test_method_invalid_nope(tmp_path):
             "method": "nope",
             "thresholds": "0",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     with pytest.raises(Exception) as exception:
         mcluster(args)
@@ -667,7 +681,8 @@ def test_method_invalid_singl(tmp_path):
             "method": "singl",
             "thresholds": "0",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     with pytest.raises(Exception) as exception:
         mcluster(args)
@@ -684,7 +699,8 @@ def test_method_invalid_1(tmp_path):
             "method": "1",
             "thresholds": "0",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     with pytest.raises(Exception) as exception:
         mcluster(args)
@@ -705,7 +721,8 @@ def test_many_thresholds(tmp_path):
             "method": "single",
             "thresholds": "26,24,22,20,18,16,14,12,10,8,6,4,2,0",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     mcluster(args)
 
@@ -831,7 +848,8 @@ def test_method_single(tmp_path):
             "method": "single",
             "thresholds": "2,1,0",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     mcluster(args)
 
@@ -923,7 +941,8 @@ def test_method_complete(tmp_path):
             "method": "complete",
             "thresholds": "10,8,5",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     mcluster(args)
 
@@ -1008,7 +1027,8 @@ def test_method_average(tmp_path):
             "method": "complete",
             "thresholds": "12,8,2",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     mcluster(args)
 
@@ -1068,7 +1088,8 @@ def test_invalid_header_pairwise_matrix(tmp_path):
             "method": "1",
             "thresholds": "0",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     with pytest.raises(Exception) as exception:
         mcluster(args)
@@ -1086,7 +1107,8 @@ def test_double_digit(tmp_path):
             "method": "single",
             "thresholds": "5,3,0",
             "delimiter": ".",
-            "force": False}
+            "force": False,
+            "tree_distances": 'cophenetic'}
 
     mcluster(args)
 
