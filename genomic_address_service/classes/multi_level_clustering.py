@@ -33,6 +33,7 @@ class multi_level_clustering:
     - The linkage matrix is built using SciPy's `scipy.cluster.hierarchy.linkage`.
     - Newick export relies on scikit-bio's `TreeNode`.
     """
+    VALID_DISTANCES = ['patristic', 'cophenetic']
 
     def __init__(self,dist_mat_file,thresholds,method):
         """
@@ -171,7 +172,7 @@ class multi_level_clustering:
             for label, cluster_id in zip(self.labels, clusters):
                 self.cluster_memberships[label].append(str(cluster_id))
 
-    def linkage_to_newick(self, cophenetic=True):
+    def linkage_to_newick(self, distance='cophenetic'):
         """
         Convert a SciPy linkage matrix into a Newick-formatted tree string.
 
@@ -181,10 +182,13 @@ class multi_level_clustering:
 
         Parameters
         ----------
-        cophenetic : bool, optional (default=True)
-            If True, multiply the distance values (third column) of the linkage
-            matrix by 2 before tree construction. If False, use the original
-            distances as-is.
+        distance : string, optional (default=cophenetic)
+            Defines how distances in the Newick file correspond to distances in the original
+            distance matrix used to construct the tree.
+            If 'patristic', the patristic distance between leaves of the tree correspond to the distance matrix.
+            If 'cophenetic', the cophenetic distance between leaves (height in tree where leaves first
+            share a common ancestor) correspond to distances in the original distance matrix. For ultrametic trees
+            this corresponds to twice the patristic distance (hence we multiply distances values (third column) in the linkage matrix by 2).
 
         Attributes Updated
         ------------------
@@ -198,11 +202,15 @@ class multi_level_clustering:
         - The tip labels are taken from `self.labels`.
         - Single quotes in the Newick string are removed for consistency.
         """
-        lmat = self.linkage
-        if cophenetic:
-            lmat = copy.deepcopy(lmat)
+        lmat = None
+        if distance == 'patristic':
+            lmat = self.linkage
+        elif distance == 'cophenetic':
+            lmat = copy.deepcopy(self.linkage)
             for i in range(lmat.shape[0]):
                 lmat[i, 2] *= 2
+        else:
+            raise Exception(f'Invalid distance value [{distance}]. Must be one of {self.VALID_DISTANCES}')
         
         skb_tree = skbio.tree.TreeNode.from_linkage_matrix(lmat, id_list=self.labels)
         self.newick = str(skb_tree).strip().replace("'", "")
