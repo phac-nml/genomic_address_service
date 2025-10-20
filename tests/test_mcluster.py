@@ -80,6 +80,8 @@ def test_basic(tmp_path):
     assert expected_tree.compare_cophenet(actual_tree) == 0
     assert expected_tree.compare_subsets(actual_tree) == 0
 
+    assert str(actual_tree) == "(((E:0.0,F:0.0):3.0,((C:0.0,D:0.0):2.0,(A:1.0,B:1.0):1.0):1.0):3.0,((G:0.0,H:0.0):3.0,(I:1.0,J:1.0):2.0):3.0);\n"
+
 def test_wikipedia(tmp_path):
     # Ensures mcluster generates the same output as this
     # example on Wikipedia (2025-03-28):
