@@ -1145,7 +1145,13 @@ def test_double_digit(tmp_path):
                                            format='newick', into=TreeNode)
     assert sorted([t.name for t in expected_tree.tips()]) == sorted([t.name for t in actual_tree.tips()])
     assert expected_tree.compare_rfd(actual_tree) == 0
-    assert expected_tree.compare_cophenet(actual_tree) == 0
+
+    # In this specific example, the compare_cophenet() between the trees results in nan instead of 0
+    # so instead I compre the underlying data structure (distance matrix) between each tree
+    #assert expected_tree.compare_cophenet(actual_tree) == 0
+    assert sorted(expected_tree.cophenet().ids) == sorted(actual_tree.cophenet().ids)
+    assert (expected_tree.cophenet().data == actual_tree.cophenet().data).all()
+
     assert expected_tree.compare_subsets(actual_tree) == 0
 
     assert str(actual_tree).strip() == "(M:25.0,(L:25.0,(K:25.0,(J:25.0,(I:25.0,(H:25.0,(G:25.0,(F:25.0,(E:25.0,(D:25.0,(C:25.0,(A:25.0,B:25.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0);"
