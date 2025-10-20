@@ -1148,6 +1148,8 @@ def test_double_digit(tmp_path):
 
     # In this specific example, the compare_cophenet() between the trees results in nan instead of 0
     # so instead I compare the underlying data structure (distance matrix) between each tree
+    # Note, even though ids/tree tips are in a different order, all distances between pairs are the same
+    # so comparison of the two distance matrices can be done without re-ordering
     #assert expected_tree.compare_cophenet(actual_tree) == 0
     assert sorted(expected_tree.cophenet().ids) == sorted(actual_tree.cophenet().ids)
     assert (expected_tree.cophenet().data == actual_tree.cophenet().data).all()
