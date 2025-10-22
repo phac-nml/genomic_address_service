@@ -439,6 +439,76 @@ def test_wikipedia_patristic(tmp_path):
     actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
     assert str(actual_tree).strip() == "(d:14.0,(e:10.5,(c:10.5,(a:8.5,b:8.5):2.0):0.0):3.5);"
 
+def test_compare_tree_patristic_cophenetic_wikipedia(tmp_path):
+    args_patristic = {
+        "matrix": get_path("data/matrix/wikipedia-single.tsv"),
+        "outdir": path.join(tmp_path, "test_out"),
+        "method": "single",
+        "thresholds": "25,18,0",
+        "delimiter": ".",
+        "force": False,
+        "tree_distances": 'patristic'
+    }
+
+    args_cophenetic = {
+        "matrix": get_path("data/matrix/wikipedia-single.tsv"),
+        "outdir": path.join(tmp_path, "test_out2"),
+        "method": "single",
+        "thresholds": "25,18,0",
+        "delimiter": ".",
+        "force": False,
+        "tree_distances": 'cophenetic'
+    }
+
+    mcluster(args_patristic)
+    mcluster(args_cophenetic)
+
+    input_distance_matrix = pd.read_csv(get_path("data/matrix/wikipedia-single.tsv"), sep='\t', index_col='dists')
+
+    tree_path_patristic = path.join(args_patristic["outdir"], "tree.nwk")
+    actual_tree_patristic = skbio.io.registry.read(tree_path_patristic, format='newick', into=TreeNode)
+
+    tree_path_cophenetic = path.join(args_cophenetic["outdir"], "tree.nwk")
+    actual_tree_cophenetic = skbio.io.registry.read(tree_path_cophenetic, format='newick', into=TreeNode)
+
+    # The difference in Newick file between patristic and cophenetic is a factor of 2 on branch lengths
+    assert str(actual_tree_patristic).strip()  == "(d:14.0,(e:10.5,(c:10.5,(a:8.5,b:8.5):2.0):0.0):3.5);"
+    assert str(actual_tree_cophenetic).strip() == "(d:28.0,(e:21.0,(c:21.0,(a:17.0,b:17.0):4.0):0.0):7.0);"
+
+    # For context for understanding tests, here is a dendrogram
+    # Generated from newick tree string above and using https://github.com/JLSteenwyk/PhyKIT: "phykit print_tree tree.txt"
+    #   __________________________________________________________________________ d
+    # _|
+    #  |                  ________________________________________________________ e
+    #  |_________________|
+    #                    |________________________________________________________ c
+    #                    |
+    #                    |           _____________________________________________ a
+    #                    |__________|
+    #                               |_____________________________________________ b
+
+
+    # For the newick tree using "--tree-distances patristic", the patristic distance (sum of branch lengths)
+    # between two leaves 'a' and 'b' corresponds to the distance value from the input distance matrix between 'a' and 'b'
+    assert distance_patristic_from_tree( actual_tree_patristic,  'a', 'b') == 17.0
+    assert distance_from_matrix(         input_distance_matrix,  'a', 'b') == 17.0
+
+    # In this scenario, calculating the cophenetic distance between two leaves 'a' and 'b' (height of lowest common ancestor)
+    # Corresponds to a distance of 1/2 the value from the input matrix
+    # Hence why the value of the parameter "--tree-distances patristic" is called "patristic"
+    assert distance_cophenetic_from_tree(actual_tree_patristic,  'a', 'b') == 8.5
+    assert distance_from_matrix(         input_distance_matrix,  'a', 'b') == 17.0
+
+    # For the newick tree using "--tree-distances cophenetic", the patristic distance (sum of branch lengths)
+    # between two leaves 'a' and 'b' corresponds to twice the distance value from the input distance matrix between 'a' and 'b'
+    assert distance_patristic_from_tree( actual_tree_cophenetic, 'a', 'b') == 34.0
+    assert distance_from_matrix(         input_distance_matrix,  'a', 'b') == 17.0
+    # However, this means that the cophenetic distance between two leaves 'a' and 'b' (height of lowest common ancestor)
+    # corresponds to the distance value from the input distance matrix
+    # Hence why the value of the parameter "--tree-distances cophenetic" is called "cophenetic"
+    assert distance_cophenetic_from_tree(actual_tree_cophenetic, 'a', 'b') == 17.0
+    assert distance_from_matrix(         input_distance_matrix,  'a', 'b') == 17.0
+
 def test_threshold_same(tmp_path):
     # Tests behaviour that similar thresholds create similar clusters.
     args = {"matrix": get_path("data/matrix/wikipedia-single.tsv"),
