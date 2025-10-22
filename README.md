@@ -148,6 +148,7 @@ There are a number of arguments that are specific for each command. They can be 
 
 - `-i`, `--matrix` - TSV formatted distance matrix
 - `-d`, `--delimiter` - delimiter desired for nomenclature code [default="."]
+- `--tree-distances {patristic,cophenetic}` - Defines how distances in the tree (Newick file) correspond to distances in the original distance matrix used to construct the tree. (default: patristic)
 
 #### call specific args
 
