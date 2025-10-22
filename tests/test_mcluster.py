@@ -6,6 +6,7 @@ import skbio
 from skbio.tree import TreeNode
 from os import path
 from io import StringIO
+import pandas as pd
 
 from genomic_address_service.mcluster import mcluster
 
@@ -83,6 +84,77 @@ def test_basic(tmp_path):
     assert expected_tree.compare_subsets(actual_tree) == 0
 
     assert str(actual_tree).strip() == "(((E:0.0,F:0.0):3.0,((C:0.0,D:0.0):2.0,(A:1.0,B:1.0):1.0):1.0):3.0,((G:0.0,H:0.0):3.0,(I:1.0,J:1.0):2.0):3.0);"
+
+def test_basic_patristic(tmp_path):
+    # A basic example with one threshold (0) where every
+    # item should only cluster with itself or others with
+    # a distance of 0.
+    args = {"matrix": get_path("data/matrix/basic.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "single",
+            "thresholds": "0",
+            "delimiter": ".",
+            "force": False,
+            "tree_distances": 'patristic'}
+
+    mcluster(args)
+
+    assert path.isdir(args["outdir"])
+
+    clusters_path = path.join(args["outdir"], "clusters.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        # A, B, I, J unique
+        # C, D share
+        # E, F share
+        # G, H share
+        assert ["id", "address", "level_1"] in clusters
+        assert ["A", "3", "3"] in clusters
+        assert ["B", "4", "4"] in clusters
+        assert ["C", "2", "2"] in clusters
+        assert ["D", "2", "2"] in clusters
+        assert ["E", "1", "1"] in clusters
+        assert ["F", "1", "1"] in clusters
+        assert ["G", "5", "5"] in clusters
+        assert ["H", "5", "5"] in clusters
+        assert ["I", "6", "6"] in clusters
+        assert ["J", "7", "7"] in clusters
+
+    run_path = path.join(args["outdir"], "run.json")
+    assert path.isfile(run_path)
+    with open(run_path) as run_file:
+        run_json = json.load(run_file)
+
+        assert run_json["parameters"]["method"] == "single"
+        assert run_json["parameters"]["thresholds"] == "0"
+        assert run_json["parameters"]["delimiter"] == "."
+        assert run_json["parameters"]["tree_distances"] == 'patristic'
+
+        assert len(run_json["threshold_map"]) == 1
+        assert run_json["threshold_map"]["level_1"] == 0.0
+
+    thresholds_path = path.join(args["outdir"], "thresholds.json")
+    assert path.isfile(thresholds_path)
+    with open(thresholds_path) as thresholds_file:
+        thresholds_json = json.load(thresholds_file)
+
+        assert len(thresholds_json) == 1
+        assert thresholds_json["level_1"] == 0.0
+
+    tree_path = path.join(args["outdir"], "tree.nwk")
+    assert path.isfile(tree_path)
+
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    assert str(actual_tree).strip() == "(((E:0.0,F:0.0):1.5,((C:0.0,D:0.0):1.0,(A:0.5,B:0.5):0.5):0.5):1.5,((G:0.0,H:0.0):1.5,(I:0.5,J:0.5):1.0):1.5);"
+
+# def test_test(tmp_path):
+#     actual_tree_cophenet = actual_tree.cophenet()
+#     actual_tree_labels_order = list(actual_tree_cophenet.ids)
+#     print(actual_tree_cophenet)
+#     print(pd.read_csv(args["matrix"], sep='\t', index_col='dists').sort_values(actual_tree_labels_order, axis='columns').sort_values(actual_tree_labels_order, axis='rows'))
+#     print(args["matrix"])
 
 def test_wikipedia(tmp_path):
     # Ensures mcluster generates the same output as this
@@ -170,6 +242,82 @@ def test_wikipedia(tmp_path):
     assert expected_tree.compare_subsets(actual_tree) == 0
 
     assert str(actual_tree).strip() == "(d:28.0,(e:21.0,(c:21.0,(a:17.0,b:17.0):4.0):0.0):7.0);"
+
+def test_wikipedia_patristic(tmp_path):
+    # Tests same wikipedia tree, but where patristic distances on newick correspond to 
+    # distances in the distance matrix. Also shows that this parameter change does not effect
+    # the clusters identified or cluster addresses
+    args = {"matrix": get_path("data/matrix/wikipedia-single.tsv"),
+            "outdir": path.join(tmp_path, "test_out"),
+            "method": "single",
+            "thresholds": "25,18,0",
+            "delimiter": ".",
+            "force": False,
+            "tree_distances": 'patristic'}
+
+    # t=25
+    # a,b,c,e
+    # d
+
+    # t=18
+    # a,b
+    # c
+    # e
+    # d
+
+    # t=0
+    # a
+    # b
+    # c
+    # d
+    # e
+
+    mcluster(args)
+
+    assert path.isdir(args["outdir"])
+
+    clusters_path = path.join(args["outdir"], "clusters.text")
+    assert path.isfile(clusters_path)
+    with open(clusters_path) as clusters_file:
+        clusters = csv.reader(clusters_file, delimiter="\t")
+
+        assert ["id", "address", "level_1", "level_2", "level_3"] in clusters
+        assert ["a", "1.1.1", "1", "1", "1"] in clusters
+        assert ["b", "1.1.2", "1", "1", "2"] in clusters
+        assert ["c", "1.2.3", "1", "2", "3"] in clusters
+        assert ["d", "2.4.5", "2", "4", "5"] in clusters
+        assert ["e", "1.3.4", "1", "3", "4"] in clusters
+
+    run_path = path.join(args["outdir"], "run.json")
+    assert path.isfile(run_path)
+    with open(run_path) as run_file:
+        run_json = json.load(run_file)
+
+        assert run_json["parameters"]["method"] == "single"
+        assert run_json["parameters"]["thresholds"] == "25,18,0"
+        assert run_json["parameters"]["delimiter"] == "."
+        assert run_json["parameters"]["tree_distances"] == 'patristic'
+
+        assert len(run_json["threshold_map"]) == 3
+        assert run_json["threshold_map"]["level_1"] == 25.0
+        assert run_json["threshold_map"]["level_2"] == 18.0
+        assert run_json["threshold_map"]["level_3"] == 0.0
+
+    thresholds_path = path.join(args["outdir"], "thresholds.json")
+    assert path.isfile(thresholds_path)
+    with open(thresholds_path) as thresholds_file:
+        thresholds_json = json.load(thresholds_file)
+
+        assert len(thresholds_json) == 3
+        assert thresholds_json["level_1"] == 25.0
+        assert thresholds_json["level_2"] == 18.0
+        assert thresholds_json["level_3"] == 0.0
+
+    tree_path = path.join(args["outdir"], "tree.nwk")
+    assert path.isfile(tree_path)
+
+    actual_tree = skbio.io.registry.read(tree_path, format='newick', into=TreeNode)
+    assert str(actual_tree).strip() == "(d:14.0,(e:10.5,(c:10.5,(a:8.5,b:8.5):2.0):0.0):3.5);"
 
 def test_threshold_same(tmp_path):
     # Tests behaviour that similar thresholds create similar clusters.
