@@ -530,6 +530,118 @@ def test_compare_tree_patristic_cophenetic_wikipedia(tmp_path):
     assert distance_cophenetic_from_tree(actual_tree_cophenetic, 'a', 'b') == 17.0
     assert distance_from_matrix(         input_distance_matrix,  'a', 'b') == 17.0
 
+
+def test_linkage_methods_wikipedia(tmp_path):
+    args_single = {
+        "matrix": get_path("data/matrix/wikipedia-single.tsv"),
+        "outdir": path.join(tmp_path, "test_out_single"),
+        "method": "single",
+        "thresholds": "25,18,0",
+        "delimiter": ".",
+        "force": False,
+        "tree_distances": 'patristic'
+    }
+
+    args_average = {
+        "matrix": get_path("data/matrix/wikipedia-single.tsv"),
+        "outdir": path.join(tmp_path, "test_out_average"),
+        "method": "average",
+        "thresholds": "25,18,0",
+        "delimiter": ".",
+        "force": False,
+        "tree_distances": 'patristic'
+    }
+
+    args_complete = {
+        "matrix": get_path("data/matrix/wikipedia-single.tsv"),
+        "outdir": path.join(tmp_path, "test_out_complete"),
+        "method": "complete",
+        "thresholds": "25,18,0",
+        "delimiter": ".",
+        "force": False,
+        "tree_distances": 'patristic'
+    }
+
+    mcluster(args_single)
+    mcluster(args_average)
+    mcluster(args_complete)
+
+    input_distance_matrix = pd.read_csv(get_path("data/matrix/wikipedia-single.tsv"), sep='\t', index_col='dists')
+
+    tree_path_single = path.join(args_single["outdir"], "tree.nwk")
+    actual_tree_single = skbio.io.registry.read(tree_path_single, format='newick', into=TreeNode)
+
+    tree_path_average = path.join(args_average["outdir"], "tree.nwk")
+    actual_tree_average = skbio.io.registry.read(tree_path_average, format='newick', into=TreeNode)
+
+    tree_path_complete = path.join(args_complete["outdir"], "tree.nwk")
+    actual_tree_complete = skbio.io.registry.read(tree_path_complete, format='newick', into=TreeNode)
+
+    assert str(actual_tree_single).strip()   == "(d:14.0,(e:10.5,(c:10.5,(a:8.5,b:8.5):2.0):0.0):3.5);"
+    assert str(actual_tree_average).strip()  == "((e:11.0,(a:8.5,b:8.5):2.5):5.5,(c:14.0,d:14.0):2.5);"
+    assert str(actual_tree_complete).strip() == "((e:11.5,(a:8.5,b:8.5):3.0):10.0,(c:14.0,d:14.0):7.5);"
+
+    # Tree single-linkage (generated using https://github.com/JLSteenwyk/PhyKIT)
+    #   __________________________________________________________________________ d
+    # _|
+    #  |                  ________________________________________________________ e
+    #  |_________________|
+    #                    |________________________________________________________ c
+    #                    |
+    #                    |           _____________________________________________ a
+    #                    |__________|
+    #                               |_____________________________________________ b
+
+    # Tree average-linkage #########################################################
+    #                            _________________________________________________ e
+    #   ________________________|
+    #  |                        |           ______________________________________ a
+    #  |                        |__________|
+    # _|                                   |______________________________________ b
+    #  |
+    #  |           _______________________________________________________________ c
+    #  |__________|
+    #             |_______________________________________________________________ d
+
+    # Tree complete-linkage ########################################################
+    #                                     ________________________________________ e
+    #   _________________________________|
+    #  |                                 |           _____________________________ a
+    #  |                                 |__________|
+    # _|                                            |_____________________________ b
+    #  |
+    #  |                          ________________________________________________ c
+    #  |_________________________|
+    #                            |________________________________________________ d
+
+    # And here is the input distance matrix ("data/matrix/wikipedia-single.tsv")
+    # dists   a       b       c       d       e
+    # a       0       17      21      31      23
+    # b       17      0       30      34      21
+    # c       21      30      0       28      39
+    # d       31      34      28      0       43
+    # e       23      21      39      43      0
+
+    # The distance (patristic) from 'a' to 'b' is the same in all three scenarios since these are the
+    # closest nodes in the matrix
+    assert distance_patristic_from_tree(actual_tree_single,    'a', 'b') == 17.0
+    assert distance_patristic_from_tree(actual_tree_average,   'a', 'b') == 17.0
+    assert distance_patristic_from_tree(actual_tree_complete,  'a', 'b') == 17.0
+    assert distance_from_matrix(        input_distance_matrix, 'a', 'b') == 17.0
+
+    # However, the distance (patristic) from 'e' to 'd' is different since it is
+    # the furthest distance from the distance matrix
+    # For single-linkage, it's the smallest distance between clusters (d) and (e, c, a, b)
+    assert distance_patristic_from_tree(actual_tree_single,    'd', 'e') == 28.0
+    # For average-linkage, it's the average of pairs between clusters (c, d) and (e, a, b)
+    assert distance_patristic_from_tree(actual_tree_average,   'd', 'e') == 33.0
+    # For complete-linkage, it's the largest distance between pairs from clusters (c, d) and (e, a, b)
+    assert distance_patristic_from_tree(actual_tree_complete,  'd', 'e') == 43.0
+    # This means the distances calculated from a tree won't always correspond to the distance from the
+    # input distance matrix (value depends on if using single, average, or complete linkage)
+    assert distance_from_matrix(        input_distance_matrix, 'd', 'e') == 43.0
+
+
 def test_threshold_same(tmp_path):
     # Tests behaviour that similar thresholds create similar clusters.
     args = {"matrix": get_path("data/matrix/wikipedia-single.tsv"),
