@@ -225,6 +225,19 @@ def test_compare_tree_patristic_cophenetic(tmp_path):
     #                                       |                        ____________ I
     #                                       |_______________________|
     #                                                               |____________ J
+    #
+    # And here is the input distance matrix ("data/matrix/basic.tsv")
+    # dists   A       B       C       D       E       F       G       H       I       J
+    # A       0       1       2       2       5       5       6       6       9       9
+    # B       1       0       3       3       6       6       7       7       9       9
+    # C       2       3       0       0       3       3       6       6       9       9
+    # D       2       3       0       0       3       3       6       6       9       9
+    # E       5       6       3       3       0       0       6       6       9       9
+    # F       5       6       3       3       0       0       6       6       9       9
+    # G       6       7       6       6       6       6       0       0       3       3
+    # H       6       7       6       6       6       6       0       0       3       3
+    # I       9       9       9       9       9       9       3       3       0       1
+    # J       9       9       9       9       9       9       3       3       1       0
 
     # For the newick tree using "--tree-distances patristic", the patristic distance (sum of branch lengths)
     # between two leaves 'A' and 'B' corresponds to the distance value from the input distance matrix between 'A' and 'B'
@@ -486,6 +499,14 @@ def test_compare_tree_patristic_cophenetic_wikipedia(tmp_path):
     #                    |           _____________________________________________ a
     #                    |__________|
     #                               |_____________________________________________ b
+    #
+    # And here is the input distance matrix ("data/matrix/wikipedia-single.tsv")
+    # dists   a       b       c       d       e
+    # a       0       17      21      31      23
+    # b       17      0       30      34      21
+    # c       21      30      0       28      39
+    # d       31      34      28      0       43
+    # e       23      21      39      43      0
 
 
     # For the newick tree using "--tree-distances patristic", the patristic distance (sum of branch lengths)
