@@ -8,13 +8,23 @@
   command: gas mcluster --help
 
 - name: Test gas call
-# A seperate test, verfies the contents of the output file as the order of the output is not deterministic
   command: gas call -d genomic_address_service/example/call/hamming/results.text -r genomic_address_service/example/call/hamming/clusters.text -o test -t 10,9,8,7,6,5,4,3,2,1,0
   files:
     - path: "test/results.text"
+      md5sum: de39e1c54b818903eba03e480a0ca56c # genomic_address_service/example/call/hamming/gas_call/results.text
 
-- name: Test gas mcluster
-  command: gas mcluster -i genomic_address_service/example/mcluster/hamming/results.text -o test_cluster -t 10,9,8,7,6,5,4,3,2,1,0
+- name: Test gas mcluster patristic distances
+  command: gas mcluster -i genomic_address_service/example/mcluster/hamming/results.text -o test_cluster -t 10,9,8,7,6,5,4,3,2,1,0 --tree-distances patristic
   files:
     - path: "test_cluster/clusters.text"
       md5sum: 3a5c897c393420f8197fe4ea3aebaa80
+    - path: "test_cluster/tree.nwk"
+      md5sum: 93bbf1987100c318665b410344fec4e7 # genomic_address_service/example/mcluster/hamming/gas/tree.nwk
+
+- name: Test gas mcluster cophenetic distances
+  command: gas mcluster -i genomic_address_service/example/mcluster/hamming/results.text -o test_cluster -t 10,9,8,7,6,5,4,3,2,1,0 --tree-distances cophenetic
+  files:
+    - path: "test_cluster/clusters.text"
+      md5sum: 3a5c897c393420f8197fe4ea3aebaa80
+    - path: "test_cluster/tree.nwk"
+      md5sum: eaf4571779cea964b58cda6ff155de2c # genomic_address_service/example/mcluster/hamming/gas/tree_cophenetic.nwk

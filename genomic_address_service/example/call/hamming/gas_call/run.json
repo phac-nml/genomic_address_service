@@ -1,0 +1,32 @@
+{
+    "genomic address service: cluster assignment": "version: 0.3.0",
+    "analysis_start_time": "23/10/2025 08:12:39",
+    "analysis_end_time": "",
+    "parameters": {
+        "dists": "genomic_address_service/example/call/hamming/results.text",
+        "rclusters": "genomic_address_service/example/call/hamming/clusters.text",
+        "method": "average",
+        "thresh_map": null,
+        "sample_col": "id",
+        "address_col": "address",
+        "thresholds": "10,9,8,7,6,5,4,3,2,1,0",
+        "outdir": "test",
+        "delimiter": ".",
+        "batch_size": 100,
+        "force": false
+    },
+    "threshold_map": {
+        "0": 10.0,
+        "1": 9.0,
+        "2": 8.0,
+        "3": 7.0,
+        "4": 6.0,
+        "5": 5.0,
+        "6": 4.0,
+        "7": 3.0,
+        "8": 2.0,
+        "9": 1.0,
+        "10": 0.0
+    },
+    "result_file": "test/results.text"
+}
