@@ -623,19 +623,24 @@ def test_linkage_methods_wikipedia(tmp_path):
     # e       23      21      39      43      0
 
     # The distance (patristic) from 'a' to 'b' is the same in all three scenarios since these are the
-    # closest nodes in the matrix
+    # closest nodes in the matrix (so get joined into a cluster first by the algorithm)
     assert distance_patristic_from_tree(actual_tree_single,    'a', 'b') == 17.0
     assert distance_patristic_from_tree(actual_tree_average,   'a', 'b') == 17.0
     assert distance_patristic_from_tree(actual_tree_complete,  'a', 'b') == 17.0
     assert distance_from_matrix(        input_distance_matrix, 'a', 'b') == 17.0
 
     # However, the distance (patristic) from 'e' to 'd' is different since it is
-    # the furthest distance from the distance matrix
+    # the furthest distance from the distance matrix (so the clustering algorithm handles these nodes later)
     # For single-linkage, it's the smallest distance between clusters (d) and (e, c, a, b)
+    # See https://en.wikipedia.org/wiki/Single-linkage_clustering#Final_step
     assert distance_patristic_from_tree(actual_tree_single,    'd', 'e') == 28.0
-    # For average-linkage, it's the average of pairs between clusters (c, d) and (e, a, b)
+    # For average-linkage, it's the distance from (d) to the internal node for cluster (c, d) [value of 14]
+    # plus the distance from cluster (c, d) to the cluster (e) [value of 19]. That is 14 + 19 = 33
+    # See https://en.wikipedia.org/wiki/UPGMA#The_UPGMA_dendrogram
     assert distance_patristic_from_tree(actual_tree_average,   'd', 'e') == 33.0
-    # For complete-linkage, it's the largest distance between pairs from clusters (c, d) and (e, a, b)
+    # For complete-linkage, it's the distance from (d) to the internal node for cluster (c, d) [value fo 14] plus
+    # the distance between clusters (c, d) and (e) [value of 29]. That is 14 + 29 = 43
+    # See https://en.wikipedia.org/wiki/Complete-linkage_clustering#The_complete-linkage_dendrogram
     assert distance_patristic_from_tree(actual_tree_complete,  'd', 'e') == 43.0
     # This means the distances calculated from a tree won't always correspond to the distance from the
     # input distance matrix (value depends on if using single, average, or complete linkage)
