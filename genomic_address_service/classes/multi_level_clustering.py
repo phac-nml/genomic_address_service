@@ -220,8 +220,6 @@ class multi_level_clustering:
         skb_tree = skbio.tree.TreeNode.from_linkage_matrix(lmat, id_list=self.labels)
         self.newick = str(skb_tree).strip().replace("'", "")
 
-
-
     def get_memberships(self):
         """
         Get the cluster membership mapping.
