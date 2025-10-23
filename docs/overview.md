@@ -910,9 +910,9 @@ However, note they also acknowledge the other definition of cophenetic distance 
 
 >In hierarchical clustering, the cophenetic distance is commonly used to measure the dissimilarity between two objects before they are joined in a dendrogram. In that context, it is also defined as the height of the lowest common ancestor (LCA) from the surface of the tree. However, phylogenetic trees are usually non-ultrametric (e.g., nj), and the two child clades of a node may have different heights. Therefore, the cophenetic distance is instead defined as the patristic distance between the two tips. For ultrametric trees (e.g., upgma), this method’s result should match SciPy’s cophenet.
 
-We use this definition (hight of lowest common ancestor) since this code is used for hierarchical clustering and produces ultrametric trees.
+We use this definition (height of lowest common ancestor) since this code is used for hierarchical clustering and produces ultrametric trees.
 
 [Patristic and Cophenetic definitions]: #patristic-and-cophenetic-definitions
 [scikit-bio-cophenet]: https://scikit.bio/docs/latest/generated/skbio.tree.TreeNode.cophenet.html
-[patristic-cophenetic.png]: docs/images/patristic-cophenetic.png
+[patristic-cophenetic.png]: images/patristic-cophenetic.png
 [wiki-cophenetic]: https://en.wikipedia.org/wiki/Cophenetic
