@@ -900,7 +900,7 @@ A definition of **patristic distance** can be found in *Fourment, M., Gibbs, M.J
 
 > A patristic distance is the sum of the lengths of the branches that link two nodes in a tree, where those nodes are typically terminal nodes that represent extant gene sequences or species.
 
-## Cophenetic
+### Cophenetic
 
 The cophenetic distance of two objects (samples or hierarchical clusters) is a measure of how similar those objects need to be in order to be grouped into the same cluster. This distance is the height of the dendrogram at which point two objects are hierarchically clustered together. See the [Wikipedia article on Cophenetic][wiki-cophenetic].
 
