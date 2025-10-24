@@ -148,7 +148,8 @@ There are a number of arguments that are specific for each command. They can be 
 
 - `-i`, `--matrix` - TSV formatted distance matrix
 - `-d`, `--delimiter` - delimiter desired for nomenclature code [default="."]
-- `--tree-distances {patristic,cophenetic}` - Defines how distances in the tree (Newick file) correspond to distances in the original distance matrix used to construct the tree. (default: patristic)
+- `--tree-distances {patristic,cophenetic}` - Defines how distances in the input matrix are represented in the output tree (Newick file). Use     "patristic" to interpret distances in the matrix as sum of branch lengths between clusters or leaves, and "cophenetic" to interpret distances in the matrix as the minimum distance two clusters or leaves need to be in order to be grouped into the same cluster. (default: patristic)
+
 
 #### call specific args
 

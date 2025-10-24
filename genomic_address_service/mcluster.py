@@ -24,7 +24,10 @@ def parse_args():
     parser.add_argument('-f', '--force', required=False, help='Overwrite existing directory',
                         action='store_true')
     parser.add_argument('--tree-distances', type=str, required=False, default='patristic', dest='tree_distances', choices=multi_level_clustering.VALID_TREE_DISTANCES,
-                        help='Defines how distances in the tree (Newick file) correspond to distances in the original distance matrix used to construct the tree.')
+                        help=('Defines how distances in the input matrix are represented in the output tree (Newick file). '
+                             'Use "patristic" to interpret distances in the matrix as sum of branch lengths between clusters or leaves, '
+                             'and "cophenetic" to interpret distances in the matrix as the minimum distance two clusters or leaves need '
+                             'to be in order to be grouped into the same cluster.'))
 
     return parser.parse_args()
 
