@@ -882,13 +882,15 @@ Dendrograms are tree-like driagrams that represent hierarchical relationships an
 ![](images/complete-linkage-full.png)
 
 
-In our context, the height of the dendrogram represents the **distance between clusters** or the **cophenetic distance** calculated during the hierarchical clustering process. The cophenetic distance of two objects (samples or hierarchical clusters) is a measure of how similar those objects need to be in order to be grouped into the same cluster. This distance is the height of the dendrogram at which point two objects are hierarchically clustered together (in contrast to the **patristic distance** or sum of branch lengths between two objects, see [Patristic and Cophenetic definitions][]). For example, when interpreting the above dendrogram, we see that the cluster `(C,(A,B))` has a dendrogram height of `4`. This means that the cophenetic distance between clusters `(C)` and `(A,B)` is `4`. The specific interpretation of the distance varies depending on the linkage method used: average, single, or complete. Regardless, the greater the height of a hierarchical cluster in a dendrogram, the more dissimilarity there is between the clusters that comprise it.
+In our context, the height of the dendrogram represents the **distance between clusters** or the **cophenetic distance** calculated during the hierarchical clustering process. The cophenetic distance of two objects (samples or hierarchical clusters) is a measure of how similar those objects need to be in order to be grouped into the same cluster. For the ultrametric trees we produce, this distance is the height of the dendrogram at which point two objects are hierarchically clustered together. This is in contrast to the **patristic distance** or sum of branch lengths between two objects. For non-ultrametric or other phylogenetic trees, this distinction between patristic and cophenetic distances may be different. See [Patristic and Cophenetic definitions][] for more details.
+
+As am example, when interpreting the above dendrogram, we see that the cluster `(C,(A,B))` has a dendrogram height of `4`. This means that the cophenetic distance between clusters `(C)` and `(A,B)` is `4`. The specific interpretation of the distance varies depending on the linkage method used: average, single, or complete. Regardless, the greater the height of a hierarchical cluster in a dendrogram, the more dissimilarity there is between the clusters that comprise it.
 
 # Appendix
 
 ## Patristic and Cophenetic definitions
 
-The below image provides an overview of the difference between **patristic distance** and **cophenetic distance** used by this software for the produced trees from hierarchical clustering.
+The below image provides an overview of the difference between **patristic distance** and **cophenetic distance** used by this software for the produced ultrametric trees from hierarchical clustering.
 
 ![patristic-cophenetic.png][]
 
@@ -910,7 +912,7 @@ However, note they also acknowledge the other definition of cophenetic distance 
 
 >In hierarchical clustering, the cophenetic distance is commonly used to measure the dissimilarity between two objects before they are joined in a dendrogram. In that context, it is also defined as the height of the lowest common ancestor (LCA) from the surface of the tree. However, phylogenetic trees are usually non-ultrametric (e.g., nj), and the two child clades of a node may have different heights. Therefore, the cophenetic distance is instead defined as the patristic distance between the two tips. For ultrametric trees (e.g., upgma), this method’s result should match SciPy’s cophenet.
 
-We use this definition (height of lowest common ancestor) since this code is used for hierarchical clustering and produces ultrametric trees.
+We use this definition, dissimilarity at which two objects are first joined in a dendrogram, which for the ultrametric trees produced from hierarchical clustering, would correspond to the height in the tree where two objects first cluster (height of lowest common ancestor).
 
 [Patristic and Cophenetic definitions]: #patristic-and-cophenetic-definitions
 [scikit-bio-cophenet]: https://scikit.bio/docs/latest/generated/skbio.tree.TreeNode.cophenet.html
