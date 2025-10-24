@@ -261,7 +261,7 @@ def test_compare_tree_patristic_cophenetic(tmp_path):
     assert distance_from_matrix(         input_distance_matrix,  'A', 'B') == 1.0
 
 
-    # Repeats same comparisons as above, but between leaves 'C' and 'D' (which have distance 0 between each other, so all distances are 0)
+    # Repeats same comparisons as above, but between leaves 'A' and 'C' (which have distance 0 between each other, so all distances are 0)
     # Case patristic tree_distances ("--tree-distances patristic")
     assert distance_patristic_from_tree( actual_tree_patristic,  'A', 'C') == 2.0
     assert distance_from_matrix(         input_distance_matrix,  'A', 'C') == 2.0

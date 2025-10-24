@@ -46,12 +46,10 @@ class multi_level_clustering:
         method : str
             Linkage method to use (e.g., 'single', 'complete', 'average', 'ward').
         tree_distances : string, optional (default=patristic)
-            Defines how distances in the tree (Newick file) correspond to distances in the original
-            distance matrix used to construct the tree.
-            If 'patristic', the patristic distance between leaves of the tree correspond to the distance matrix.
-            If 'cophenetic', the cophenetic distance between leaves (height in tree where leaves first
-            share a common ancestor) correspond to distances in the original distance matrix. For ultrametic trees
-            this corresponds to twice the patristic distance.
+            Defines how distances in the original distance matrix are represented in the tree (Newick file).
+            If pastristic, the distances in the distance matrix correspond to the patristic distances between nodes or leaves in the tree.
+            If 'cophenetic', the distances in the distance matrix correspond to the cophenetic distance (height in tree where leaves first
+            share a common ancestor). For ultrametic trees this corresponds to twice the patristic distance.
         """
 
         #init class attributes
@@ -144,7 +142,6 @@ class multi_level_clustering:
         """
         Assign cluster memberships for each threshold distance.
 
-
         For each threshold in ``self.thresholds``, this method applies 
         hierarchical clustering (using SciPy's ``fcluster``) to the stored 
         linkage matrix. Each label in ``self.labels`` is assigned a cluster 
@@ -187,13 +184,12 @@ class multi_level_clustering:
 
         Parameters
         ----------
-        tree_distances : string, one of 'patristic' or 'cophenetic'
-            Defines how distances in the tree (Newick file) correspond to distances in the original
-            distance matrix used to construct the tree.
-            If 'patristic', the patristic distance between leaves of the tree correspond to the distance matrix.
-            If 'cophenetic', the cophenetic distance between leaves (height in tree where leaves first
-            share a common ancestor) correspond to distances in the original distance matrix. For ultrametic trees
-            this corresponds to twice the patristic distance (hence we multiply distances values (third column) in the linkage matrix by 2).
+        tree_distances : string, optional (default=patristic)
+            Defines how distances in the original distance matrix are represented in the tree (Newick file).
+            If pastristic, the distances in the distance matrix correspond to the patristic distances between nodes or leaves in the tree.
+            If 'cophenetic', the distances in the distance matrix correspond to the cophenetic distance (height in tree where leaves first
+            share a common ancestor). For ultrametic trees this corresponds to twice the patristic distance 
+            (hence we multiply distances values (third column) in the linkage matrix by 2).
 
         Attributes Updated
         ------------------
