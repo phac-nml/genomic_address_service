@@ -882,4 +882,39 @@ Dendrograms are tree-like driagrams that represent hierarchical relationships an
 ![](images/complete-linkage-full.png)
 
 
-In our context, the height of the dendrogram represents the **distance between clusters** or the **cophenetic distance** calculated during the hierarchical clustering process. The cophenetic distance of two objects (samples or hierarchical clusters) is a measure of how similar those objects need to be in order to be grouped into the same cluster. This distance is the height of the dendrogram at which point two objects are hierarchically clustered together. For example, when interpreting the above dendrogram, we see that the cluster `(C,(A,B))` has a dendrogram height of `4`. This means that the cophenetic distance between clusters `(C)` and `(A,B)` is `4`. The specific interpretation of the distance varies depending on the linkage method used: average, single, or complete. Regardless, the greater the height of a hierarchical cluster in a dendrogram, the more dissimilarity there is between the clusters that comprise it.
+In our context, the height of the dendrogram represents the **distance between clusters** or the **cophenetic distance** calculated during the hierarchical clustering process. The cophenetic distance of two objects (samples or hierarchical clusters) is a measure of how similar those objects need to be in order to be grouped into the same cluster. This is in contrast to the **patristic distance** or sum of branch lengths between two objects, which requires interpreting the hierarchical clustering as a tree and cophenetic distances as branch lengths. See [Patristic and Cophenetic definitions][] for more details.
+
+As an example, when interpreting the above dendrogram, we see that the cluster `(C,(A,B))` has a dendrogram height of `4`. This means that the cophenetic distance between clusters `(C)` and `(A,B)` is `4`. The specific interpretation of the distance varies depending on the linkage method used: average, single, or complete. Regardless, the greater the height of a hierarchical cluster in a dendrogram, the more dissimilarity there is between the clusters that comprise it.
+
+# Appendix
+
+## Patristic and Cophenetic definitions
+
+The below image provides an overview of the difference between **patristic distance** and **cophenetic distance** used by this software for the produced ultrametric trees from hierarchical clustering.
+
+![patristic-cophenetic.png][]
+
+### Patristic
+
+A definition of **patristic distance** can be found in *Fourment, M., Gibbs, M.J. PATRISTIC: a program for calculating patristic distances and graphically comparing the components of genetic change. BMC Evol Biol 6, 1 (2006). https://doi.org/10.1186/1471-2148-6-1*.
+
+> A patristic distance is the sum of the lengths of the branches that link two nodes in a tree, where those nodes are typically terminal nodes that represent extant gene sequences or species.
+
+### Cophenetic
+
+The cophenetic distance of two objects (samples or hierarchical clusters) is a measure of how similar those objects need to be in order to be grouped into the same cluster. This distance is the height of the dendrogram at which point two objects are hierarchically clustered together. See the [Wikipedia article on Cophenetic][wiki-cophenetic].
+
+However, in [scikit-bio][scikit-bio-cophenet]'s documentation, the cophenetic distance has a different definition (used for the `cophenet` function):
+
+>The cophenetic distance [1] between a pair of tips is essentially the sum of branch lengths connecting them (i.e., patristic distance [2], see distance). It measures the divergence between two taxa in evolution.
+
+However, note they also acknowledge the other definition of cophenetic distance that we are using:
+
+>In hierarchical clustering, the cophenetic distance is commonly used to measure the dissimilarity between two objects before they are joined in a dendrogram. In that context, it is also defined as the height of the lowest common ancestor (LCA) from the surface of the tree. However, phylogenetic trees are usually non-ultrametric (e.g., nj), and the two child clades of a node may have different heights. Therefore, the cophenetic distance is instead defined as the patristic distance between the two tips. For ultrametric trees (e.g., upgma), this method’s result should match SciPy’s cophenet.
+
+We use this definition, dissimilarity at which two objects are first joined in a dendrogram, which for the ultrametric trees produced from hierarchical clustering, would correspond to the height in the tree where two objects first cluster (height of lowest common ancestor).
+
+[Patristic and Cophenetic definitions]: #patristic-and-cophenetic-definitions
+[scikit-bio-cophenet]: https://scikit.bio/docs/latest/generated/skbio.tree.TreeNode.cophenet.html
+[patristic-cophenetic.png]: images/patristic-cophenetic.png
+[wiki-cophenetic]: https://en.wikipedia.org/wiki/Cophenetic

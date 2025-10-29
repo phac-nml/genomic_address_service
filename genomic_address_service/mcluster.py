@@ -23,6 +23,11 @@ def parse_args():
     parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
     parser.add_argument('-f', '--force', required=False, help='Overwrite existing directory',
                         action='store_true')
+    parser.add_argument('--tree-distances', type=str, required=False, default='patristic', dest='tree_distances', choices=multi_level_clustering.VALID_TREE_DISTANCES,
+                        help=('Defines how distances in the input matrix are represented in the output tree (Newick file). '
+                             'Use "patristic" to interpret distances in the matrix as sum of branch lengths between clusters or leaves, '
+                             'and "cophenetic" to interpret distances in the matrix as the minimum distance two clusters or leaves need '
+                             'to be in order to be grouped into the same cluster.'))
 
     return parser.parse_args()
 
@@ -44,6 +49,7 @@ def mcluster(cmd_args):
     thresholds = process_thresholds(cmd_args["thresholds"].split(','))
     delimiter= cmd_args["delimiter"]
     force = cmd_args["force"]
+    tree_distances = cmd_args["tree_distances"]
 
     run_data = build_mc_run_data()
     run_data['analysis_start_time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -70,7 +76,7 @@ def mcluster(cmd_args):
     if not os.path.isdir(outdir):
         os.makedirs(outdir, 0o755)
 
-    mc = multi_level_clustering(matrix,thresholds,method)
+    mc = multi_level_clustering(matrix, thresholds, method, tree_distances=tree_distances)
 
     memberships = mc.get_memberships()
 
