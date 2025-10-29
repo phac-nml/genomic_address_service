@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.0] - 2025-10-27
+## [0.3.0] - 2025-10-29
 
 ### Added
 - Added parameter `--tree-distances` to `gas mcluster`, which specifies whether to interpret the distance matrix distances as either *patristic* (the sum of branch lengths between clusters or leaves), or *cophenetic* (the minimum distance two clusters or leaves need to be in order to be grouped into the same cluster). For an ultrametric tree (which is genreated by GAS), selecting *cophenetic* has the effect of doubling the patristic distance between leaves. [PR #52](https://github.com/phac-nml/genomic_address_service/pull/52)
