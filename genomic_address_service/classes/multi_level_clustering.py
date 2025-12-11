@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import scipy
 import skbio.tree
 
@@ -104,29 +105,40 @@ class multi_level_clustering:
         """
         labels: list[str] = []
         values: list[float] = []
+        df = pd.read_csv(file_path, sep=delim, index_col=0)
+        df = df.sort_index(ascending=True)
+        df = df.sort_index(axis=1, ascending=True)
+        mask= np.triu(np.ones_like(df, dtype=bool))
+        lower_tri = df.mask(mask)
+        one_dim_tri = lower_tri.values.flatten(order='F')
+        values.extend(one_dim_tri[~np.isnan(one_dim_tri)])
+        labels.extend(df.index.tolist())
 
-        with open(file_path, 'r',encoding='utf-8') as f:
-            next(f, None)  # skip header
-            for i, raw in enumerate(f):  # i = 0 for the first data row
-                line = raw.strip()
-                if not line or line.startswith("#"):
-                    continue
-                parts = line.split(delim)
-                if not parts:
-                    continue
 
-                labels.append(parts[0])
+        # file_name = "test.tsv"
+        # df.to_csv(file_name, sep=delim)
+        # with open(file_name, 'r',encoding='utf-8') as f:
+        #     next(f, None)  # skip header
+        #     for i, raw in enumerate(f):  # i = 0 for the first data row
+        #         line = raw.strip()
+        #         if not line or line.startswith("#"):
+        #             continue
+        #         parts = line.split(delim)
+        #         if not parts:
+        #             continue
+
+        #         labels.append(parts[0])
 
                 # For row i, skip: 1 (label) + (i + 1) entries up to and including the diagonal
-                start = 1 + (i + 1)
-                if start < len(parts):
-                    try:
-                        values.extend(float(x) for x in parts[start:] if x != "")
-                    except ValueError as e:
-                        raise ValueError(
-                            f"Non-numeric value on line {i + 2} (after header): {parts[start:]}"
-                        ) from e
-        self.validate_distance_matrix(len(labels), len(values))   
+                # start = 1 + (i + 1)
+                # if start < len(parts):
+                #     try:
+                #         values.extend(float(x) for x in parts[start:] if x != "")
+                #     except ValueError as e:
+                #         raise ValueError(
+                #             f"Non-numeric value on line {i + 2} (after header): {parts[start:]}"
+                #         ) from e
+        self.validate_distance_matrix(len(labels), len(values))
         return (labels, np.array(values))
 
     def validate_distance_matrix(self, num_labels, num_values):
