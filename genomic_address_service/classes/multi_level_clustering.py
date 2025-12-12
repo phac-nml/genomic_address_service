@@ -35,7 +35,7 @@ class multi_level_clustering:
     """
     VALID_TREE_DISTANCES = ['patristic', 'cophenetic']
 
-    def __init__(self, dist_mat_file, thresholds, method, tree_distances='patristic'):
+    def __init__(self, dist_mat_file, thresholds, method, sort_matrix, tree_distances='patristic'):
         """
         Initialize the clustering object.
 
@@ -62,7 +62,7 @@ class multi_level_clustering:
         self.cluster_memberships = {}
 
         #perform clustering
-        self.labels, matrix = self.read_distance_matrix(dist_mat_file)  
+        self.labels, matrix = self.read_distance_matrix(dist_mat_file, sort_matrix=sort_matrix)  
         self.linkage = scipy.cluster.hierarchy.linkage(matrix, method=method, metric='precomputed')
         self._init_membership()
         self._assign_clusters()
@@ -80,7 +80,7 @@ class multi_level_clustering:
         for label in self.labels:
             self.cluster_memberships[label] = []
 
-    def read_distance_matrix(self,file_path, delim="\t"):
+    def read_distance_matrix(self,file_path, delim="\t", sort_matrix=False):
         """
         Read a precomputed distance matrix from file.
 
@@ -108,9 +108,9 @@ class multi_level_clustering:
         values: list[float] = []
 
         df = pd.read_csv(file_path, sep=delim, index_col=0)
-
-        df = df.sort_index(ascending=True)
-        df = df.sort_index(axis=1, ascending=True)
+        if sort_matrix:
+            df = df.sort_index(ascending=True)
+            df = df.sort_index(axis=1, ascending=True)
         # Check that no stings are in matrix
         if df.values.flatten().dtype.kind in {'U', 'S', 'O', 'b'}:
             raise ValueError("Distance matrix contains non-numeric values.")
@@ -130,7 +130,7 @@ class multi_level_clustering:
 
         values.extend(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)])
         labels.extend(df.index.tolist())
-        
+
         self.validate_distance_matrix(len(labels), len(values))
         return (labels, np.array(values))
 
