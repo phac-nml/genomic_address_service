@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from numbers import Number
 import scipy
 import skbio.tree
 
@@ -105,39 +106,31 @@ class multi_level_clustering:
         """
         labels: list[str] = []
         values: list[float] = []
+
         df = pd.read_csv(file_path, sep=delim, index_col=0)
+
         df = df.sort_index(ascending=True)
         df = df.sort_index(axis=1, ascending=True)
-        mask= np.triu(np.ones_like(df, dtype=bool))
-        lower_tri = df.mask(mask)
-        one_dim_tri = lower_tri.values.flatten(order='F')
-        values.extend(one_dim_tri[~np.isnan(one_dim_tri)])
+        # Check that no stings are in matrix
+        if df.values.flatten().dtype.kind in {'U', 'S', 'O', 'b'}:
+            raise ValueError("Distance matrix contains non-numeric values.")
+        
+        # Check that matrix is symmetric and also extract lower-triangular values of matrix
+        upper_mask = np.triu(np.ones_like(df, dtype=bool))
+        lower_mask = np.tril(np.ones_like(df, dtype=bool))
+        
+        lower_tri = df.mask(upper_mask) # Mask upper triangle
+        upper_tri = df.mask(lower_mask) # Mask lower triangle
+
+        one_dim_tri_lower = lower_tri.values.flatten(order='F')
+        one_dim_tri_upper = upper_tri.values.flatten(order='C')
+
+        if not np.array_equal(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)], one_dim_tri_upper[~np.isnan(one_dim_tri_upper)]):
+            raise ValueError("Distance matrix is not symmetric.")
+
+        values.extend(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)])
         labels.extend(df.index.tolist())
-
-
-        # file_name = "test.tsv"
-        # df.to_csv(file_name, sep=delim)
-        # with open(file_name, 'r',encoding='utf-8') as f:
-        #     next(f, None)  # skip header
-        #     for i, raw in enumerate(f):  # i = 0 for the first data row
-        #         line = raw.strip()
-        #         if not line or line.startswith("#"):
-        #             continue
-        #         parts = line.split(delim)
-        #         if not parts:
-        #             continue
-
-        #         labels.append(parts[0])
-
-                # For row i, skip: 1 (label) + (i + 1) entries up to and including the diagonal
-                # start = 1 + (i + 1)
-                # if start < len(parts):
-                #     try:
-                #         values.extend(float(x) for x in parts[start:] if x != "")
-                #     except ValueError as e:
-                #         raise ValueError(
-                #             f"Non-numeric value on line {i + 2} (after header): {parts[start:]}"
-                #         ) from e
+        
         self.validate_distance_matrix(len(labels), len(values))
         return (labels, np.array(values))
 
