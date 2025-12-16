@@ -111,11 +111,12 @@ class multi_level_clustering:
         if sort_matrix:
             df = df.sort_index(ascending=True)
             df = df.sort_index(axis=1, ascending=True)
+        
         # Check that no stings are in matrix
         if df.values.flatten().dtype.kind in {'U', 'S', 'O', 'b'}:
             raise ValueError("Distance matrix contains non-numeric values.")
         
-        # Check that matrix is symmetric and also extract lower-triangular values of matrix
+        # Split matrix into lower and upper triangular matrices
         upper_mask = np.triu(np.ones_like(df, dtype=bool))
         lower_mask = np.tril(np.ones_like(df, dtype=bool))
         
@@ -125,9 +126,11 @@ class multi_level_clustering:
         one_dim_tri_lower = lower_tri.values.flatten(order='F')
         one_dim_tri_upper = upper_tri.values.flatten(order='C')
 
+        # Validate symmetry of distance matrix
         if not np.array_equal(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)], one_dim_tri_upper[~np.isnan(one_dim_tri_upper)]):
             raise ValueError("Distance matrix is not symmetric.")
 
+        # Extract non-NaN values from one triangle (lower)
         values.extend(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)])
         labels.extend(df.index.tolist())
 
