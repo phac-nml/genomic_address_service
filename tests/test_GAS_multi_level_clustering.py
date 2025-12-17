@@ -20,6 +20,22 @@ def sample_distance_matrix():
         yield tmp.name
         os.unlink(tmp.name)
 
+@pytest.fixture
+def unsymmetrical_sample_distance_matrix():
+    content = textwrap.dedent(
+        """\
+        Header\tLabel3\tLabel2\tLabel1
+        Label1\t0.2\t0.1\t0.0
+        Label2\t0.3\t0.0\t0.1
+        Label3\t0.0\t0.3\t0.2
+        """
+    )
+    with tempfile.NamedTemporaryFile('w+', delete=False) as tmp:
+        tmp.write(content)
+        tmp.flush()
+        yield tmp.name
+        os.unlink(tmp.name)
+
 def test_initialization(sample_distance_matrix):
     thresholds = [0.15]
     mlc = multi_level_clustering(dist_mat_file=sample_distance_matrix, thresholds=thresholds, method="single",  sort_matrix=False)
@@ -36,3 +52,22 @@ def test_newick_string(sample_distance_matrix):
     thresholds = [0.15]
     mlc = multi_level_clustering(dist_mat_file=sample_distance_matrix, thresholds=thresholds, method="single",  sort_matrix=False)
     assert mlc.newick.endswith(";")  # Newick strings should end with a semicolon
+
+def test_assymetical_matrix_error(unsymmetrical_sample_distance_matrix):
+    thresholds = [0.15]
+    with pytest.raises(ValueError, match="Distance matrix is not symmetric."):
+        mlc = multi_level_clustering(
+            dist_mat_file=unsymmetrical_sample_distance_matrix, 
+            thresholds=thresholds, 
+            method="single",  
+            sort_matrix=False
+        )
+
+def test_sortfixes_assymetical_matrix_error(unsymmetrical_sample_distance_matrix):
+    thresholds = [0.15]
+    sort_matrix = True # Enable sorting to fix asymmetry
+    mlc = multi_level_clustering(dist_mat_file=unsymmetrical_sample_distance_matrix, thresholds=thresholds, method="single",  sort_matrix=sort_matrix)
+    assert len(mlc.labels) == 3  # Expecting 3 labels based on the sample matrix
+    assert mlc.linkage is not None  # Linkage matrix should be created
+    assert 'Label1' in mlc.cluster_memberships  # Initial membership should be populated
+    assert all(len(clusters) == 1 for clusters in mlc.cluster_memberships.values())
