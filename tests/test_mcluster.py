@@ -1699,3 +1699,41 @@ def test_double_digit(tmp_path):
     assert expected_tree.compare_subsets(actual_tree) == 0
 
     assert str(actual_tree).strip() == "(M:25.0,(L:25.0,(K:25.0,(J:25.0,(I:25.0,(H:25.0,(G:25.0,(F:25.0,(E:25.0,(D:25.0,(C:25.0,(A:25.0,B:25.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0);"
+
+def test_sort_matrix(tmp_path):
+    # Compare outputs of mcluster on same input matrix
+    # With different sample orders
+    # Should produce identical outputs
+    # when sort_matrix=True
+    
+    args_sorted = {
+        "matrix": get_path("data/matrix/sorted.tsv"),
+        "outdir": path.join(tmp_path, "test_out"),
+        "method": "single",
+        "thresholds": "0",
+        "sort_matrix": False,
+        "delimiter": ".",
+        "force": False,
+        "tree_distances": 'cophenetic'
+    }
+
+    args_shuffled = {
+        "matrix": get_path("data/matrix/shuffled.tsv"),
+        "outdir": path.join(tmp_path, "test_out2"),
+        "method": "single",
+        "thresholds": "0",
+        "sort_matrix": True, # This will sort the input matrix to match the sorted.tsv
+        "delimiter": ".",
+        "force": False,
+        "tree_distances": 'cophenetic'
+    }
+
+    mcluster(args_sorted)
+    mcluster(args_shuffled)
+    
+    cluster_sorted = path.join(args_sorted["outdir"], "clusters.text")
+    cluster_sorted_output = pd.read_csv(cluster_sorted, sep='\t')
+    cluster_shuffled = path.join(args_shuffled["outdir"], "clusters.text")
+    cluster_shuffled_output = pd.read_csv(cluster_shuffled, sep='\t')
+
+    assert cluster_sorted_output.equals(cluster_shuffled_output)
