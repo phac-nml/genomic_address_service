@@ -28,6 +28,8 @@ def parse_args():
                              'Use "patristic" to interpret distances in the matrix as sum of branch lengths between clusters or leaves, '
                              'and "cophenetic" to interpret distances in the matrix as the minimum distance two clusters or leaves need '
                              'to be in order to be grouped into the same cluster.'))
+    parser.add_argument('-s', '--sort_matrix', required=False, help='Sort the distance matrix by label before clustering',
+                        action='store_true')
 
     return parser.parse_args()
 
@@ -50,6 +52,7 @@ def mcluster(cmd_args):
     delimiter= cmd_args["delimiter"]
     force = cmd_args["force"]
     tree_distances = cmd_args["tree_distances"]
+    sort_matrix = cmd_args["sort_matrix"]
 
     run_data = build_mc_run_data()
     run_data['analysis_start_time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -76,7 +79,7 @@ def mcluster(cmd_args):
     if not os.path.isdir(outdir):
         os.makedirs(outdir, 0o755)
 
-    mc = multi_level_clustering(matrix, thresholds, method, tree_distances=tree_distances)
+    mc = multi_level_clustering(matrix, thresholds, method, sort_matrix, tree_distances=tree_distances)
 
     memberships = mc.get_memberships()
 
