@@ -38,14 +38,14 @@ def unsymmetrical_sample_distance_matrix():
 
 def test_initialization(sample_distance_matrix):
     thresholds = [0.15]
-    mlc = multi_level_clustering(dist_mat_file=sample_distance_matrix, thresholds=thresholds, method="single",  sort_matrix=False)
+    mlc = multi_level_clustering(dist_mat_file=sample_distance_matrix, thresholds=thresholds, method="single", sort_matrix=False)
     assert len(mlc.labels) == 3  # Expecting 3 labels based on the sample matrix
     assert mlc.linkage is not None  # Linkage matrix should be created
     assert 'Label1' in mlc.cluster_memberships  # Initial membership should be populated
 
 def test_assign_clusters(sample_distance_matrix):
     thresholds = [0.15]
-    mlc = multi_level_clustering(dist_mat_file=sample_distance_matrix, thresholds=thresholds, method="single",  sort_matrix=False)
+    mlc = multi_level_clustering(dist_mat_file=sample_distance_matrix, thresholds=thresholds, method="single", sort_matrix=False)
     assert all(len(clusters) == 1 for clusters in mlc.cluster_memberships.values())
 
 def test_newick_string(sample_distance_matrix):
@@ -66,7 +66,7 @@ def test_assymetical_matrix_error(unsymmetrical_sample_distance_matrix):
 def test_sortfixes_assymetical_matrix_error(unsymmetrical_sample_distance_matrix):
     thresholds = [0.15]
     sort_matrix = True # Enable sorting to fix asymmetry
-    mlc = multi_level_clustering(dist_mat_file=unsymmetrical_sample_distance_matrix, thresholds=thresholds, method="single",  sort_matrix=sort_matrix)
+    mlc = multi_level_clustering(dist_mat_file=unsymmetrical_sample_distance_matrix, thresholds=thresholds, method="single", sort_matrix=sort_matrix)
     assert len(mlc.labels) == 3  # Expecting 3 labels based on the sample matrix
     assert mlc.linkage is not None  # Linkage matrix should be created
     assert 'Label1' in mlc.cluster_memberships  # Initial membership should be populated
