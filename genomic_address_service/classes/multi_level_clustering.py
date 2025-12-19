@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from numbers import Number
 import scipy
 import skbio.tree
 
