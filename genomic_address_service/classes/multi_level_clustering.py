@@ -127,7 +127,7 @@ class multi_level_clustering:
         one_dim_tri_lower = lower_tri.values.flatten(order='F') # Reads elements column-wise
         one_dim_tri_upper = upper_tri.values.flatten(order='C') # Reads elements row-wise
 
-        # Validate symmetry of distance matrix values. Upper an lower triangles must match.
+        # Validate symmetry of distance matrix values. Upper and lower triangles must match.
         if not np.array_equal(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)], one_dim_tri_upper[~np.isnan(one_dim_tri_upper)]):
             raise ValueError("Distance matrix has non-symmetrical values")
 
