@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import scipy
 import skbio.tree
 
@@ -33,7 +34,7 @@ class multi_level_clustering:
     """
     VALID_TREE_DISTANCES = ['patristic', 'cophenetic']
 
-    def __init__(self, dist_mat_file, thresholds, method, tree_distances='patristic'):
+    def __init__(self, dist_mat_file, thresholds, method, sort_matrix, tree_distances='patristic'):
         """
         Initialize the clustering object.
 
@@ -60,7 +61,7 @@ class multi_level_clustering:
         self.cluster_memberships = {}
 
         #perform clustering
-        self.labels, matrix = self.read_distance_matrix(dist_mat_file)  
+        self.labels, matrix = self.read_distance_matrix(dist_mat_file, sort_matrix=sort_matrix)
         self.linkage = scipy.cluster.hierarchy.linkage(matrix, method=method, metric='precomputed')
         self._init_membership()
         self._assign_clusters()
@@ -78,7 +79,7 @@ class multi_level_clustering:
         for label in self.labels:
             self.cluster_memberships[label] = []
 
-    def read_distance_matrix(self,file_path, delim="\t"):
+    def read_distance_matrix(self,file_path, delim="\t", sort_matrix=False):
         """
         Read a precomputed distance matrix from file.
 
@@ -105,38 +106,37 @@ class multi_level_clustering:
         labels: list[str] = []
         values: list[float] = []
 
-        with open(file_path, 'r',encoding='utf-8') as f:
-            next(f, None)  # skip header
-            for i, raw in enumerate(f):  # i = 0 for the first data row
-                line = raw.strip()
-                if not line or line.startswith("#"):
-                    continue
-                parts = line.split(delim)
-                if not parts:
-                    continue
+        df = pd.read_csv(file_path, sep=delim, index_col=0)
+        if not df.index.equals(df.columns):
+            raise ValueError("Incorrect Distance Matrix Format: --matrix must have (n x n) dimensions, 0 diagonal starting at position [0,0] and rows/columns must in the same order.")
+        if sort_matrix:
+            df = df.sort_index(ascending=True)
+            df = df.sort_index(axis=1, ascending=True)
+        
+        # Check that no stings are in matrix
+        if df.values.flatten().dtype.kind in {'U', 'S', 'O', 'b'}:
+            raise ValueError("Distance matrix contains non-numeric values.")
+        
+        # Split matrix into lower and upper triangular matrices
+        upper_mask = np.triu(np.ones_like(df, dtype=bool))
+        lower_mask = np.tril(np.ones_like(df, dtype=bool))
+        
+        lower_tri = df.mask(upper_mask) # Mask upper triangle
+        upper_tri = df.mask(lower_mask) # Mask lower triangle
 
-                labels.append(parts[0])
+        one_dim_tri_lower = lower_tri.values.flatten(order='F') # Reads elements column-wise
+        one_dim_tri_upper = upper_tri.values.flatten(order='C') # Reads elements row-wise
 
-                # For row i, skip: 1 (label) + (i + 1) entries up to and including the diagonal
-                start = 1 + (i + 1)
-                if start < len(parts):
-                    try:
-                        values.extend(float(x) for x in parts[start:] if x != "")
-                    except ValueError as e:
-                        raise ValueError(
-                            f"Non-numeric value on line {i + 2} (after header): {parts[start:]}"
-                        ) from e
-        self.validate_distance_matrix(len(labels), len(values))   
+        # Validate symmetry of distance matrix values. Upper and lower triangles must match.
+        if not np.array_equal(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)], one_dim_tri_upper[~np.isnan(one_dim_tri_upper)]):
+            raise ValueError("Distance matrix has non-symmetrical values")
+
+        # Extract non-NaN values from one triangle (lower)
+        values.extend(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)])
+        labels.extend(df.index.tolist())
+        
         return (labels, np.array(values))
 
-    def validate_distance_matrix(self, num_labels, num_values):
-        n = num_labels
-        expected = n * (n - 1) // 2
-        if num_values != expected:
-            raise ValueError(
-                f"Expected {expected} upper-triangular distances for n={n}, got {num_values}. "
-                "Check file formatting and delimiter."
-            )
 
     def _assign_clusters(self):
         """

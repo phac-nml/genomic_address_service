@@ -40,6 +40,7 @@ def test_basic(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -111,6 +112,7 @@ def test_basic_patristic(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'patristic'}
@@ -173,6 +175,7 @@ def test_compare_tree_patristic_cophenetic(tmp_path):
         "outdir": path.join(tmp_path, "test_out"),
         "method": "single",
         "thresholds": "0",
+        "sort_matrix": False,
         "delimiter": ".",
         "force": False,
         "tree_distances": 'patristic'
@@ -183,6 +186,7 @@ def test_compare_tree_patristic_cophenetic(tmp_path):
         "outdir": path.join(tmp_path, "test_out2"),
         "method": "single",
         "thresholds": "0",
+        "sort_matrix": False,
         "delimiter": ".",
         "force": False,
         "tree_distances": 'cophenetic'
@@ -301,6 +305,7 @@ def test_wikipedia(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "25,18,0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -384,6 +389,7 @@ def test_wikipedia_patristic(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "25,18,0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'patristic'}
@@ -458,6 +464,7 @@ def test_compare_tree_patristic_cophenetic_wikipedia(tmp_path):
         "outdir": path.join(tmp_path, "test_out"),
         "method": "single",
         "thresholds": "25,18,0",
+        "sort_matrix": False,
         "delimiter": ".",
         "force": False,
         "tree_distances": 'patristic'
@@ -468,6 +475,7 @@ def test_compare_tree_patristic_cophenetic_wikipedia(tmp_path):
         "outdir": path.join(tmp_path, "test_out2"),
         "method": "single",
         "thresholds": "25,18,0",
+        "sort_matrix": False,
         "delimiter": ".",
         "force": False,
         "tree_distances": 'cophenetic'
@@ -537,6 +545,7 @@ def test_linkage_methods_wikipedia(tmp_path):
         "outdir": path.join(tmp_path, "test_out_single"),
         "method": "single",
         "thresholds": "25,18,0",
+        "sort_matrix": False,
         "delimiter": ".",
         "force": False,
         "tree_distances": 'patristic'
@@ -547,6 +556,7 @@ def test_linkage_methods_wikipedia(tmp_path):
         "outdir": path.join(tmp_path, "test_out_average"),
         "method": "average",
         "thresholds": "25,18,0",
+        "sort_matrix": False,
         "delimiter": ".",
         "force": False,
         "tree_distances": 'patristic'
@@ -557,6 +567,7 @@ def test_linkage_methods_wikipedia(tmp_path):
         "outdir": path.join(tmp_path, "test_out_complete"),
         "method": "complete",
         "thresholds": "25,18,0",
+        "sort_matrix": False,
         "delimiter": ".",
         "force": False,
         "tree_distances": 'patristic'
@@ -653,6 +664,7 @@ def test_threshold_same(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "20,19,18",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -732,6 +744,7 @@ def test_thresholds_0_10_0_10(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "0,10,0,10",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -751,6 +764,7 @@ def test_thresholds_0_0(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "0,0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -770,6 +784,7 @@ def test_thresholds_1_2_3(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "1,2,3",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -789,6 +804,7 @@ def test_thresholds_string(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "cat,dog",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False}
 
@@ -807,6 +823,7 @@ def test_no_thresholds(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -825,6 +842,7 @@ def test_delimiter_slash(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "1,0",
+            "sort_matrix": False,
             "delimiter": "/",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -896,6 +914,7 @@ def test_delimiter_0(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "1,0",
+            "sort_matrix": False,
             "delimiter": "0",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -967,6 +986,7 @@ def test_delimiter_1(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "1,0",
+            "sort_matrix": False,
             "delimiter": "1",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -1038,6 +1058,7 @@ def test_delimiter_quote(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "1,0",
+            "sort_matrix": False,
             "delimiter": '"',
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -1109,6 +1130,7 @@ def test_matrix_missing(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -1127,6 +1149,7 @@ def test_matrix_empty(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -1145,6 +1168,7 @@ def test_method_invalid_nope(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "nope",
             "thresholds": "0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -1163,6 +1187,7 @@ def test_method_invalid_singl(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "singl",
             "thresholds": "0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -1181,6 +1206,7 @@ def test_method_invalid_1(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "1",
             "thresholds": "0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -1203,6 +1229,7 @@ def test_many_thresholds(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "26,24,22,20,18,16,14,12,10,8,6,4,2,0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -1331,6 +1358,7 @@ def test_method_single(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "2,1,0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -1425,6 +1453,7 @@ def test_method_complete(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "complete",
             "thresholds": "10,8,5",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -1512,6 +1541,7 @@ def test_method_average(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "complete",
             "thresholds": "12,8,2",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -1574,6 +1604,7 @@ def test_invalid_header_pairwise_matrix(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "1",
             "thresholds": "0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -1593,6 +1624,7 @@ def test_double_digit(tmp_path):
             "outdir": path.join(tmp_path, "test_out"),
             "method": "single",
             "thresholds": "5,3,0",
+            "sort_matrix": False,
             "delimiter": ".",
             "force": False,
             "tree_distances": 'cophenetic'}
@@ -1667,3 +1699,41 @@ def test_double_digit(tmp_path):
     assert expected_tree.compare_subsets(actual_tree) == 0
 
     assert str(actual_tree).strip() == "(M:25.0,(L:25.0,(K:25.0,(J:25.0,(I:25.0,(H:25.0,(G:25.0,(F:25.0,(E:25.0,(D:25.0,(C:25.0,(A:25.0,B:25.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0):0.0);"
+
+def test_sort_matrix(tmp_path):
+    # Compare outputs of mcluster on same input matrix
+    # With different sample orders
+    # Should produce identical outputs
+    # when sort_matrix=True
+    
+    args_sorted = {
+        "matrix": get_path("data/matrix/sorted.tsv"),
+        "outdir": path.join(tmp_path, "test_out"),
+        "method": "single",
+        "thresholds": "0",
+        "sort_matrix": False,
+        "delimiter": ".",
+        "force": False,
+        "tree_distances": 'cophenetic'
+    }
+
+    args_shuffled = {
+        "matrix": get_path("data/matrix/shuffled.tsv"),
+        "outdir": path.join(tmp_path, "test_out2"),
+        "method": "single",
+        "thresholds": "0",
+        "sort_matrix": True, # This will sort the input matrix to match the sorted.tsv
+        "delimiter": ".",
+        "force": False,
+        "tree_distances": 'cophenetic'
+    }
+
+    mcluster(args_sorted)
+    mcluster(args_shuffled)
+    
+    cluster_sorted = path.join(args_sorted["outdir"], "clusters.text")
+    cluster_sorted_output = pd.read_csv(cluster_sorted, sep='\t')
+    cluster_shuffled = path.join(args_shuffled["outdir"], "clusters.text")
+    cluster_shuffled_output = pd.read_csv(cluster_shuffled, sep='\t')
+
+    assert cluster_sorted_output.equals(cluster_shuffled_output)
