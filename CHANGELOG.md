@@ -3,6 +3,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2025-12-19
+
+### Added
+
+- Added parameter `--sort_matrix` which sorts the column/rows headers for the input matrix to avoid avoid clusters being non-deterministic. [PR #56](https://github.com/phac-nml/genomic_address_service/pull/56)
+
+### Modified
+
+- Modified the `read_distance_matrix()` function in the `multi_level_clustering` class for `mcluster`. The function now uses pandas and numpy to check and extract a triangle matrix into a np.array from the input matrix. [PR #56](https://github.com/phac-nml/genomic_address_service/pull/56)
+
 ## [0.3.0] - 2025-10-27
 
 ### Added
@@ -90,3 +100,4 @@ Changed README format to standard DAAD README, added useage arguments.
 [0.2.0]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.2.0
 [0.2.1]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.2.1
 [0.3.0]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.3.0
+[0.3.1]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.3.1
