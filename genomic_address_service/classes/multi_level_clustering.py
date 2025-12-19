@@ -64,11 +64,7 @@ class multi_level_clustering:
         self.cluster_memberships = {}
 
         #perform clustering
-        start_time = time.time()
         self.labels, matrix = self.read_distance_matrix(dist_mat_file, sort_matrix=sort_matrix)
-        elapsed_time = time.time() - start_time
-
-        print(f"CSV read took {elapsed_time:.4f} seconds")  
         self.linkage = scipy.cluster.hierarchy.linkage(matrix, method=method, metric='precomputed')
         self._init_membership()
         self._assign_clusters()
