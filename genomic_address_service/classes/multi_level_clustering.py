@@ -4,6 +4,8 @@ from numbers import Number
 import scipy
 import skbio.tree
 
+import time
+
 class multi_level_clustering:
     """
     Perform hierarchical clustering with multiple threshold levels.
@@ -62,7 +64,11 @@ class multi_level_clustering:
         self.cluster_memberships = {}
 
         #perform clustering
-        self.labels, matrix = self.read_distance_matrix(dist_mat_file, sort_matrix=sort_matrix)  
+        start_time = time.time()
+        self.labels, matrix = self.read_distance_matrix(dist_mat_file, sort_matrix=sort_matrix)
+        elapsed_time = time.time() - start_time
+
+        print(f"CSV read took {elapsed_time:.4f} seconds")  
         self.linkage = scipy.cluster.hierarchy.linkage(matrix, method=method, metric='precomputed')
         self._init_membership()
         self._assign_clusters()
@@ -123,8 +129,8 @@ class multi_level_clustering:
         lower_tri = df.mask(upper_mask) # Mask upper triangle
         upper_tri = df.mask(lower_mask) # Mask lower triangle
 
-        one_dim_tri_lower = lower_tri.values.flatten(order='F')
-        one_dim_tri_upper = upper_tri.values.flatten(order='C')
+        one_dim_tri_lower = lower_tri.values.flatten(order='F') # Reads elements column-wise
+        one_dim_tri_upper = upper_tri.values.flatten(order='C') # Reads elements row-wise
 
         # Validate symmetry of distance matrix
         if not np.array_equal(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)], one_dim_tri_upper[~np.isnan(one_dim_tri_upper)]):
