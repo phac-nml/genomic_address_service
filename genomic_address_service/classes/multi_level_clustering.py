@@ -107,6 +107,8 @@ class multi_level_clustering:
         values: list[float] = []
 
         df = pd.read_csv(file_path, sep=delim, index_col=0)
+        if not df.index.equals(df.columns):
+            raise ValueError("Incorrect Distance Matrix Format: --matrix must have (n x n) dimensions, 0 diagonal starting at position [0,0] and rows/columns must in the same order.")
         if sort_matrix:
             df = df.sort_index(ascending=True)
             df = df.sort_index(axis=1, ascending=True)
@@ -125,9 +127,9 @@ class multi_level_clustering:
         one_dim_tri_lower = lower_tri.values.flatten(order='F') # Reads elements column-wise
         one_dim_tri_upper = upper_tri.values.flatten(order='C') # Reads elements row-wise
 
-        # Validate symmetry of distance matrix
+        # Validate symmetry of distance matrix values. Upper an lower triangles must match.
         if not np.array_equal(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)], one_dim_tri_upper[~np.isnan(one_dim_tri_upper)]):
-            raise ValueError("Distance matrix is not symmetric.")
+            raise ValueError("Distance matrix has non-symmetrical values")
 
         # Extract non-NaN values from one triangle (lower)
         values.extend(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)])
