@@ -4,8 +4,6 @@ from numbers import Number
 import scipy
 import skbio.tree
 
-import time
-
 class multi_level_clustering:
     """
     Perform hierarchical clustering with multiple threshold levels.
