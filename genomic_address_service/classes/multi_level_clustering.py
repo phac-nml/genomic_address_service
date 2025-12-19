@@ -135,18 +135,9 @@ class multi_level_clustering:
         # Extract non-NaN values from one triangle (lower)
         values.extend(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)])
         labels.extend(df.index.tolist())
-
-        self.validate_distance_matrix(len(labels), len(values))
+        
         return (labels, np.array(values))
 
-    def validate_distance_matrix(self, num_labels, num_values):
-        n = num_labels
-        expected = n * (n - 1) // 2
-        if num_values != expected:
-            raise ValueError(
-                f"Expected {expected} upper-triangular distances for n={n}, got {num_values}. "
-                "Check file formatting and delimiter."
-            )
 
     def _assign_clusters(self):
         """
