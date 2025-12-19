@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Modified the `read_distance_matrix()` function in the `multi_level_clustering` class for `mcluster`. The function now uses pandas and numpy to check and extract a triangle matrix into a np.array from the input matrix. [PR #56](https://github.com/phac-nml/genomic_address_service/pull/56)
 
-## [0.3.0] - 2025-10-27
+## [0.3.0] - 2025-10-29
 
 ### Added
 - Added parameter `--tree-distances` to `gas mcluster`, which specifies whether to interpret the distance matrix distances as either *patristic* (the sum of branch lengths between clusters or leaves), or *cophenetic* (the minimum distance two clusters or leaves need to be in order to be grouped into the same cluster). For an ultrametric tree (which is genreated by GAS), selecting *cophenetic* has the effect of doubling the patristic distance between leaves. [PR #52](https://github.com/phac-nml/genomic_address_service/pull/52)
