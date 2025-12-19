@@ -36,6 +36,22 @@ def unsymmetrical_sample_distance_matrix():
         yield tmp.name
         os.unlink(tmp.name)
 
+@pytest.fixture
+def unsymmetrical_sample_distance_matrix_2():
+    content = textwrap.dedent(
+        """\
+        Header\tLabel3\tLabel2
+        Label1\t0.2\t0.1
+        Label2\t0.3\t0.0
+        Label3\t0.0\t0.3
+        """
+    )
+    with tempfile.NamedTemporaryFile('w+', delete=False) as tmp:
+        tmp.write(content)
+        tmp.flush()
+        yield tmp.name
+        os.unlink(tmp.name)
+
 def test_initialization(sample_distance_matrix):
     thresholds = [0.15]
     mlc = multi_level_clustering(dist_mat_file=sample_distance_matrix, thresholds=thresholds, method="single", sort_matrix=False)
@@ -54,10 +70,22 @@ def test_newick_string(sample_distance_matrix):
     assert mlc.newick.endswith(";")  # Newick strings should end with a semicolon
 
 def test_assymetical_matrix_error(unsymmetrical_sample_distance_matrix):
+    ## Confirms that a matrix with rows/columns in different orders raises an error
     thresholds = [0.15]
     with pytest.raises(ValueError, match="Distance matrix is not symmetric."):
         mlc = multi_level_clustering(
             dist_mat_file=unsymmetrical_sample_distance_matrix, 
+            thresholds=thresholds, 
+            method="single",  
+            sort_matrix=False
+        )
+
+def test_assymetical_matrix_error_shape(unsymmetrical_sample_distance_matrix_2):
+    ## Confirms that a 2x3 matrix raises an error
+    thresholds = [0.15]
+    with pytest.raises(ValueError, match="Distance matrix is not symmetric."):
+        mlc = multi_level_clustering(
+            dist_mat_file=unsymmetrical_sample_distance_matrix_2, 
             thresholds=thresholds, 
             method="single",  
             sort_matrix=False
