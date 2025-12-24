@@ -125,7 +125,7 @@ class multi_level_clustering:
 
         # Check that there are no NaN values in the distance matrix
         if np.isnan(df.values).any():
-            raise ValueError("Distance matrix contains NaN values.")
+            raise ValueError("Distance matrix contains NaN, null or NA values.")
         # Check that the distance matrix is square and rows/columns match
         if not df.index.equals(df.columns):
             raise ValueError("Incorrect Distance Matrix Format: --matrix must have (n x n) dimensions, 0 diagonal starting at position [0,0] and rows/columns must in the same order.")
