@@ -106,17 +106,33 @@ class multi_level_clustering:
         labels: list[str] = []
         values: list[float] = []
 
-        df = pd.read_csv(file_path, sep=delim, index_col=0)
+        # Read the distance matrix into a DataFrame
+        df = pd.read_csv(file_path, header=0, sep=delim, low_memory=False, dtype=str)
+
+        # There's a bug in some versions of pandas with the read_csv function.
+        # If you attempt pd.read_csv(dtype=str, index_col=0),
+        # then pandas will not cast the index to the specified type (str).
+        # We work around this by not loading an index, and then reshaping the
+        # DataFrame to have the index we want, which will be in str format.
+        index = df.iloc[:, 0]
+        df = df.iloc[:, 1:]
+        df = df.set_index(index)
+        # Convert all values to float, raising an error if conversion fails
+        try:
+            df = df.astype(float)
+        except ValueError as e:
+            raise ValueError("Input matrix should only contain numerical values") from e
+
+        # Check that there are no NaN values in the distance matrix
+        if np.isnan(df.values).any():
+            raise ValueError("Distance matrix contains NaN values.")
+        # Check that the distance matrix is square and rows/columns match
         if not df.index.equals(df.columns):
             raise ValueError("Incorrect Distance Matrix Format: --matrix must have (n x n) dimensions, 0 diagonal starting at position [0,0] and rows/columns must in the same order.")
         if sort_matrix:
             df = df.sort_index(ascending=True)
             df = df.sort_index(axis=1, ascending=True)
-        
-        # Check that no stings are in matrix
-        if df.values.flatten().dtype.kind in {'U', 'S', 'O', 'b'}:
-            raise ValueError("Distance matrix contains non-numeric values.")
-        
+
         # Split matrix into lower and upper triangular matrices
         upper_mask = np.triu(np.ones_like(df, dtype=bool))
         lower_mask = np.tril(np.ones_like(df, dtype=bool))
@@ -127,12 +143,15 @@ class multi_level_clustering:
         one_dim_tri_lower = lower_tri.values.flatten(order='F') # Reads elements column-wise
         one_dim_tri_upper = upper_tri.values.flatten(order='C') # Reads elements row-wise
 
+        lower_array = one_dim_tri_lower[~np.isnan(one_dim_tri_lower)]
+        upper_array = one_dim_tri_upper[~np.isnan(one_dim_tri_upper)]
+
         # Validate symmetry of distance matrix values. Upper and lower triangles must match.
-        if not np.array_equal(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)], one_dim_tri_upper[~np.isnan(one_dim_tri_upper)]):
+        if not np.array_equal(lower_array, upper_array):
             raise ValueError("Distance matrix has non-symmetrical values")
 
         # Extract non-NaN values from one triangle (lower)
-        values.extend(one_dim_tri_lower[~np.isnan(one_dim_tri_lower)])
+        values.extend(lower_array)
         labels.extend(df.index.tolist())
         
         return (labels, np.array(values))
