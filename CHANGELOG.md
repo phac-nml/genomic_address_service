@@ -3,6 +3,10 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2026-01-06
+
+- Fixed bug in function `read_distance_matrix` of the `multi_level_clustering.py` class. pandas `read_csv()` coerced samples with numeric names (integers or floats). Fix circumvents how `read_csv()` handles row indices. [PR #58](https://github.com/phac-nml/genomic_address_service/pull/58)
+
 ## [0.3.1] - 2025-12-19
 
 ### Added
@@ -101,3 +105,4 @@ Changed README format to standard DAAD README, added useage arguments.
 [0.2.1]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.2.1
 [0.3.0]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.3.0
 [0.3.1]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.3.1
+[0.3.2]: https://github.com/phac-nml/genomic_address_service/releases/tag/0.3.2
