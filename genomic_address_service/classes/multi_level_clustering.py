@@ -61,7 +61,10 @@ class multi_level_clustering:
         self.cluster_memberships = {}
 
         #perform clustering
-        self.labels, matrix = self.read_distance_matrix(dist_mat_file, sort_matrix=sort_matrix)
+        if sort_matrix:
+            self.labels, matrix = self.read_and_sort_distance_matrix(dist_mat_file)
+        else:
+            self.labels, matrix = self.read_distance_matrix(dist_mat_file, sort_matrix=sort_matrix)
         self.linkage = scipy.cluster.hierarchy.linkage(matrix, method=method, metric='precomputed')
         self._init_membership()
         self._assign_clusters()
@@ -106,57 +109,112 @@ class multi_level_clustering:
         labels: list[str] = []
         values: list[float] = []
 
-        # Read the distance matrix into a DataFrame
-        df = pd.read_csv(file_path, header=0, sep=delim, low_memory=False, dtype=str)
+        with open(file_path, 'r',encoding='utf-8') as f:
+            next(f, None)  # skip header
+            for i, raw in enumerate(f):  # i = 0 for the first data row
+                line = raw.strip()
+                if not line or line.startswith("#"):
+                    continue
+                parts = line.split(delim)
+                if not parts:
+                    continue
 
-        # There's a bug in some versions of pandas with the read_csv function.
-        # If you attempt pd.read_csv(dtype=str, index_col=0),
-        # then pandas will not cast the index to the specified type (str).
-        # We work around this by not loading an index, and then reshaping the
-        # DataFrame to have the index we want, which will be in str format.
-        index = df.iloc[:, 0]
-        df = df.iloc[:, 1:]
-        df = df.set_index(index)
-        # Convert all values to float, raising an error if conversion fails
-        try:
-            df = df.astype(float)
-        except ValueError as e:
-            raise ValueError("Input matrix should only contain numerical values") from e
+                labels.append(parts[0])
 
-        # Check that there are no NaN values in the distance matrix
-        if np.isnan(df.values).any():
-            raise ValueError("Distance matrix contains NaN, null or NA values.")
-        # Check that the distance matrix is square and rows/columns match
-        if not df.index.equals(df.columns):
-            raise ValueError("Incorrect Distance Matrix Format: --matrix must have (n x n) dimensions, 0 diagonal starting at position [0,0] and rows/columns must in the same order.")
-        if sort_matrix:
-            df = df.sort_index(ascending=True)
-            df = df.sort_index(axis=1, ascending=True)
+                # For row i, skip: 1 (label) + (i + 1) entries up to and including the diagonal
+                start = 1 + (i + 1)
+                if start < len(parts):
+                    try:
+                        values.extend(float(x) for x in parts[start:] if x != "")
+                    except ValueError as e:
+                        raise ValueError(
+                            f"Non-numeric value on line {i + 2} (after header): {parts[start:]}"
+                        ) from e
+        self.validate_distance_matrix(len(labels), len(values))
+        print(labels)
+        print(values)
+        print(len(values))
+        return (labels, np.array(values))
+    
+    def read_and_sort_distance_matrix(self,file_path, delim="\t"):
+        """
+        Read a precomputed distance matrix from file.
 
-        # Split matrix into lower and upper triangular matrices
-        upper_mask = np.triu(np.ones_like(df, dtype=bool))
-        lower_mask = np.tril(np.ones_like(df, dtype=bool))
-        
-        lower_tri = df.mask(upper_mask) # Mask upper triangle
-        upper_tri = df.mask(lower_mask) # Mask lower triangle
+        Parameters
+        ----------
+        file_path : str
+            Path to the distance matrix file.
+        delim : str, optional (default="\\t")
+            Delimiter used in the file (default: tab).
 
-        one_dim_tri_lower = lower_tri.values.flatten(order='F') # Reads elements column-wise
-        one_dim_tri_upper = upper_tri.values.flatten(order='C') # Reads elements row-wise
+        Returns
+        -------
+        labels : list of str
+            Observation labels parsed from the first column.
+        np.ndarray
+            Flattened upper-triangular distance values as a 1D NumPy array.
 
-        lower_array = one_dim_tri_lower[~np.isnan(one_dim_tri_lower)]
-        upper_array = one_dim_tri_upper[~np.isnan(one_dim_tri_upper)]
+        Notes
+        -----
+        - Modified version of read_distance_matrix that sorts the matrix by label.
+        - The function assumes the first line is a header with sample labels, and uses this to sort.
+        - Each subsequent line should start with a label followed by distances.
+        - Distances are extracted row by row, omitting redundant lower-triangle entries.
+        """
+        labels: list[str] = []
+        values: list[float] = []
 
-        # Validate symmetry of distance matrix values. Upper and lower triangles must match.
-        if not np.array_equal(lower_array, upper_array):
-            raise ValueError("Distance matrix has non-symmetrical values")
+        with open(file_path, 'r',encoding='utf-8') as f:
+            # Use the matrix header to determine sample order
+            sample_order = f.readline().strip().split(delim)[1:] # Takes the header line and gets sample names, and determines order prior to sorting
+            sample_number = len(sample_order)
+            sort_indices = sorted(range(sample_number), key=lambda i: sample_order[i]) # Indices for sort of the sample names
+            number_of_values = list(range(sample_number-1, 0, -1))  # Number of values to extract per row after skipping diagonal
 
-        # Extract non-NaN values from one triangle (lower)
-        values.extend(lower_array)
-        labels.extend(df.index.tolist())
-        
+            # Now that we have the sort indices, sort the sample order
+            sample_order.sort()
+
+            # Populate labels and values arrays with correct sizes
+            labels = [None] * sample_number
+            values = int((((sample_number * sample_number) - sample_number) / 2)) * [None] # Pre-allocate space for upper-triangular values
+
+            for i, raw in enumerate(f):  # i = 0 for the first data row
+                line = raw.strip()
+                line_list = line.strip().split(delim)
+                sample = line_list[0]
+                sample_index = sample_order.index(sample) # Determine the index of this sample in the sorted order
+                if not line or line.startswith("#"):
+                    continue
+                parts = line.split(delim)
+                if not parts:
+                    continue
+                labels[sample_index] = parts[0]
+                new_parts = parts[1:]
+                new_parts = [new_parts[m] for m in sort_indices] # Reorder the distance values according to the sorted sample order
+                # For row i, skip: the first value in the index (the diagonal of the upper-triangle) and all values before it
+                start = 1 + (sample_index)
+                # Where to place the distances in: values, list, flattened upper-triangular array
+                triangle_start = sum(number_of_values[:sample_index]) # Sums the number of values for all previous samples to get the starting index
+                if start < len(new_parts):
+                    try:
+                        new_parts = [float(x) for x in new_parts[start:] if x != ""] # Convert to float and skip empty values
+                        values[triangle_start:(triangle_start + number_of_values[sample_index])] = new_parts
+                    except ValueError as e:
+                        raise ValueError(
+                            f"Non-numeric value on line {i + 2} (after header): {parts[start:]}"
+                        ) from e
+        self.validate_distance_matrix(len(labels), len(values))   
         return (labels, np.array(values))
 
-
+    def validate_distance_matrix(self, num_labels, num_values):
+        n = num_labels
+        expected = n * (n - 1) // 2
+        if num_values != expected:
+            raise ValueError(
+                f"Expected {expected} upper-triangular distances for n={n}, got {num_values}. "
+                "Check file formatting and delimiter."
+            )
+    
     def _assign_clusters(self):
         """
         Assign cluster memberships for each threshold distance.
