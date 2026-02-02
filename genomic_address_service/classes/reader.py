@@ -1,72 +1,137 @@
-class dist_reader:
+from __future__ import annotations
 
-    def __init__(self, f, n_records=1000, delim="\t") -> None:
-        self.record_ids = set()
-        self.dists = {}
-        self.file_handle = None
-        self.row_number = 0
+from dataclasses import dataclass
+from typing import Iterator, List, Optional, Tuple
+
+import numpy as np
+
+
+@dataclass
+class DistChunk:
+    """
+    Container for a distance chunk.
+
+    Attributes
+    ----------
+    qids
+        List of query IDs in this chunk.
+    rids
+        List of NumPy arrays. rids[i] are the reference IDs for qids[i].
+    dists
+        List of NumPy arrays. dists[i] are the distances aligned to rids[i].
+    """
+    qids: List[str]
+    rids: List[np.ndarray]
+    dists: List[np.ndarray]
+
+
+class dist_reader:
+    """
+    Streaming reader for pairwise distance files.
+
+    Expected input format (tab-delimited by default)
+    -----------------------------------------------
+    Header line (ignored), then rows:
+        qid <delim> rid <delim> distance
+
+    Notes
+    -----
+    - This reader groups rows by qid and yields up to `n_records` qids per chunk.
+    - Output is array-based for efficient downstream numeric processing.
+    """
+
+    def __init__(self, f: str, n_records: int = 1000, delim: str = "\t") -> None:
         self.fpath = f
         self.delim = delim
         self.n_records = n_records
 
-    def read_pd(self):
-        for line in self.file_handle:
-            self.row_number+=1
-            line = line.rstrip().split(self.delim)
-            if len(line) < 3:
-                continue
-            qid = line[0]
-            rid = line[1]
-            
-            d = float(line[2])
-            if qid not in self.record_ids and len(self.dists) >= self.n_records:
-                self.sort_distances()
-                yield self.dists
-                self.dists = {}
+        self._fh = None
+        self._row_number = 0
 
-            if qid not in self.record_ids:
-                self.record_ids.add(qid)
-                self.dists[qid] = {}
-            self.dists[qid][rid] = d
-        self.sort_distances()
-       
-        yield self.dists
+    def _open(self) -> None:
+        self._fh = open(self.fpath, "r", encoding="utf-8")
 
+    def _close(self) -> None:
+        if self._fh is not None:
+            self._fh.close()
+        self._fh = None
 
-    def sort_distances(self):
-        for qid in self.dists:
-            self.dists[qid] = {k: v for k, v in sorted(self.dists[qid].items(), key=lambda item: item[1])}
+    def read_pairs(self) -> Iterator[DistChunk]:
+        """
+        Read a 'pairs' distance file and yield chunks.
 
-    def read_matrix(self):
-        for line in self.file_handle:
-            line = line.rstrip().split(self.delim)
-            self.row_number+=1
-            qid = self.header[self.row_number]
-            if qid not in self.record_ids and len(self.dists) >= self.n_records:
-                self.sort_distances()
-                yield self.dists
-                self.dists = {}
+        Yields
+        ------
+        DistChunk
+            Chunk containing qids and aligned arrays of (rids, dists) per qid.
+        """
+        self._open()
+        try:
+            # consume header
+            _ = next(self._fh)
 
-            if qid not in self.record_ids:
-                self.record_ids.add(qid)
-                self.dists[qid] = {}
+            qids: List[str] = []
+            rids_list: List[List[str]] = []
+            dists_list: List[List[float]] = []
 
-            values = list(map(float, line[1:]))
-            for i in range(0,len(values)):
-                rid = self.header[i]
-                d = values[i]
-                self.dists[qid][rid] = d
-        self.sort_distances()
+            qid_to_idx = {}
 
-    def read_data(self):
-        self.file_handle = open(self.fpath,'r')
-        self.header = next(self.file_handle).split(self.delim)
+            for line in self._fh:
+                self._row_number += 1
+                parts = line.rstrip("\n").split(self.delim)
+                if len(parts) < 3:
+                    continue
 
-        for chunk in self.read_pd():
-            if chunk is not None:
-                yield chunk
-        if chunk is None:
-            chunk = self.dists
+                qid = parts[0]
+                rid = parts[1]
+                try:
+                    dist = float(parts[2])
+                except ValueError:
+                    continue
 
-        self.file_handle.close()
-        return chunk
+                idx = qid_to_idx.get(qid)
+                if idx is None:
+                    # Start a new qid group; if chunk full, flush.
+                    if len(qids) >= self.n_records:
+                        yield self._flush(qids, rids_list, dists_list)
+                        qids, rids_list, dists_list = [], [], []
+                        qid_to_idx = {}
+
+                    qid_to_idx[qid] = len(qids)
+                    qids.append(qid)
+                    rids_list.append([rid])
+                    dists_list.append([dist])
+                else:
+                    rids_list[idx].append(rid)
+                    dists_list[idx].append(dist)
+
+            # flush final
+            if qids:
+                yield self._flush(qids, rids_list, dists_list)
+        finally:
+            self._close()
+
+    @staticmethod
+    def _flush(
+        qids: List[str],
+        rids_list: List[List[str]],
+        dists_list: List[List[float]],
+    ) -> DistChunk:
+        """
+        Convert buffered python lists into NumPy arrays.
+
+        Distances are converted to float32 for speed/memory.
+        """
+        rids_arr: List[np.ndarray] = []
+        dists_arr: List[np.ndarray] = []
+        for rids, dists in zip(rids_list, dists_list):
+            rids_arr.append(np.array(rids, dtype=object))
+            dists_arr.append(np.array(dists, dtype=np.float32))
+        return DistChunk(qids=qids, rids=rids_arr, dists=dists_arr)
+
+    def read_data(self) -> Iterator[DistChunk]:
+        """
+        Backwards-compatible entrypoint.
+
+        """
+        yield from self.read_pairs()
