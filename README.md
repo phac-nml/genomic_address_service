@@ -96,7 +96,7 @@ OR
 
 ## Citation
 
-Robertson, James, Wells, Matthew, Schonfeld, Justin, Reimer, Aleisha. Genomic Address Service: Convenient package for de novo clustering and sample assignment to existing clusters. 2023. [https://github.com/phac-nml/genomic_address_service](https://github.com/phac-nml/genomic_address_service)
+Robertson, James, Kyrylo Bessonov, Aaron Petkau, Eric Mariner, Christy-Lynn Peterson, Schonfeld, Justin, Steven Sutcliff, Matthew, Wells, Reimer, Aleisha. Genomic Address Service: Convenient package for de novo clustering and sample assignment to existing clusters. 2023. [https://github.com/phac-nml/genomic_address_service](https://github.com/phac-nml/genomic_address_service)
 
 ## Contact
 
@@ -161,6 +161,7 @@ There are a number of arguments that are specific for each command. They can be 
 ## Configuration and Settings
 
 Thresholds must be configured when using GAS. These threshold must be determined manually through testing and establishment of practical criteria for each pathogen of interest. 
+They must be in descending order only. 10,5,0 is valid but 0,5,10 is not.
 
 For instance, in PulseNet Canada they have determined the use of '10,5,0' to be the threshold of choice for their pathogen surveillance program. [Publication on going]
 
@@ -181,6 +182,24 @@ GAS mcluster accepts square distance matrices of the following format:
 
 - Distance matrix units can be of float, or integer type with the constrain that the diagonal must be 0 and the first line must be a header with all of the samples
 
+Gas call accepts molten format:
+
+"molten" or long-format output consists of 3-column, tab-delimited table (Query, Ref, Distance) where each row represents a unique pairwise comparison. 
+Molten Format Structure:
+Column 1 (Query): Name of the first sequence/genome.
+Column 2 (Ref): Name of the second sequence/genome.
+Column 3 (Distance): The calculated numerical distance (integer or float)
+
+| query  | ref  | dist  |
+| --- | --- | --- |
+| S1  | S1   | 0   |
+| S1  | S2   | 0   |
+| S1  | S3   | 3   |
+| S1  | S4   | 3   |
+| S1  | S5   | 9   |
+| S1  | S6   | 9   |
+
+
 ## Output/Results
 
 ```
@@ -193,12 +212,66 @@ GAS mcluster accepts square distance matrices of the following format:
 
 # Troubleshooting and FAQs
 
-1. Mcluster fails due to missing scipy, with the following error:
-```
-import scipy
-ModuleNotFoundError: No module named 'scipy'
-```
-- This dependency is currently missing in the pip install. Use the following command to install scipy separately: `pip install scipy`
+## 1. Assignment behavior
+
+| Method | Behavior | Module |
+| --------- | ---------- | ----------- |
+| single linkage |	join samples if the sample has a distance <= threshold to ANY other members of the cluster| mcluster, call |
+|complete	| join samples if the sample has a distance <= threshold to ALL of the other members of the cluster| mcluster, call |
+|average | join samples if on AVERAGE the sample has a distance <= threshold to the other members of the cluster| mcluster, call |
+|majority | 	join samples if  >= 60% of the samples have a distance <= threshold to the other members of the cluster | call |
+
+Majority consensus reduces “cluster poisoning” from inclusion of outlier samples which can strongly impact average and complete linkage.
+
+## 2. What if a query is close to multiple clusters when using gas call?
+
+All eligible clusters are considered and a scoring system is applied that prioritizes matching the query to the group with the lowest distances, largest size, and earliest id.
+
+## 3. Why was my sample assigned to a new cluster even though one reference is very close?
+
+In any other linkage method than single linkage, you need to examing the distances to all members within a group. Majority consensus requires support, not just a single close hit.
+If only one reference is near and most others are far, a new cluster is created.
+
+## 4. Are results deterministic?
+
+Yes, if the following are true:
+
+- identical inputs
+
+- identical thresholds
+
+- same GAS version
+
+## 5. Will cluster IDs change if I add new samples in GAS call?
+
+Existing IDs remain stable.
+New samples either:
+
+- join an existing cluster, or
+
+- create a new ID
+
+Clusters are not renumbered.
+
+## 6. Will cluster IDs change if I add new samples in GAS mcluster?
+
+Yes, when additional samples are used as input to de novo clustering you will likely obtain different identifiers for groups. Groups may merge, or split.
+
+## 7. How does GAS fit into pipelines?
+
+Typical order:
+
+- allele / variant calling ( Locidex, SNIPPY or other tool )
+
+- distance matrix / molten format creation ( Profile_dists, cgmlst-dists, snp-dists)
+
+- clustering (reference build) **GAS mcluster**
+
+- incremental calling **GAS Call**
+
+- reporting ( other tools depending on application )
+
+GAS is intended as the assignment engine, not a full workflow manager.
 
 # Benchmarking
 
