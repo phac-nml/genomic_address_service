@@ -1058,6 +1058,12 @@ class assign:
 
             for qid in qids:
                 if qid in base_ref_set:
+                    # If the query is already part of the reference memberships,
+                    # keep the existing address exactly as-is.
+                    #
+                    # This makes assignment deterministic for re-seen samples and
+                    # ensures downstream outputs include an explicit assignment.
+                    pass1[qid] = self.memberships_dict[qid].split(self.delimiter)
                     continue
                 idx = qid_to_idx[qid]
                 addr = self._attach_to_existing_arrays(
