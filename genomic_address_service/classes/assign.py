@@ -10,7 +10,7 @@ import pandas as pd
 
 from genomic_address_service.constants import EXTENSIONS
 from genomic_address_service.utils import is_file_ok
-from reader import DistChunk, dist_reader  # uses the updated reader.py
+from genomic_address_service.classes.reader import DistChunk, dist_reader  # uses the updated reader.py
 
 
 try:
