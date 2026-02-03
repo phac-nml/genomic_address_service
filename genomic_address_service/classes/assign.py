@@ -269,11 +269,10 @@ class assign:
         batch_size: int,
         delimiter: str,
         marjority_fraction: float = 0.6,
-        status: bool = True,
     ) -> None:
         self.dist_file = dist_file
         self.batch_size = batch_size
-
+        self.status = True
         self.threshold_map = dict(threshold_map)
         self.rank_ids: List[str] = list(self.threshold_map.keys())
         self.thresholds: np.ndarray = np.array(
