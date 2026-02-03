@@ -1055,14 +1055,9 @@ class assign:
 
             pass1: Dict[str, List[str]] = {}
             unassigned: List[str] = []
-
+            print(base_ref_set)
             for qid in qids:
                 if qid in base_ref_set:
-                    # If the query is already part of the reference memberships,
-                    # keep the existing address exactly as-is.
-                    #
-                    # This makes assignment deterministic for re-seen samples and
-                    # ensures downstream outputs include an explicit assignment.
                     pass1[qid] = self.memberships_dict[qid].split(self.delimiter)
                     continue
                 idx = qid_to_idx[qid]
