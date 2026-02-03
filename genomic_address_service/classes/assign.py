@@ -269,6 +269,7 @@ class assign:
         batch_size: int,
         delimiter: str,
         marjority_fraction: float = 0.6,
+        status: bool = True,
     ) -> None:
         self.dist_file = dist_file
         self.batch_size = batch_size
@@ -313,13 +314,16 @@ class assign:
         }
 
         if not is_file_ok(dist_file):
+            self.status = False
             raise FileNotFoundError(f"Distance file missing/empty: {dist_file}")
         if not is_file_ok(membership_file):
+            self.status = False
             raise FileNotFoundError(f"Membership file missing/empty: {membership_file}")
 
         df = self._read_membership(membership_file)
         cols = df.columns.values.tolist()
         if sample_col not in cols or address_col not in cols:
+            self.status = False
             raise ValueError(f"Membership must include {sample_col} and {address_col}; got {cols}")
 
         addr_map = df[[sample_col, address_col]].set_index(sample_col).to_dict()[address_col]
@@ -339,6 +343,7 @@ class assign:
         extension = os.path.splitext(f)[1]
         valid_extensions = list(EXTENSIONS.keys())
         if extension not in valid_extensions:
+            self.status = False
             raise ValueError(f"{f} has invalid extension {extension}; expected one of {valid_extensions}")
 
     def _read_membership(self, f: str) -> pd.DataFrame:
@@ -385,15 +390,18 @@ class assign:
     def _raise_membership_errors(self) -> None:
         """Raise if membership addresses could not be parsed."""
         if self.error_samples[self.ERROR_MISSING_DELIMITER]:
+            self.status = False
             raise ValueError(
                 f"{self.ERROR_MISSING_DELIMITER}: {self.error_samples[self.ERROR_MISSING_DELIMITER]}"
             )
         if self.error_samples[self.ERROR_LENGTH]:
+            self.status = False
             raise ValueError(
                 f"{self.ERROR_LENGTH}: {self.error_samples[self.ERROR_LENGTH]} "
                 f"(expected {self.n_ranks} ranks)"
             )
         if self.error_samples[self.ERROR_NON_INTEGER]:
+            self.status = False
             raise ValueError(
                 f"{self.ERROR_NON_INTEGER}: {self.error_samples[self.ERROR_NON_INTEGER]}"
             )
@@ -623,8 +631,7 @@ class assign:
         if eligible_ids.size == 0:
             return None
 
-        # Build maps from id->index in stats arrays
-        # Eligible ids are subset of stats.ids.
+
         id_to_pos = {int(cid): i for i, cid in enumerate(stats.ids.tolist())}
 
         # Score and tie-break
@@ -643,12 +650,6 @@ class assign:
             mean_d = float(stats.sums[pos] / max(count, 1.0))
             min_d = float(stats.mins[pos])
 
-            # last token: decode prefix string at current rank (we can infer rank from prefix itself)
-            # Use finest-rank mapping for decoding; prefix id namespace is per-rank,
-            # so we must decode using the rank where this cid belongs.
-            # In pass1, we are at finest-rank initially; after aggregation, we keep rank-specific IDs.
-            # This function is used per-rank with rank-specific ids, so caller must supply decoder.
-            # We'll let caller handle decoding via a closure; here we provide a placeholder.
             last_tok = 0
 
             size_term = -math.log(max(count, 1.0) + eps)
