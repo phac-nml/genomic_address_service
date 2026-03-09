@@ -6,7 +6,7 @@ from argparse import (ArgumentParser, ArgumentDefaultsHelpFormatter, RawDescript
 from genomic_address_service.version import __version__
 from genomic_address_service.constants import EXTENSIONS, CLUSTER_METHODS, build_call_run_data
 from genomic_address_service.utils import is_file_ok, write_threshold_map, write_cluster_assignments, \
-init_threshold_map, process_thresholds, has_valid_header_pairwise_distances, has_valid_header_cluster
+init_threshold_map
 from genomic_address_service.classes.assign import assign
 
 def parse_args():
