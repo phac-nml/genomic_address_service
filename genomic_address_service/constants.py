@@ -12,7 +12,7 @@ PD_HEADER = [
 ]
 
 MIN_FILE_SIZE = 32
-CLUSTER_METHODS = ['average','complete','single']
+CLUSTER_METHODS = ['average','complete','single','majority']
 
 def build_mc_run_data():
     run_data = {

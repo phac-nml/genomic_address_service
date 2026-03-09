@@ -44,7 +44,74 @@ A number of different software/pipelines have been published to address the issu
 
 Within our public health partners, there is a need for a clustering service which can perform de novo clustering based on average, complete, and single linkage that can then be partitioned into clusters based on multiple thresholds. Additionally, there is a need to assign new samples into an existing clustering to provide stable nomenclature for communication between different partners and stakeholders. To address needs of users within our team we have designed an integrated solution for calculating distance matrices and querying genetically similar samples, within a defined threshold, to support outbreak and surveillance activities. It is implemented in pure python and currently is only available in a single threaded version but later refinements may include the support for multiprocessing. To facilitate integration of the tool into larger workflows it will also be implemented as a nextflow workflow.
 
-## mcluster
+
+# Linkage Methods
+
+The de novo (mcluster) and cluster assignment (call) logic supports multiple linkage strategies for determining whether samples group together at a given threshold.
+
+## Single Linkage
+
+Criteria: Attachment is permitted if any one pairwise comparison satisfies the threshold.
+
+Availability: De novo Clustering, Assignment
+
+Risk: Over merging
+
+Characteristics:
+  - Computationally simple
+  - High sensitivity
+  - Most permissive
+  - Produces elongated “chained” clusters (chaining artifacts)
+  - Highly sensitive to bridge samples
+  - Within cluster pairwise distances can grow well beyond threshold
+
+## Complete Linkage
+
+Criteria: All pairwise distances must satisfy the threshold.
+
+Availability: De novo Clustering, Assignment
+
+Risk: Over splitting
+
+Characteristics:
+  - Most conservative
+  - Produces compact, tight clusters
+  - Sensitive to minor variation
+  - Guarantees internal maximum distance are less than, equal to the threshold
+  - Creates many small clusters
+
+## Average Linkage
+
+Criteria: On average the pair-wise distances satisfies the threshold
+
+Availability: De novo Clustering, Assignment
+
+Risk: Internal cluster distance drift
+
+Characteristics:
+  - Balances permissiveness and compactness: More stable than single linkage, Less fragmentation than complete linkage
+  - Less sensitive to single outliers
+  - General-purpose clustering where both sensitivity and cohesion matter.
+  - Within cluster pairwise distances can grow beyond threshold
+
+
+## Majority consensuse
+
+Criteria: Attachment requires broad support across the cluster rather than a single minimal connection.
+
+Availability: Assignment only
+
+Risk: Sensitive to cluster membership size, with concentration of votes in smaller clusters
+
+Characteristics:
+  - Interpretable as a voting system
+  - Robust to outliers
+  - Mitigates chaining
+  - General-purpose clustering where both sensitivity and cohesion matter.
+  - Within cluster pairwise distances can grow beyond threshold
+
+
+## GAS mcluster
 This module performs de novo clustering on a square distance matrix and a set of user defined thresholds to produce a set of flat clustering
 and a newick formatted dendrogram for viewing by external programs. GAS is designed to work in conjunction with [profile_dists ](https://github.com/phac-nml/profile_dists) which is a fast and easy way to produce square distance matricies and three column pairwise comparison
 (query_id, ref_id, distance) using allele profile format but can work on snp tables as well.
@@ -65,7 +132,7 @@ OR
 
 
 
-## call
+## GAS call
 
 This module performs assignment of new samples into an existing clustering which will preserve the existing cluster designations. It is important to not have sample name collisons (repeated sample id's) as these will be rejected from being processed. This includes id's duplicated between reference and query sets. The call module accepts a pair-wise distance formatted file where the set of queries are run against a database which includes themselves.  Otherwise, the samples which are contained in the query and are meant to cluster together will not because there is no distance by which to group them. The clusters file must contain a column for each level of theshold supplied but they do not have to be named in the format that mcluster provides (level_1,..level_n). For example, clusters could be named (A,..,Z).
 
@@ -93,10 +160,46 @@ OR
 
 ```
 
+### Incremental assignment logic (GAS call)
+The incremental clustering assignment workflow within the ‘call’ module employs a group-constrained hierarchical strategy. In the previous strategy, samples were first evaluated independently against existing labels which could result in splitting query samples which could group together. To prevent this the algorithm has been updated so that, new samples are first evaluated as a set, and any subset of new samples that cluster together at a given threshold must move through the hierarchy together. This constraint only applies to new samples whereas existing samples retain their previously assigned address.  This makes incremental assignment more structurally consistent and more aligned with the idea that samples which cluster together at a threshold should receive a shared decision at that threshold.
+
+#### Assignment logic  (GAS call)
+At each nomenclature rank / threshold:
+1.	New samples are de novo clustered among themselves using the configured linkage method and the threshold for that rank.
+2.	Each resulting connected component is treated as a single assignment unit.
+3.	That component must then do one of two things:
+    -	attach to one nomenclature cluster id at that rank as a group, or
+    - found one new shared cluster id at that rank
+4.	Once a component receives a cluster id at a rank, all of its member samples inherit that same prefix before continuing to the next rank.
+This prevents new samples that clearly cluster together from being split across multiple existing labels at the same threshold.
+
+<b>Benefits</b>
+  -	Preserves coherence for newly arriving groups of related samples
+  -	Prevents splitting of similar query samples  across multiple existing labels at the same threshold
+•	Produces more stable and easier-to-interpret hierarchical labels
+
+<b>Trade-offs</b>
+  - More conservative than independent per-sample attachment
+  - A whole component may found a new label even when some individual members could have attached to different existing prefixes on their own
+
+#### Choosing an existing cluster label  (GAS call)
+For each set of new samples, the program pools all distances from all samples in that set  to eligible existing references at the current rank. It then builds summary statistics for all existing cluster id’s and determines which existing labels are eligible under the configured linkage rule. If no eligible label exists, the component founds a new one. If multiple existing labels are eligible, the program chooses a single best one for the entire query set using a deterministic score based on:
+  1. mean distance to the prefix
+  2. minimum distance to the prefix
+  3. mild preference for larger supporting groups
+  4. tie-break using the numeric suffix of the prefix label (preference for smallest)
+
+#### Founding a new cluster label  (GAS call)
+If a clustered query set cannot be assigned to any existing eligible label at the current rank, it founds a new prefix:
+  1. At rank 0, a new top-level label is created.
+  2. At deeper ranks, a new child label is created under the already assigned parent prefix.
+  3. The new label is registered as the next highest integer available for the target rank i.e if existing labels are 1,2,4 the new label would be 5.
+
+
 
 ## Citation
 
-Robertson, James, Kyrylo Bessonov, Aaron Petkau, Eric Mariner, Christy-Lynn Peterson, Schonfeld, Justin, Steven Sutcliff, Matthew, Wells, Reimer, Aleisha. Genomic Address Service: Convenient package for de novo clustering and sample assignment to existing clusters. 2023. [https://github.com/phac-nml/genomic_address_service](https://github.com/phac-nml/genomic_address_service)
+Robertson, James, Wells, Matthew, Schonfeld, Justin, Reimer, Aleisha. Genomic Address Service: Convenient package for de novo clustering and sample assignment to existing clusters. 2023. [https://github.com/phac-nml/genomic_address_service](https://github.com/phac-nml/genomic_address_service)
 
 ## Contact
 
@@ -161,7 +264,6 @@ There are a number of arguments that are specific for each command. They can be 
 ## Configuration and Settings
 
 Thresholds must be configured when using GAS. These threshold must be determined manually through testing and establishment of practical criteria for each pathogen of interest. 
-They must be in descending order only. 10,5,0 is valid but 0,5,10 is not.
 
 For instance, in PulseNet Canada they have determined the use of '10,5,0' to be the threshold of choice for their pathogen surveillance program. [Publication on going]
 
@@ -182,24 +284,6 @@ GAS mcluster accepts square distance matrices of the following format:
 
 - Distance matrix units can be of float, or integer type with the constrain that the diagonal must be 0 and the first line must be a header with all of the samples
 
-Gas call accepts molten format:
-
-"molten" or long-format output consists of 3-column, tab-delimited table (Query, Ref, Distance) where each row represents a unique pairwise comparison. 
-Molten Format Structure:
-Column 1 (Query): Name of the first sequence/genome.
-Column 2 (Ref): Name of the second sequence/genome.
-Column 3 (Distance): The calculated numerical distance (integer or float)
-
-| query  | ref  | dist  |
-| --- | --- | --- |
-| S1  | S1   | 0   |
-| S1  | S2   | 0   |
-| S1  | S3   | 3   |
-| S1  | S4   | 3   |
-| S1  | S5   | 9   |
-| S1  | S6   | 9   |
-
-
 ## Output/Results
 
 ```
@@ -210,68 +294,15 @@ Column 3 (Distance): The calculated numerical distance (integer or float)
 └── run.json - Contains logging information for the run including parameters, newick tree, and threshold mapping info
 ```
 
+
 # Troubleshooting and FAQs
 
-## 1. Assignment behavior
-
-| Method | Behavior | Module |
-| --------- | ---------- | ----------- |
-| single linkage |	join samples if the sample has a distance <= threshold to ANY other members of the cluster| mcluster, call |
-|complete	| join samples if the sample has a distance <= threshold to ALL of the other members of the cluster| mcluster, call |
-|average | join samples if on AVERAGE the sample has a distance <= threshold to the other members of the cluster| mcluster, call |
-|majority | 	join samples if  >= 60% of the samples have a distance <= threshold to the other members of the cluster | call |
-
-Majority consensus reduces “cluster poisoning” from inclusion of outlier samples which can strongly impact average and complete linkage.
-
-## 2. What if a query is close to multiple clusters when using gas call?
-
-All eligible clusters are considered and a scoring system is applied that prioritizes matching the query to the group with the lowest distances, largest size, and earliest id.
-
-## 3. Why was my sample assigned to a new cluster even though one reference is very close?
-
-In any other linkage method than single linkage, you need to examing the distances to all members within a group. Majority consensus requires support, not just a single close hit.
-If only one reference is near and most others are far, a new cluster is created.
-
-## 4. Are results deterministic?
-
-Yes, if the following are true:
-
-- identical inputs
-
-- identical thresholds
-
-- same GAS version
-
-## 5. Will cluster IDs change if I add new samples in GAS call?
-
-Existing IDs remain stable.
-New samples either:
-
-- join an existing cluster, or
-
-- create a new ID
-
-Clusters are not renumbered.
-
-## 6. Will cluster IDs change if I add new samples in GAS mcluster?
-
-Yes, when additional samples are used as input to de novo clustering you will likely obtain different identifiers for groups. Groups may merge, or split.
-
-## 7. How does GAS fit into pipelines?
-
-Typical order:
-
-- allele / variant calling ( Locidex, SNIPPY or other tool )
-
-- distance matrix / molten format creation ( Profile_dists, cgmlst-dists, snp-dists)
-
-- clustering (reference build) **GAS mcluster**
-
-- incremental calling **GAS Call**
-
-- reporting ( other tools depending on application )
-
-GAS is intended as the assignment engine, not a full workflow manager.
+1. Mcluster fails due to missing scipy, with the following error:
+```
+import scipy
+ModuleNotFoundError: No module named 'scipy'
+```
+- This dependency is currently missing in the pip install. Use the following command to install scipy separately: `pip install scipy`
 
 # Benchmarking
 

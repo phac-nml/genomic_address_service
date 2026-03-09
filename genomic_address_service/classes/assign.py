@@ -1030,14 +1030,234 @@ class assign:
 
         return out
 
+    def _build_component_stats(
+        self,
+        component_qids: Sequence[str],
+        chunk: DistChunk,
+        qid_to_idx: Dict[str, int],
+        base_ref_set: set[str],
+        rank_idx: int,
+        parent_pid: Optional[int],
+    ) -> Optional[ClusterStatsArray]:
+        """Build pooled per-prefix stats for a component of new samples."""
+        cids: List[int] = []
+        cdists: List[np.float32] = []
+        spids = self.sample_prefix_ids
+
+        for qid in component_qids:
+            idx = qid_to_idx.get(qid)
+            if idx is None:
+                continue
+            rid_ids = chunk.rids[idx]
+            dists = chunk.dists[idx]
+            for i in range(rid_ids.shape[0]):
+                rid = rid_ids[i]
+                if rid not in base_ref_set:
+                    continue
+                rpids = spids.get(rid)
+                if rpids is None:
+                    continue
+                if parent_pid is not None and int(rpids[rank_idx - 1]) != int(parent_pid):
+                    continue
+                cids.append(int(rpids[rank_idx]))
+                cdists.append(np.float32(dists[i]))
+
+        if not cids:
+            return None
+
+        cids_arr = np.asarray(cids, dtype=np.int64)
+        cdists_arr = np.asarray(cdists, dtype=np.float32)
+        order = np.argsort(cids_arr)
+        cids_s = cids_arr[order]
+        d_s = cdists_arr[order]
+
+        if _HAVE_NUMBA:
+            ids, counts, sums, mins, maxs, matched, _ = reduce_clusters_sorted(
+                cids_s, d_s, self.thresholds
+            )
+        else:
+            ids, counts, sums, mins, maxs, matched, _ = _reduce_clusters_sorted_fallback(
+                cids_s, d_s, self.thresholds
+            )
+
+        return ClusterStatsArray(
+            ids=ids,
+            counts=counts,
+            sums=sums,
+            mins=mins,
+            maxs=maxs,
+            matched=matched,
+        )
+
+    def _choose_existing_prefix_for_component(
+        self,
+        component_qids: Sequence[str],
+        chunk: DistChunk,
+        qid_to_idx: Dict[str, int],
+        base_ref_set: set[str],
+        rank_idx: int,
+        parent_pid: Optional[int],
+    ) -> Optional[int]:
+        """
+        Choose a single existing prefix for an entire new-sample component.
+
+        If no single existing prefix is eligible for the whole component,
+        return None so the component founds a new prefix at this rank.
+        """
+        stats = self._build_component_stats(
+            component_qids=component_qids,
+            chunk=chunk,
+            qid_to_idx=qid_to_idx,
+            base_ref_set=base_ref_set,
+            rank_idx=rank_idx,
+            parent_pid=parent_pid,
+        )
+        if stats is None or stats.ids.size == 0:
+            return None
+
+        thr = float(self.thresholds[rank_idx])
+        mask = self._eligible_array(
+            self.linkage_method,
+            stats,
+            rank_idx,
+            thr,
+            self.majority_fraction,
+        )
+        eligible_ids = stats.ids[mask]
+        if eligible_ids.size == 0:
+            return None
+
+        id_to_pos = {int(cid): i for i, cid in enumerate(stats.ids.tolist())}
+        best: Optional[Tuple[float, int, int]] = None
+        for cid in eligible_ids.tolist():
+            cid_i = int(cid)
+            pos = id_to_pos[cid_i]
+            count = float(stats.counts[pos])
+            if count <= 0:
+                continue
+            mean_d = float(stats.sums[pos] / max(count, 1.0))
+            min_d = float(stats.mins[pos])
+            size_term = -math.log(max(count, 1.0) + 1e-12)
+            prefix = self.id_to_prefix[rank_idx][cid_i]
+            try:
+                last_tok = int(prefix.split(self.delimiter)[-1])
+            except Exception:
+                last_tok = 10**18
+            score = (1.0 * mean_d) + (0.5 * min_d) + (0.25 * size_term) + (0.001 * last_tok)
+            cand = (score, last_tok, cid_i)
+            if best is None or cand < best:
+                best = cand
+
+        return None if best is None else best[2]
+
+    def _register_new_prefix(self, rank_idx: int, prefix_tokens: Sequence[str]) -> int:
+        """Register a new prefix before memberships are persisted."""
+        prefix = self.delimiter.join(str(x) for x in prefix_tokens[: rank_idx + 1])
+        pid = self._intern_prefix(rank_idx, prefix)
+        if rank_idx == 0:
+            self.parent_pid[0].setdefault(int(pid), int(pid))
+        else:
+            parent_prefix = self.delimiter.join(str(x) for x in prefix_tokens[:rank_idx])
+            parent = self._intern_prefix(rank_idx - 1, parent_prefix)
+            self.parent_pid[rank_idx].setdefault(int(pid), int(parent))
+        return int(pid)
+
+    def _cluster_new_samples_grouped(
+        self,
+        new_qids: Sequence[str],
+        chunk: DistChunk,
+        qid_to_idx: Dict[str, int],
+    ) -> Dict[str, List[str]]:
+        """
+        Assign new samples with a group-constrained hierarchical strategy.
+
+        At each rank, new samples are first clustered among themselves at that
+        threshold. Every resulting component must either attach to one existing
+        prefix as a group or found one new shared prefix at that rank.
+        """
+        if not new_qids:
+            return {}
+
+        method = self.linkage_method
+        if method == "majority":
+            method = "average"
+
+        base_ref_set = set(self.memberships_dict.keys())
+        addr_map: Dict[str, List[Optional[str]]] = {
+            qid: [None] * self.n_ranks for qid in new_qids
+        }
+        assigned_pids: Dict[int, Dict[str, int]] = {
+            rank_idx: {} for rank_idx in range(self.n_ranks)
+        }
+
+        for rank_idx in range(self.n_ranks):
+            if rank_idx == 0:
+                parent_groups: List[Tuple[Optional[int], List[str]]] = [(None, sorted(new_qids))]
+            else:
+                grouped: Dict[int, List[str]] = {}
+                for qid in new_qids:
+                    parent = assigned_pids[rank_idx - 1][qid]
+                    grouped.setdefault(parent, []).append(qid)
+                parent_groups = [(pid, sorted(members)) for pid, members in grouped.items()]
+                parent_groups.sort(key=lambda item: item[0])
+
+            for parent_pid, members in parent_groups:
+                if len(members) == 1:
+                    components = [members]
+                else:
+                    components = self._cluster_qids_threshold(
+                        qids=members,
+                        chunk=chunk,
+                        qid_to_idx=qid_to_idx,
+                        method=method,
+                        threshold=float(self.thresholds[rank_idx]),
+                    )
+                    components = [sorted(component) for component in components]
+                    components.sort(key=lambda component: min(component))
+
+                for component in components:
+                    chosen_pid = self._choose_existing_prefix_for_component(
+                        component_qids=component,
+                        chunk=chunk,
+                        qid_to_idx=qid_to_idx,
+                        base_ref_set=base_ref_set,
+                        rank_idx=rank_idx,
+                        parent_pid=parent_pid,
+                    )
+
+                    if chosen_pid is not None:
+                        tokens = self.id_to_prefix[rank_idx][chosen_pid].split(self.delimiter)
+                    else:
+                        if rank_idx == 0:
+                            tokens = [str(self.nomenclature_cluster_tracker["level_0"])]
+                            self.nomenclature_cluster_tracker["level_0"] += 1
+                        else:
+                            exemplar = component[0]
+                            tokens = [str(x) for x in addr_map[exemplar][:rank_idx]]
+                            lvl = f"level_{rank_idx}"
+                            tokens.append(str(self.nomenclature_cluster_tracker[lvl]))
+                            self.nomenclature_cluster_tracker[lvl] += 1
+                        chosen_pid = self._register_new_prefix(rank_idx, tokens)
+
+                    for qid in component:
+                        for i, token in enumerate(tokens):
+                            addr_map[qid][i] = str(token)
+                        assigned_pids[rank_idx][qid] = int(chosen_pid)
+
+        out: Dict[str, List[str]] = {}
+        for qid in sorted(new_qids):
+            out[qid] = [str(x) for x in addr_map[qid]]
+        return out
+
     # ----------------------------- main driver --------------------------------
 
-    def cluster_voting(self, n_records: int = 1000, delim: str = "\t") -> None:
+    def cluster_voting(self, n_records: int = 1000, delim: str = "	") -> None:
         """
-        Two-pass assignment per DistChunk.
+        Group-constrained incremental assignment per DistChunk.
 
-        Pass 1: attach to base references (snapshot at chunk start) using Numba reducer.
-        Pass 2: de novo among remaining qids (majority treated as average).
+        At each threshold, new samples are first clustered among themselves.
+        Every resulting component must either assign to one existing prefix as a
+        group or found a new shared prefix.
         """
         reader_obj = dist_reader(f=self.dist_file, n_records=n_records, delim=delim)
 
@@ -1047,39 +1267,27 @@ class assign:
             for q in qids:
                 self.query_labels.add(q)
 
-            # Index mapping for pass 2 pair lookup
             qid_to_idx = {qid: i for i, qid in enumerate(chunk.qids)}
-
-            # Snapshot base refs (deterministic)
             base_ref_set = set(self.memberships_dict.keys())
 
-            pass1: Dict[str, List[str]] = {}
-            unassigned: List[str] = []
-            print(base_ref_set)
+            existing: Dict[str, List[str]] = {}
+            new_qids: List[str] = []
             for qid in qids:
                 if qid in base_ref_set:
-                    pass1[qid] = self.memberships_dict[qid].split(self.delimiter)
-                    continue
-                idx = qid_to_idx[qid]
-                addr = self._attach_to_existing_arrays(
-                    qid=qid,
-                    rid_ids=chunk.rids[idx],
-                    dists=chunk.dists[idx],
-                    base_ref_set=base_ref_set,
-                )
-                if addr is None:
-                    unassigned.append(qid)
+                    existing[qid] = self.memberships_dict[qid].split(self.delimiter)
                 else:
-                    pass1[qid] = addr
+                    new_qids.append(qid)
 
-            pass2: Dict[str, List[str]] = {}
-            if unassigned:
-                pass2 = self._pass2_denovo_assign(unassigned, chunk, qid_to_idx)
+            grouped_assignments = self._cluster_new_samples_grouped(
+                new_qids=new_qids,
+                chunk=chunk,
+                qid_to_idx=qid_to_idx,
+            )
 
-            for qid in sorted(pass1.keys()):
-                self.add_memberships(qid, pass1[qid])
-            for qid in sorted(pass2.keys()):
-                self.add_memberships(qid, pass2[qid])
+            for qid in sorted(existing.keys()):
+                self.add_memberships(qid, existing[qid])
+            for qid in sorted(grouped_assignments.keys()):
+                self.add_memberships(qid, grouped_assignments[qid])
 
     def assign(self, n_records: int = 1000, delim: str = "\t") -> None:
         """Entry point to execute assignment."""
