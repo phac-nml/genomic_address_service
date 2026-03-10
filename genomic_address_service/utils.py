@@ -56,18 +56,25 @@ def write_threshold_map(data,file):
 
     fh.close()
 
-def write_cluster_assignments(file ,memberships, threshold_map, outfmt, delimeter=".", sample_col='id', address_col='address'):
+def write_cluster_assignments(file, memberships, threshold_map, outfmt='text', delimeter='.', sample_col='id', address_col='address'):
     results = {}
     threshold_keys = list(threshold_map.keys())
-    for id in memberships:
-        address = memberships[id]
-        results[id] = {'id':id,'address':address}
-        for idx,value in enumerate(address.split(delimeter)):
-            results[id][threshold_keys[idx]] = value
-    df = pd.DataFrame.from_dict(results,orient='index')
-    df = df[[sample_col,address_col]]
+    for sample_id, address in memberships.items():
+        row = {sample_col: sample_id, address_col: address}
+        for idx, value in enumerate(address.split(delimeter)):
+            row[threshold_keys[idx]] = value
+        results[sample_id] = row
+
+    df = pd.DataFrame.from_dict(results, orient='index')
+
+    if df.columns.duplicated().any():
+        duplicates = df.columns[df.columns.duplicated()].tolist()
+        raise ValueError(f"Duplicate output columns detected: {duplicates}")
+
+    df = df[[sample_col, address_col]]
+
     if outfmt == 'text':
-        df.to_csv(file,header=True,sep="\t",index=False)
+        df.to_csv(file, header=True, sep="\t", index=False)
     else:
         fp.write(file, df, compression='GZIP')
 

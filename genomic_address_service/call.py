@@ -135,7 +135,15 @@ def call(config):
 
     run_data['result_file'] = os.path.join(outdir, "results.text")
 
-    write_cluster_assignments(run_data['result_file'], cluster_assignments, threshold_map, delimiter, sample_col, address_col)
+    write_cluster_assignments(
+        run_data['result_file'],
+        cluster_assignments,
+        threshold_map,
+        outfmt='text',
+        delimeter=delimiter,
+        sample_col=sample_col,
+        address_col=address_col,
+    )
 
     with open(os.path.join(outdir,"run.json"),'w') as fh:
         fh.write(json.dumps(run_data, indent=4))
